@@ -45,6 +45,9 @@ export function getHistoryLocal(appId) {
   return JSON.parse(localStorage.getItem(`history_${appId}`) || "[]");
 }
 
+// alias for simpler imports
+export const getHistory = getHistoryLocal;
+
 export async function share(title, text) {
   if (navigator.share) {
     await navigator.share({ title, text }).catch(() => {});
