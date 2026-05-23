@@ -1,3 +1,4 @@
+'use client';
 import { supabase } from '../../lib/supabase';
 
 export const C = {
