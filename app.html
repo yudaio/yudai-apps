@@ -316,6 +316,10 @@ select option{background:#0f0f1a;}
     <div class="input-group"><label>今最も恐れていること</label><input type="text" id="inp-fear" placeholder="例：このままの自分でいること"/></div>
     <div class="input-group"><label>1年後の目標</label><input type="text" id="inp-goal" placeholder="例：独立する、昇進する"/></div>
   </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px;">
+    <span id="save-indicator" style="font-family:'Orbitron',monospace;font-size:10px;color:var(--green);letter-spacing:2px;opacity:0;transition:opacity .4s;">✓ 保存しました</span>
+    <button onclick="clearInputs()" style="background:transparent;border:none;color:var(--dim);font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;padding:4px 0;text-decoration:underline;">入力データを削除</button>
+  </div>
   <button class="btn-analyze" onclick="analyze()">⚡ ANALYZE — 診断開始 ⚡</button>
 </div>
 
@@ -823,6 +827,70 @@ function analyze(){
 
   updateProUI();
 }
+
+// ===== INPUT AUTO-SAVE =====
+const SAVE_KEY = 'status_reboot_inputs';
+
+const INPUT_IDS = [
+  'inp-name','inp-age','inp-pref','inp-employ','inp-job',
+  'inp-exp','inp-income','inp-changes',
+  'inp-fail','inp-win','inp-fear','inp-goal',
+  's-core','s-comm','s-prob','s-lead','s-learn',
+  's-eng','s-body','s-mind','s-net','s-exec'
+];
+
+function saveInputs() {
+  const data = {};
+  INPUT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  const ind = document.getElementById('save-indicator');
+  if (ind) { ind.style.opacity = '1'; setTimeout(() => ind.style.opacity = '0', 1200); }
+}
+
+function loadInputs() {
+  try {
+    const data = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!data) return;
+    INPUT_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id] !== undefined) {
+        el.value = data[id];
+        // Update range display values
+        if (el.type === 'range') {
+          const displayId = 'v-' + id.replace('s-', '');
+          const disp = document.getElementById(displayId);
+          if (disp) disp.textContent = data[id];
+        }
+      }
+    });
+    const ind = document.getElementById('save-indicator');
+    if (ind) { ind.textContent = '✓ 前回のデータを復元しました'; ind.style.opacity = '1'; setTimeout(() => ind.style.opacity = '0', 2500); }
+  } catch(e) {}
+}
+
+function clearInputs() {
+  if (!confirm('保存されたデータを削除しますか？')) return;
+  localStorage.removeItem(SAVE_KEY);
+  INPUT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else if (el.type === 'range') { el.value = id === 's-eng' ? 3 : 5; const d = document.getElementById('v-' + id.replace('s-','')); if(d) d.textContent = el.value; }
+    else el.value = '';
+  });
+}
+
+// Attach auto-save listeners
+document.addEventListener('DOMContentLoaded', () => {
+  INPUT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', saveInputs);
+  });
+  loadInputs();
+});
 
 // ===== INIT =====
 checkUnlock();
