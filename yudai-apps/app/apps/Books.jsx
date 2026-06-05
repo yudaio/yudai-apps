@@ -33,48 +33,7 @@ const font = {
   sans:   "Inter, system-ui, sans-serif",
 };
 
-/* ─── グローバルスタイル ───────────────────────────── */
-const GlobalStyle = () => (
-  <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
-
-    .books-root * { box-sizing: border-box; }
-    .books-root ::placeholder { color: ${C.inkFaded} !important; opacity: 0.6; }
-    .books-root textarea { resize: vertical; }
-
-    @keyframes page-turn {
-      from { opacity: 0; transform: rotateY(-8deg) translateX(-10px); }
-      to   { opacity: 1; transform: rotateY(0deg) translateX(0); }
-    }
-    @keyframes stamp-in {
-      0%   { transform: scale(1.4) rotate(-3deg); opacity: 0; }
-      60%  { transform: scale(0.95) rotate(-1deg); opacity: 1; }
-      100% { transform: scale(1) rotate(-2deg); opacity: 1; }
-    }
-    .card-enter   { animation: page-turn 0.4s ease forwards; }
-    .stamp-appear { animation: stamp-in 0.3s ease forwards; }
-
-    /* 本棚の背表紙ホバー */
-    .spine-item:hover { transform: translateY(-4px); filter: brightness(1.15); }
-    .spine-item { transition: transform 0.2s, filter 0.2s; cursor: pointer; }
-
-    /* 紙のテクスチャ風グラデーション */
-    .paper-texture {
-      background-image:
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 27px,
-          rgba(139,107,74,0.08) 27px,
-          rgba(139,107,74,0.08) 28px
-        );
-    }
-    /* スクロールバー */
-    .books-root ::-webkit-scrollbar { width: 6px; }
-    .books-root ::-webkit-scrollbar-track { background: ${C.paperDark}; }
-    .books-root ::-webkit-scrollbar-thumb { background: ${C.inkFaded}; border-radius: 3px; }
-  `}</style>
-);
+/* GlobalStyle はlayout.jsxに移動済み */
 
 /* ─── 定数 ─────────────────────────────────────────── */
 const SHELF_KEY = 'bookshelf_v1';
@@ -590,7 +549,6 @@ export default function Books() {
       background: C.wood,
       minHeight: "100vh",
     }}>
-      <GlobalStyle />
 
       {/* 木製本棚の上段 */}
       <WoodDivider />
