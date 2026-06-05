@@ -211,6 +211,9 @@ function CatalogCard({ book, explanation, lang, onNoted }) {
 
   const clean = explanation.replace(/【選択】\d+|\[Index\]\s*\d+/g, '').trim();
   const amazonUrl = `https://www.amazon${lang === 'ja' ? '.co.jp' : '.com'}/s?k=${encodeURIComponent(book.title + ' ' + book.authors)}${lang === 'ja' ? '&tag=yudaiapps-22' : ''}`;
+  const kuUrl = lang === 'ja'
+    ? 'https://www.amazon.co.jp/kindle-dbs/hz/signup?tag=yudaiapps-22'
+    : 'https://www.amazon.com/kindle-dbs/hz/signup';
 
   const handleSave = async (pub) => {
     const entry = {
@@ -334,6 +337,28 @@ function CatalogCard({ book, explanation, lang, onNoted }) {
             lineHeight: 2, whiteSpace: "pre-wrap", fontStyle: "italic",
           }}>{clean}</div>
         </div>
+
+        {/* Kindle Unlimited バナー */}
+        <a href={kuUrl} target="_blank" rel="noopener noreferrer" style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 16px",
+          background: "linear-gradient(135deg, #1A2A1A, #0A1A0A)",
+          borderTop: `1px solid #2A4A2A`,
+          textDecoration: "none",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 18 }}>📱</span>
+            <div>
+              <div style={{ color: "#3AFF8A", fontSize: 12, fontFamily: font.mono, fontWeight: 700 }}>
+                {lang === 'ja' ? 'Kindle Unlimited で読む' : 'Read with Kindle Unlimited'}
+              </div>
+              <div style={{ color: "#4A6A4A", fontSize: 10, fontFamily: font.mono, marginTop: 2 }}>
+                {lang === 'ja' ? '30日間無料 · 月額980円で200万冊以上読み放題' : '30-day free trial · Unlimited reading'}
+              </div>
+            </div>
+          </div>
+          <span style={{ color: "#3AFF8A", fontSize: 11, fontFamily: font.mono }}>→</span>
+        </a>
 
         {/* アクション */}
         <div style={{
