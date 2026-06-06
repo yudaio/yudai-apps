@@ -16,7 +16,8 @@ const APPS = [
   { id:"yamato",  icon:"⛩️", title:"大和魂教育",   sub:"本能と理性を知り、自己を鍛える",  score:88, color:"#C8A84B", tag:"EDU" },
   { id:"biz",     icon:"📄", title:"ビジネス文書", sub:"メール・議事録・提案書を10秒で生成", score:91, color:"#10B981", tag:"PRO" },
   { id:"side",    icon:"💰", title:"副業スキル診断",  sub:"あなた専用の収益化ロードマップを生成",    score:94, color:"#F59E0B", tag:"MONEY" },
-  { id:"marry",   icon:"💍", title:"婚活市場価値診断", sub:"スペック分析×戦略レポートで最短ルートへ", score:96, color:"#BE185D", tag:"LOVE" },
+  { id:"marry",    icon:"💍", title:"婚活市場価値診断", sub:"スペック分析×戦略レポートで最短ルートへ", score:96, color:"#BE185D", tag:"LOVE" },
+  { id:"untangle", icon:"🧩", title:"Untangle",        sub:"今を台無しにしている足かせの正体を探る",   score:98, color:"#7C5CFC", tag:"MIND" },
 ];
 
 export default function Hub() {

@@ -1,5 +1,6 @@
 export async function POST(req) {
-  const { system, user, max = 700 } = await req.json();
+  const { system, messages, user, max = 700 } = await req.json();
+  const msgs = messages ?? [{ role: "user", content: user }];
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -11,7 +12,7 @@ export async function POST(req) {
       model: "claude-sonnet-4-20250514",
       max_tokens: max,
       system,
-      messages: [{ role: "user", content: user }],
+      messages: msgs,
     }),
   });
   const data = await res.json();

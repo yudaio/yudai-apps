@@ -11,8 +11,9 @@ import Yamato from '../apps/Yamato';
 import Biz from '../apps/Biz';
 import Side from '../apps/Side';
 import Marry from '../apps/Marry';
+import Untangle from '../apps/Untangle';
 
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle };
 
 export default function AppPage({ params }) {
   const { appId } = params;
