@@ -8,8 +8,9 @@ import Books from '../apps/Books';
 import Rant from '../apps/Rant';
 import Dream from '../apps/Dream';
 import Kokoro from '../apps/Kokoro';
+import Koe from '../apps/Koe';
 
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, kokoro: Kokoro };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, kokoro: Kokoro, koe: Koe };
 
 export default function AppPage({ params }) {
   const { appId } = params;

@@ -14,6 +14,7 @@ const APPS = [
   { id:"rant",    icon:"💢", title:"鬱憤爆発",     sub:"社会問題をAIが3視点で解剖",      score:73, color:"#DC2626", tag:"AI" },
   { id:"dream",   icon:"🌙", title:"夢映像化",     sub:"消えゆく夢を詩的散文に永遠化",   score:80, color:"#0D9488", tag:"AI" },
   { id:"kokoro",  icon:"🪞", title:"内省",         sub:"毎日の記録が自分の地図になる",   score:95, color:"#5B7BFF", tag:"NEW" },
+  { id:"koe",     icon:"🕯️", title:"声の遺産",     sub:"あの人の言葉を、永遠に",          score:97, color:"#C8A84B", tag:"NEW" },
 ];
 
 export default function Hub() {
