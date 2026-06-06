@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Face AI Studio</title>
+<style>
+:root{
+  --bg:#0C0D18;--bg2:#111220;--bg3:#181928;--card:#13142A;
+  --border:#1D1F3A;--border2:#252748;
+  --text:#EAEBFF;--text2:#8890B8;--text3:#454870;
+  --accent:#7C5CFC;--accent2:#F050C8;
+  --grad:linear-gradient(135deg,#7C5CFC 0%,#F050C8 100%);
+  --success:#34D399;--error:#F87171;--warn:#FBBF24;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;font-size:14px;
+  -webkit-font-smoothing:antialiased}
+button{border:none;cursor:pointer;font-family:inherit}
+input,textarea{font-family:inherit;color:inherit}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── Header ── */
+.header{
+  height:56px;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;position:sticky;top:0;z-index:100;
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.logo-icon{width:34px;height:34px;background:var(--grad);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.header-right{display:flex;align-items:center;gap:12px}
+.key-btn{
+  padding:8px 14px;background:var(--card);border:1px solid var(--border2);
+  border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;gap:6px;
+}
+.key-btn:hover{border-color:var(--accent);color:var(--text)}
+
+/* ── Tabs ── */
+.tabs{
+  display:flex;gap:4px;padding:16px 24px 0;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+}
+.tab{
+  padding:10px 20px;border-radius:8px 8px 0 0;font-size:14px;font-weight:500;
+  background:transparent;color:var(--text2);cursor:pointer;
+  border:1px solid transparent;border-bottom:none;transition:all .2s;
+}
+.tab.active{
+  background:var(--bg);color:var(--text);
+  border-color:var(--border);border-bottom:1px solid var(--bg);
+  margin-bottom:-1px;
+}
+.tab:hover:not(.active){color:var(--text)}
+
+/* ── Main layout ── */
+.main{
+  display:flex;gap:0;height:calc(100vh - 105px);overflow:hidden;
+}
+.panel{flex:1;overflow-y:auto;padding:24px}
+.divider{width:1px;background:var(--border);flex-shrink:0}
+.result-panel{
+  width:480px;flex-shrink:0;background:var(--bg2);
+  border-left:1px solid var(--border);display:flex;flex-direction:column;
+}
+
+/* ── Upload area ── */
+.upload-zone{
+  border:2px dashed var(--border2);border-radius:14px;
+  padding:32px 24px;text-align:center;cursor:pointer;
+  transition:all .2s;background:var(--card);position:relative;
+  overflow:hidden;
+}
+.upload-zone:hover,.upload-zone.drag{
+  border-color:var(--accent);background:rgba(124,92,252,0.05);
+}
+.upload-zone input{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.upload-icon{font-size:40px;margin-bottom:12px;display:block}
+.upload-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.upload-sub{font-size:12px;color:var(--text2)}
+.preview-img{
+  max-width:100%;max-height:280px;border-radius:10px;
+  object-fit:contain;display:block;margin:0 auto;
+}
+.preview-video{
+  max-width:100%;max-height:280px;border-radius:10px;
+  display:block;margin:0 auto;
+}
+.clear-btn{
+  position:absolute;top:10px;right:10px;width:28px;height:28px;
+  border-radius:50%;background:rgba(0,0,0,0.7);color:#fff;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  z-index:10;cursor:pointer;
+}
+
+/* ── Section heading ── */
+.section{margin-bottom:20px}
+.section-label{
+  font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--text2);margin-bottom:10px;
+}
+
+/* ── Expression buttons ── */
+.expr-grid{display:flex;flex-wrap:wrap;gap:8px}
+.expr-btn{
+  padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;
+  background:var(--card);border:1.5px solid var(--border2);
+  color:var(--text2);transition:all .2s;
+}
+.expr-btn:hover{border-color:var(--accent);color:var(--text)}
+.expr-btn.active{
+  background:rgba(124,92,252,0.15);border-color:var(--accent);color:var(--text);
+}
+
+/* ── Intensity slider ── */
+.slider-row{display:flex;align-items:center;gap:12px}
+.slider-row label{font-size:12px;color:var(--text2);min-width:32px}
+input[type=range]{
+  flex:1;-webkit-appearance:none;height:4px;
+  background:var(--border2);border-radius:2px;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--accent);cursor:pointer;
+}
+.slider-val{
+  font-size:12px;color:var(--text);min-width:30px;text-align:right;
+  font-weight:600;
+}
+
+/* ── Generate button ── */
+.gen-btn{
+  width:100%;height:52px;border-radius:12px;font-size:15px;font-weight:700;
+  background:var(--grad);color:#fff;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:20px;
+}
+.gen-btn:hover{opacity:.9;transform:translateY(-1px)}
+.gen-btn:disabled{opacity:.5;transform:none;cursor:not-allowed}
+
+/* ── Progress ── */
+.progress-bar{
+  height:3px;background:var(--border);overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:var(--grad);width:0%;
+  transition:width .3s;
+}
+.progress-text{
+  font-size:12px;color:var(--text2);text-align:center;
+  padding:10px;
+}
+
+/* ── Result ── */
+.result-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  font-size:13px;font-weight:600;display:flex;align-items:center;
+  justify-content:space-between;
+}
+.result-body{
+  flex:1;overflow-y:auto;padding:20px;
+  display:flex;align-items:center;justify-content:center;
+}
+.result-empty{text-align:center;color:var(--text3)}
+.result-empty-icon{font-size:48px;margin-bottom:12px}
+.result-img{
+  max-width:100%;max-height:100%;border-radius:12px;
+  object-fit:contain;display:block;
+}
+.result-video{
+  max-width:100%;border-radius:12px;
+  display:block;
+}
+.result-footer{
+  padding:12px 20px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;
+}
+.timing{font-size:11px;color:var(--text2)}
+.dl-btn{
+  padding:8px 16px;border-radius:8px;background:var(--grad);
+  color:#fff;font-size:13px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+}
+
+/* ── HF token note ── */
+.note{
+  background:rgba(124,92,252,0.08);border:1px solid rgba(124,92,252,0.2);
+  border-radius:10px;padding:12px 16px;font-size:12px;color:var(--text2);
+  line-height:1.6;margin-top:12px;
+}
+.note a{color:var(--accent);text-decoration:underline}
+
+/* ── Modal ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;
+  display:none;align-items:center;justify-content:center;
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:16px;
+  padding:28px;width:440px;max-width:90vw;
+}
+.modal h3{font-size:16px;margin-bottom:20px}
+.mf-row{margin-bottom:16px}
+.mf-lbl{font-size:12px;color:var(--text2);margin-bottom:6px}
+.mf-in{
+  width:100%;padding:10px 12px;background:var(--bg3);
+  border:1px solid var(--border2);border-radius:8px;
+  font-size:13px;color:var(--text);outline:none;
+}
+.mf-in:focus{border-color:var(--accent)}
+.mf-hint{font-size:11px;color:var(--text3);margin-top:4px}
+.mf-hint a{color:var(--accent)}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.modal-save{
+  flex:1;padding:10px;border-radius:8px;background:var(--grad);
+  color:#fff;font-weight:600;cursor:pointer;
+}
+.modal-cancel{
+  padding:10px 18px;border-radius:8px;background:var(--card);
+  border:1px solid var(--border2);color:var(--text2);cursor:pointer;
+}
+
+/* ── Toast ── */
+.toasts{
+  position:fixed;bottom:24px;right:24px;z-index:2000;
+  display:flex;flex-direction:column;gap:8px;
+}
+.toast{
+  padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;
+  animation:slideIn .25s ease;max-width:400px;line-height:1.4;
+}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.error{background:#3B1010;border:1px solid #F87171;color:#FCA5A5}
+.toast.success{background:#0B3020;border:1px solid #34D399;color:#6EE7B7}
+.toast.warn{background:#2C1F00;border:1px solid #FBBF24;color:#FDE68A}
+
+/* ── Tab pages ── */
+.tabpage{display:none}
+.tabpage.active{display:flex;height:100%}
+
+/* ── Status badge ── */
+.status-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;
+}
+.badge-ok{background:rgba(52,211,153,.12);color:#34D399}
+.badge-warn{background:rgba(251,191,36,.12);color:#FBBF24}
+.badge-err{background:rgba(248,113,113,.12);color:#F87171}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🎭</div>
+    <span>Face AI Studio</span>
+  </div>
+  <div class="header-right">
+    <div id="exprModelStatus" class="status-badge badge-warn">🤖 モデル確認中...</div>
+    <div class="status-badge badge-ok" style="font-size:11px">🔒 完全ローカル</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('expr',this)">😊 表情変換</button>
+  <button class="tab" onclick="switchTab('faceswap',this)">🔄 顔入れ替え（画像）</button>
+  <button class="tab" onclick="switchTab('deepfake',this)">🎬 DeepFake動画</button>
+</div>
+
+<!-- ════════════ 表情変換タブ ════════════ -->
+<div class="tabpage active" id="tab-expr">
+  <div class="main">
+    <div class="panel">
+
+      <!-- 元画像 -->
+      <div class="section">
+        <div class="section-label">📸 変換する顔写真</div>
+        <div class="upload-zone" id="exprZone">
+          <input type="file" accept="image/*" id="exprFile" onchange="loadImage('exprFile','exprPreview','exprZone')">
+          <span id="exprPreviewWrap">
+            <span class="upload-icon">🖼️</span>
+            <div class="upload-title">画像をドロップまたはクリック</div>
+            <div class="upload-sub">JPG / PNG / WEBP</div>
+          </span>
+          <img id="exprPreview" class="preview-img" style="display:none">
+          <span class="clear-btn" id="exprClear" style="display:none" onclick="clearImage('expr')">✕</span>
+        </div>
+      </div>
+
+      <!-- 表情選択 -->
+      <div class="section">
+        <div class="section-label">表情を選択</div>
+        <div class="expr-grid">
+          <button class="expr-btn active" data-expr="smiling warmly" onclick="selectExpr(this)">😊 笑顔</button>
+          <button class="expr-btn" data-expr="big laugh, teeth showing" onclick="selectExpr(this)">😄 大笑い</button>
+          <button class="expr-btn" data-expr="serious, neutral expression" onclick="selectExpr(this)">😐 真剣</button>
+          <button class="expr-btn" data-expr="surprised, wide eyes" onclick="selectExpr(this)">😮 驚き</button>
+          <button class="expr-btn" data-expr="sad, slightly frowning" onclick="selectExpr(this)">😢 悲しみ</button>
+          <button class="expr-btn" data-expr="angry, furrowed brows" onclick="selectExpr(this)">😠 怒り</button>
+          <button class="expr-btn" data-expr="eyes closed, relaxed" onclick="selectExpr(this)">😌 目閉じ</button>
+          <button class="expr-btn" data-expr="winking" onclick="selectExpr(this)">😉 ウィンク</button>
+          <button class="expr-btn" data-expr="ahegao expression: eyes rolled back showing whites, tongue sticking out, flushed red cheeks, ecstatic open mouth" onclick="selectExpr(this)">😵 アへ顔</button>
+        </div>
+      </div>
+
+      <!-- 変換強度 -->
+      <div class="section">
+        <div class="section-label">変換強度（低いほど元画像に忠実）</div>
+        <div class="slider-row">
+          <label>弱</label>
+          <input type="range" id="exprStrength" min="0.20" max="0.60" step="0.05" value="0.35"
+            oninput="document.getElementById('exprStrengthVal').textContent=Math.round(this.value*100)+'%'">
+          <label>強</label>
+          <span class="slider-val" id="exprStrengthVal">35%</span>
+        </div>
+      </div>
+
+      <!-- 生成ボタン -->
+      <button class="gen-btn" id="exprBtn" onclick="runExprChange()">
+        ✨ 表情を変換
+      </button>
+
+      <div class="note">
+        🔒 <strong>完全ローカル処理</strong> — 画像はどこにも送信されません。<br>
+        InstructPix2Pix が PC 上で動作します（初回のみ約5GBのモデルDL）。<br>
+        ⚠️ CPU動作のため <strong>5〜15分</strong> かかります。GPUなし環境では時間に余裕を持って実行してください。<br>
+        モデル状態: <span id="exprModelNote" class="status-badge badge-warn">確認中...</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 結果パネル -->
+    <div class="result-panel">
+      <div class="result-header">
+        <span>🖼️ 変換結果</span>
+        <span id="exprTiming" class="timing"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="exprProgress"></div></div>
+      <div class="progress-text" id="exprProgressText" style="display:none"></div>
+      <div class="result-body" id="exprResultBody">
+        <div class="result-empty">
+          <div class="result-empty-icon">😊</div>
+          <div>変換後の画像がここに表示されます</div>
+        </div>
+      </div>
+      <div class="result-footer">
+        <span></span>
+        <button class="dl-btn" id="exprDl" style="display:none" onclick="downloadResult('exprResultImg','expression')">
+          ⬇️ ダウンロード
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 顔入れ替え（画像）タブ ════════════ -->
+<div class="tabpage" id="tab-faceswap">
+  <div class="main">
+    <div class="panel">
+
+      <!-- ソース顔 -->
+      <div class="section">
+        <div class="section-label">👤 入れる顔（ソース）</div>
+        <div class="upload-zone" id="fsSourceZone">
+          <input type="file" accept="image/*" id="fsSourceFile" onchange="loadImage('fsSourceFile','fsSourcePreview','fsSourceZone')">
+          <span id="fsSourcePreviewWrap">
+            <span class="upload-icon">👤</span>
+            <div class="upload-title">顔写真をドロップまたはクリック</div>
+            <div class="upload-sub">正面顔が最適</div>
+          </span>
+          <img id="fsSourcePreview" class="preview-img" style="display:none">
+          <span class="clear-btn" id="fsSourceClear" style="display:none" onclick="clearImage('fsSource')">✕</span>
+        </div>
+      </div>
+
+      <!-- ターゲット画像 -->
+      <div class="section">
+        <div class="section-label">🖼️ 入れ替え先の画像（ターゲット）</div>
+        <div class="upload-zone" id="fsTargetZone">
+          <input type="file" accept="image/*" id="fsTargetFile" onchange="loadImage('fsTargetFile','fsTargetPreview','fsTargetZone')">
+          <span id="fsTargetPreviewWrap">
+            <span class="upload-icon">🖼️</span>
+            <div class="upload-title">画像をドロップまたはクリック</div>
+            <div class="upload-sub">顔が映っている画像</div>
+          </span>
+          <img id="fsTargetPreview" class="preview-img" style="display:none">
+          <span class="clear-btn" id="fsTargetClear" style="display:none" onclick="clearImage('fsTarget')">✕</span>
+        </div>
+      </div>
+
+      <button class="gen-btn" id="fsBtn" onclick="runFaceSwapImage()">
+        🔄 顔を入れ替える
+      </button>
+
+      <div class="note">
+        💡 <strong>insightface</strong> が必要です（DeepFake動画と共通）。<br>
+        <code style="background:rgba(255,255,255,.06);padding:3px 6px;border-radius:4px;font-size:11px">pip install insightface onnxruntime opencv-python</code><br>
+        バックエンド状態: <span id="fsStatus" class="status-badge badge-warn">確認中...</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 結果パネル -->
+    <div class="result-panel">
+      <div class="result-header">
+        <span>🖼️ 入れ替え結果</span>
+        <span id="fsTiming" class="timing"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="fsProgress"></div></div>
+      <div class="progress-text" id="fsProgressText" style="display:none"></div>
+      <div class="result-body" id="fsResultBody">
+        <div class="result-empty">
+          <div class="result-empty-icon">🔄</div>
+          <div>顔入れ替え結果がここに表示されます</div>
+        </div>
+      </div>
+      <div class="result-footer">
+        <span></span>
+        <button class="dl-btn" id="fsDl" style="display:none" onclick="downloadFsResult()">
+          ⬇️ ダウンロード
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ DeepFake動画タブ ════════════ -->
+<div class="tabpage" id="tab-deepfake">
+  <div class="main">
+    <div class="panel">
+
+      <!-- ソース顔 -->
+      <div class="section">
+        <div class="section-label">👤 入れ替える顔（元画像）</div>
+        <div class="upload-zone" id="dfFaceZone">
+          <input type="file" accept="image/*" id="dfFaceFile" onchange="loadImage('dfFaceFile','dfFacePreview','dfFaceZone')">
+          <span id="dfFacePreviewWrap">
+            <span class="upload-icon">👤</span>
+            <div class="upload-title">顔写真をドロップまたはクリック</div>
+            <div class="upload-sub">JPG / PNG（正面顔が最適）</div>
+          </span>
+          <img id="dfFacePreview" class="preview-img" style="display:none">
+          <span class="clear-btn" id="dfFaceClear" style="display:none" onclick="clearImage('dfFace')">✕</span>
+        </div>
+      </div>
+
+      <!-- ターゲット動画 -->
+      <div class="section">
+        <div class="section-label">🎬 顔を入れ替える動画（ターゲット）</div>
+        <div class="upload-zone" id="dfVideoZone">
+          <input type="file" accept="video/*" id="dfVideoFile" onchange="loadVideo('dfVideoFile','dfVideoPreview','dfVideoZone')">
+          <span id="dfVideoPreviewWrap">
+            <span class="upload-icon">🎬</span>
+            <div class="upload-title">動画をドロップまたはクリック</div>
+            <div class="upload-sub">MP4 / AVI / MOV（推奨: 720p以下）</div>
+          </span>
+          <video id="dfVideoPreview" class="preview-video" style="display:none" controls muted></video>
+          <span class="clear-btn" id="dfVideoClear" style="display:none" onclick="clearVideo()">✕</span>
+        </div>
+      </div>
+
+      <!-- 生成ボタン -->
+      <button class="gen-btn" id="dfBtn" onclick="runDeepfake()">
+        🎬 DeepFake動画を生成
+      </button>
+
+      <div class="note">
+        💡 <strong>バックエンドのセットアップが必要です。</strong><br>
+        インストール（初回のみ）:<br>
+        <code style="background:rgba(255,255,255,.06);padding:3px 6px;border-radius:4px;font-size:11px">pip install insightface onnxruntime-gpu opencv-python</code><br><br>
+        準備ができていない場合は <span id="dfStatus" class="status-badge badge-warn">確認中...</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 結果パネル -->
+    <div class="result-panel">
+      <div class="result-header">
+        <span>🎬 生成動画</span>
+        <span id="dfTiming" class="timing"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="dfProgress"></div></div>
+      <div class="progress-text" id="dfProgressText" style="display:none"></div>
+      <div class="result-body" id="dfResultBody">
+        <div class="result-empty">
+          <div class="result-empty-icon">🎭</div>
+          <div>DeepFake動画がここに表示されます</div>
+        </div>
+      </div>
+      <div class="result-footer">
+        <span></span>
+        <button class="dl-btn" id="dfDl" style="display:none" onclick="downloadVideo()">
+          ⬇️ 動画をダウンロード
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- (API Key Modal removed — fully local, no external API needed) -->
+
+<!-- Toasts -->
+<div class="toasts" id="toasts"></div>
+
+<script>
+// ══════════════════════════════════════════
+// State
+// ══════════════════════════════════════════
+let exprImageB64 = null, exprImageMime = null;
+let dfFaceB64 = null, dfFaceMime = null;
+let dfVideoFile = null;
+let fsSourceB64 = null, fsSourceMime = null;
+let fsTargetB64 = null, fsTargetMime = null;
+let fsResultB64 = null;
+let selectedExpr = 'smiling warmly';
+let dfResultVideoUrl = null;
+let genStart = null;
+
+// ══════════════════════════════════════════
+// Init
+// ══════════════════════════════════════════
+window.addEventListener('load', () => {
+  checkExprModelStatus();
+  checkDeepfakeBackend();
+  setupDragDrop();
+});
+
+async function checkExprModelStatus() {
+  try {
+    const r = await fetch('/expr-model-status');
+    const d = await r.json();
+    const el  = document.getElementById('exprModelStatus');
+    const el2 = document.getElementById('exprModelNote');
+    if (d.loaded) {
+      if(el){ el.className='status-badge badge-ok'; el.textContent='✅ モデル読み込み済み'; }
+      if(el2){ el2.className='status-badge badge-ok'; el2.textContent='✅ モデル準備完了（即実行可）'; }
+    } else if (d.cached) {
+      if(el){ el.className='status-badge badge-ok'; el.textContent='✅ モデルDL済み'; }
+      if(el2){ el2.className='status-badge badge-ok'; el2.textContent='✅ モデルDL済み（初回実行時に読み込み）'; }
+    } else {
+      if(el){ el.className='status-badge badge-warn'; el.textContent='⬇️ 初回: 5GB DL必要'; }
+      if(el2){ el2.className='status-badge badge-warn'; el2.textContent='⚠️ 初回実行時に約5GBのモデルをDLします'; }
+    }
+  } catch(e) {}
+}
+
+async function checkDeepfakeBackend() {
+  const ids = ['dfStatus','fsStatus'];
+  try {
+    const r = await fetch('/deepfake-status');
+    const d = await r.json();
+    ids.forEach(id => {
+      const el = document.getElementById(id); if(!el) return;
+      if (d.ready) {
+        el.className = 'status-badge badge-ok';
+        el.textContent = '✅ 準備完了';
+      } else {
+        el.className = 'status-badge badge-err';
+        el.innerHTML = '❌ 未インストール: <code>' + (d.missing||[]).join(', ') + '</code>';
+      }
+    });
+  } catch(e) {
+    ids.forEach(id => { const el=document.getElementById(id); if(el){el.className='status-badge badge-err';el.textContent='❌ 確認失敗';} });
+  }
+}
+
+// ══════════════════════════════════════════
+// Tab switch
+// ══════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tabpage').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// Image / Video loading
+// ══════════════════════════════════════════
+function loadImage(inputId, previewId, zoneId) {
+  const file = document.getElementById(inputId).files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const b64 = e.target.result.split(',')[1];
+    if (inputId === 'exprFile')     { exprImageB64 = b64; exprImageMime = file.type; }
+    if (inputId === 'dfFaceFile')   { dfFaceB64 = b64; dfFaceMime = file.type; }
+    if (inputId === 'fsSourceFile') { fsSourceB64 = b64; fsSourceMime = file.type; }
+    if (inputId === 'fsTargetFile') { fsTargetB64 = b64; fsTargetMime = file.type; }
+    const img = document.getElementById(previewId);
+    img.src = e.target.result;
+    img.style.display = 'block';
+    const prefix = zoneId.replace('Zone','');
+    const wrap = document.getElementById(prefix + 'PreviewWrap');
+    if (wrap) wrap.style.display = 'none';
+    const clr = document.getElementById(prefix + 'Clear');
+    if (clr) clr.style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadVideo(inputId, previewId, zoneId) {
+  const file = document.getElementById(inputId).files[0];
+  if (!file) return;
+  dfVideoFile = file;
+  const url = URL.createObjectURL(file);
+  const vid = document.getElementById(previewId);
+  vid.src = url;
+  vid.style.display = 'block';
+  document.getElementById('dfVideoPreviewWrap').style.display = 'none';
+  document.getElementById('dfVideoClear').style.display = 'flex';
+}
+
+function clearImage(prefix) {
+  if (prefix === 'expr') { exprImageB64 = null; exprImageMime = null; document.getElementById('exprFile').value=''; document.getElementById('exprPreview').style.display='none'; document.getElementById('exprPreviewWrap').style.display=''; }
+  if (prefix === 'dfFace')   { dfFaceB64 = null; dfFaceMime = null; document.getElementById('dfFaceFile').value=''; document.getElementById('dfFacePreview').style.display='none'; document.getElementById('dfFacePreviewWrap').style.display=''; }
+  if (prefix === 'fsSource') { fsSourceB64 = null; fsSourceMime = null; document.getElementById('fsSourceFile').value=''; document.getElementById('fsSourcePreview').style.display='none'; document.getElementById('fsSourcePreviewWrap').style.display=''; }
+  if (prefix === 'fsTarget') { fsTargetB64 = null; fsTargetMime = null; document.getElementById('fsTargetFile').value=''; document.getElementById('fsTargetPreview').style.display='none'; document.getElementById('fsTargetPreviewWrap').style.display=''; }
+  const clr = document.getElementById(prefix + 'Clear');
+  if (clr) clr.style.display = 'none';
+}
+
+function clearVideo() {
+  dfVideoFile = null;
+  document.getElementById('dfVideoFile').value = '';
+  document.getElementById('dfVideoPreview').style.display = 'none';
+  document.getElementById('dfVideoPreviewWrap').style.display = '';
+  document.getElementById('dfVideoClear').style.display = 'none';
+}
+
+// ══════════════════════════════════════════
+// Drag & drop
+// ══════════════════════════════════════════
+function setupDragDrop() {
+  const zones = [
+    { zone:'exprZone', file:'exprFile', preview:'exprPreview', type:'image' },
+    { zone:'dfFaceZone',   file:'dfFaceFile',   preview:'dfFacePreview',   type:'image' },
+    { zone:'dfVideoZone',  file:'dfVideoFile',  preview:'dfVideoPreview',  type:'video' },
+    { zone:'fsSourceZone', file:'fsSourceFile', preview:'fsSourcePreview', type:'image' },
+    { zone:'fsTargetZone', file:'fsTargetFile', preview:'fsTargetPreview', type:'image' },
+  ];
+  zones.forEach(({zone, file, preview, type}) => {
+    const el = document.getElementById(zone);
+    if (!el) return;
+    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag'); });
+    el.addEventListener('dragleave', () => el.classList.remove('drag'));
+    el.addEventListener('drop', e => {
+      e.preventDefault(); el.classList.remove('drag');
+      const f = e.dataTransfer.files[0];
+      if (!f) return;
+      const inp = document.getElementById(file);
+      const dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files;
+      if (type === 'image') loadImage(file, preview, zone);
+      else loadVideo(file, preview, zone);
+    });
+  });
+}
+
+// ══════════════════════════════════════════
+// Expression selector
+// ══════════════════════════════════════════
+function selectExpr(btn) {
+  document.querySelectorAll('.expr-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedExpr = btn.dataset.expr;
+}
+
+// ══════════════════════════════════════════
+// Progress helpers
+// ══════════════════════════════════════════
+function setProgress(id, pct, text) {
+  document.getElementById(id + 'Progress').style.width = pct + '%';
+  const el = document.getElementById(id + 'ProgressText');
+  if (text) { el.style.display = 'block'; el.textContent = text; }
+  else el.style.display = 'none';
+}
+
+// ══════════════════════════════════════════
+// Expression Change
+// ══════════════════════════════════════════
+async function runExprChange() {
+  if (!exprImageB64) { toast('顔写真をアップロードしてください', 'warn'); return; }
+
+  const btn = document.getElementById('exprBtn');
+  btn.disabled = true;
+  genStart = Date.now();
+  setProgress('expr', 5, '🔒 ローカル処理開始...');
+
+  const strength = parseFloat(document.getElementById('exprStrength').value);
+  const instruction = `Change only the facial expression to ${selectedExpr}. Keep the face identity, skin tone, hair, background, clothing, and everything else exactly the same. Do not alter any other features.`;
+
+  // 進捗ポーリング（モデルDL・推論ステップを追跡）
+  const exprProgInterval = setInterval(async () => {
+    try {
+      const r = await fetch('/expr-progress');
+      const d = await r.json();
+      if (d.progress > 0) setProgress('expr', Math.min(d.progress, 98), d.message || '⚙️ 処理中...');
+    } catch(e) {}
+  }, 2000);
+
+  try {
+    const res = await fetch('/local-expr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: exprImageB64, instruction, strength })
+    });
+    clearInterval(exprProgInterval);
+
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({error:'不明なエラー'}));
+      throw new Error(d.error || `エラー ${res.status}`);
+    }
+
+    const outBlob = await res.blob();
+    if (outBlob.size < 500) throw new Error('画像の取得に失敗しました（サイズ不足）');
+
+    const b64 = await blobToB64(outBlob);
+    setProgress('expr', 100, '');
+    // モデル読み込み済みに更新
+    checkExprModelStatus();
+
+    const elapsed = ((Date.now() - genStart) / 1000).toFixed(1);
+    document.getElementById('exprTiming').textContent = `⏱ ${elapsed}秒`;
+    showExprResult(b64, outBlob.type || 'image/jpeg');
+
+  } catch(e) {
+    clearInterval(exprProgInterval);
+    setProgress('expr', 0, '');
+    toast(e.message, 'error', 8000);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function showExprResult(b64, mime) {
+  const body = document.getElementById('exprResultBody');
+  const src = `data:${mime};base64,${b64}`;
+  body.innerHTML = `<img id="exprResultImg" class="result-img" src="${src}">`;
+  document.getElementById('exprDl').style.display = 'flex';
+  document.getElementById('exprDl').dataset.src = src;
+}
+
+function downloadResult(imgId, name) {
+  const btn = document.getElementById('exprDl');
+  const src = btn.dataset.src;
+  const a = document.createElement('a');
+  a.href = src;
+  a.download = `${name}_${Date.now()}.jpg`;
+  a.click();
+}
+
+// ══════════════════════════════════════════
+// Face Swap (Image)
+// ══════════════════════════════════════════
+async function runFaceSwapImage() {
+  if (!fsSourceB64) { toast('ソース顔写真をアップロードしてください', 'warn'); return; }
+  if (!fsTargetB64) { toast('ターゲット画像をアップロードしてください', 'warn'); return; }
+
+  const btn = document.getElementById('fsBtn');
+  btn.disabled = true;
+  genStart = Date.now();
+  setProgress('fs', 10, '📤 送信中...');
+
+  try {
+    const form = new FormData();
+    form.append('face',   new Blob([Uint8Array.from(atob(fsSourceB64), c=>c.charCodeAt(0))], {type:fsSourceMime||'image/jpeg'}), 'face.jpg');
+    form.append('target', new Blob([Uint8Array.from(atob(fsTargetB64), c=>c.charCodeAt(0))], {type:fsTargetMime||'image/jpeg'}), 'target.jpg');
+
+    setProgress('fs', 10, '📤 アップロード中...');
+
+    // 進捗ポーリング（初回モデルDLで数分かかることがある）
+    const fsProgInterval = setInterval(async () => {
+      try {
+        const r = await fetch('/faceswap-progress');
+        const d = await r.json();
+        if (d.progress > 0) setProgress('fs', Math.min(d.progress, 95), d.message || '⚙️ 処理中...');
+      } catch(e) {}
+    }, 1500);
+
+    const res = await fetch('/faceswap-image', { method: 'POST', body: form });
+    clearInterval(fsProgInterval);
+
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({error:'不明なエラー'}));
+      throw new Error(d.error || `エラー ${res.status}`);
+    }
+
+    setProgress('fs', 95, '✨ 完了...');
+    const blob = await res.blob();
+    const b64 = await blobToB64(blob);
+    fsResultB64 = b64;
+
+    const elapsed = ((Date.now() - genStart) / 1000).toFixed(1);
+    document.getElementById('fsTiming').textContent = `⏱ ${elapsed}秒`;
+    const src = `data:${blob.type||'image/jpeg'};base64,${b64}`;
+    document.getElementById('fsResultBody').innerHTML = `<img class="result-img" src="${src}">`;
+    const dlBtn = document.getElementById('fsDl');
+    dlBtn.style.display = 'flex';
+    dlBtn.dataset.src = src;
+    setProgress('fs', 100, '');
+
+  } catch(e) {
+    setProgress('fs', 0, '');
+    toast(e.message, 'error', 7000);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function downloadFsResult() {
+  const src = document.getElementById('fsDl').dataset.src;
+  if (!src) return;
+  const a = document.createElement('a');
+  a.href = src; a.download = `faceswap_${Date.now()}.jpg`; a.click();
+}
+
+// ══════════════════════════════════════════
+// DeepFake Video
+// ══════════════════════════════════════════
+async function runDeepfake() {
+  if (!dfFaceB64) { toast('顔写真をアップロードしてください', 'warn'); return; }
+  if (!dfVideoFile) { toast('ターゲット動画をアップロードしてください', 'warn'); return; }
+
+  const btn = document.getElementById('dfBtn');
+  btn.disabled = true;
+  genStart = Date.now();
+  setProgress('df', 2, '📤 動画をアップロード中...');
+
+  try {
+    const form = new FormData();
+    form.append('face', new Blob([Uint8Array.from(atob(dfFaceB64), c=>c.charCodeAt(0))], {type:dfFaceMime||'image/jpeg'}), 'face.jpg');
+    form.append('video', dfVideoFile, dfVideoFile.name);
+
+    setProgress('df', 2, `📤 アップロード中... (${(dfVideoFile.size/1024/1024).toFixed(1)}MB)`);
+
+    // Long poll for progress（progress > 0 のときのみ更新）
+    const progInterval = setInterval(async () => {
+      try {
+        const r = await fetch('/deepfake-progress');
+        const d = await r.json();
+        if (d.progress > 0) {
+          setProgress('df', Math.min(d.progress, 95), d.message || '⚙️ 処理中...');
+        }
+      } catch(e) {}
+    }, 1500);
+
+    const res = await fetch('/deepfake', { method: 'POST', body: form });
+    clearInterval(progInterval);
+
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({error:'不明なエラー'}));
+      throw new Error(d.error || `エラー ${res.status}`);
+    }
+
+    setProgress('df', 100, '');
+    const videoBlob = await res.blob();
+    const url = URL.createObjectURL(videoBlob);
+    dfResultVideoUrl = url;
+
+    const elapsed = ((Date.now() - genStart) / 1000).toFixed(1);
+    document.getElementById('dfTiming').textContent = `⏱ ${elapsed}秒`;
+
+    document.getElementById('dfResultBody').innerHTML =
+      `<video id="dfResultVideo" class="result-video" src="${url}" controls autoplay loop muted></video>`;
+    document.getElementById('dfDl').style.display = 'flex';
+
+  } catch(e) {
+    setProgress('df', 0, '');
+    toast(e.message, 'error', 8000);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function downloadVideo() {
+  if (!dfResultVideoUrl) return;
+  const a = document.createElement('a');
+  a.href = dfResultVideoUrl;
+  a.download = `deepfake_${Date.now()}.mp4`;
+  a.click();
+}
+
+// ══════════════════════════════════════════
+// Helpers
+// ══════════════════════════════════════════
+function blobToB64(blob) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+function toast(msg, type='error', ms=5000) {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+
+// ══════════════════════════════════════════
+// API Key Modal
+// ══════════════════════════════════════════
+function openModal() {
+  document.getElementById('mHfKey').value = localStorage.getItem('hfApiKey') || '';
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalBg'))
+    document.getElementById('modalBg').classList.remove('open');
+}
+
+function saveKeys() {
+  const hf = document.getElementById('mHfKey').value.trim();
+  if (hf) localStorage.setItem('hfApiKey', hf);
+  else localStorage.removeItem('hfApiKey');
+  document.getElementById('modalBg').classList.remove('open');
+  checkHFToken();
+  toast('APIキーを保存しました', 'success', 3000);
+}
+</script>
+</body>
+</html>

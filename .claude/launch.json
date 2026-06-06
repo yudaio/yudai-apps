@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "AI Image Generator",
+      "runtimeExecutable": "C:\\Users\\yamam\\AppData\\Local\\Programs\\Python\\Python310\\python.exe",
+      "runtimeArgs": ["-m", "http.server", "3000"],
+      "port": 3000
+    },
+    {
+      "name": "yudai-apps",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["node_modules\\next\\dist\\bin\\next", "dev", "-p", "3001"],
+      "cwd": "yudai-apps",
+      "port": 3001
+    }
+  ]
+}
