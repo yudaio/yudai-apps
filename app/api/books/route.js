@@ -1,8 +1,43 @@
-// /api/books — Google Books API連携 + Claude推薦（フォールバック付き）
-export async function POST(req) {
-  const { input, lang } = await req.json();
+// /api/books — Google Books API連携 + AI推薦（Gemini優先 / Claudeフォールバック）
+async function callAI(prompt, geminiKey, max = 700) {
+  if (geminiKey) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: max },
+        }),
+      }
+    );
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  }
+  // Claude fallback
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5', max_tokens: max,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content?.[0]?.text ?? '';
+}
 
-  // Step1: Claudeに検索クエリ＋直接推薦を同時生成
+export async function POST(req) {
+  const { input, lang, geminiKey } = await req.json();
+
+  // Step1: AIに検索クエリ＋直接推薦を同時生成
   const step1Prompt = lang === 'en'
     ? `The user wrote: "${input}"
 
@@ -25,22 +60,7 @@ Do two things:
 
 ユーザーの状況に具体的に言及し、絶対に実在する書籍を推薦すること。`;
 
-  const step1Res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-5",
-      max_tokens: 700,
-      messages: [{ role: "user", content: step1Prompt }],
-    }),
-  });
-
-  const step1Data = await step1Res.json();
-  const step1Text = step1Data.content?.[0]?.text?.trim() || '';
+  const step1Text = (await callAI(step1Prompt, geminiKey, 700)).trim();
 
   // キーワードとClaudeの推薦文を分離
   const keywordsMatch = step1Text.match(/KEYWORDS:\s*(.+)/);
