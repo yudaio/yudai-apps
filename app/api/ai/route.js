@@ -1,9 +1,10 @@
 export async function POST(req) {
-  const { system, user, messages, max = 700, geminiKey } = await req.json();
+  const { system, user, messages, max = 700, geminiKey, claudeKey } = await req.json();
+  const msgs = messages ?? [{ role: 'user', content: user }];
 
-  // ── Gemini（ユーザー自身のキー） ───────────────────────────
+  // ── Gemini（ユーザーキー） ─────────────────────────────────
   if (geminiKey) {
-    const contents = (messages ?? [{ role: 'user', content: user }]).map(m => ({
+    const contents = msgs.map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }],
     }));
@@ -23,16 +24,16 @@ export async function POST(req) {
     return Response.json({ text });
   }
 
-  // ── Claude（サーバーキー・フォールバック） ─────────────────
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return Response.json({ text: 'エラー: APIキーが未設定です。設定画面からGemini APIキーを入力してください。' });
+  // ── Claude（ユーザーキー or サーバーキー） ─────────────────
+  const apiKey = claudeKey || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return Response.json({ text: 'エラー: APIキーが未設定です。設定画面からAPIキーを入力してください。' });
   }
-  const msgs = messages ?? [{ role: 'user', content: user }];
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY,
+      'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: max, system, messages: msgs }),
