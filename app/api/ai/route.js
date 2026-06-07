@@ -9,13 +9,17 @@ export async function POST(req) {
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-5",
       max_tokens: max,
       system,
       messages: msgs,
     }),
   });
   const data = await res.json();
+  if (data.error) {
+    console.error("Anthropic error:", JSON.stringify(data.error));
+    return Response.json({ text: `エラー: ${data.error.message}` });
+  }
   const text = data.content?.[0]?.text ?? "エラーが発生しました。";
   return Response.json({ text });
 }
