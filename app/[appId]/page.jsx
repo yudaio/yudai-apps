@@ -1,4 +1,5 @@
 'use client';
+import Coach from '../apps/Coach';
 import Fate from '../apps/Fate';
 import Muda from '../apps/Muda';
 import Vending from '../apps/Vending';
@@ -15,7 +16,8 @@ import Kokoro from '../apps/Kokoro';
 import Koe from '../apps/Koe';
 import Untangle from '../apps/Untangle';
 
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, kokoro: Kokoro, koe: Koe, untangle: Untangle };
+const APPS = {
+  coach:   { name: 'AIコーチ', icon: '🎯', component: Coach,   desc: '自己改革・人生プランを毎日管理する専属AIコーチ' }, fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, kokoro: Kokoro, koe: Koe, untangle: Untangle };
 
 export default function AppPage({ params }) {
   const { appId } = params;
