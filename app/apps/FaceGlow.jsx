@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useCallback } from "react";
+import { useApiKey } from "./ApiKeySetup";
 
 const FREE_CREDITS = 2;
 
@@ -16,8 +17,11 @@ const PACKS = [
 ];
 
 export default function FaceGlowApp() {
+  const { getKey, save } = useApiKey();
+  const [claudeKey, setClaudeKeyState] = useState(() => { try { return localStorage.getItem("ai_key_claude") || ""; } catch { return ""; } });
+  const [keyInput, setKeyInput] = useState("");
   const [credits, setCreditsState] = useState(getCredits);
-  const [phase, setPhase] = useState("upload"); // upload | analyzing | result | shop
+  const [phase, setPhase] = useState("upload"); // upload | analyzing | result | shop | keysetup
   const [imageData, setImageData] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [analysis, setAnalysis] = useState(null);
@@ -61,6 +65,8 @@ export default function FaceGlowApp() {
 
   const analyze = async () => {
     if (!imageData) return;
+    const key = claudeKey || getKey("claude");
+    if (!key) { setPhase("keysetup"); return; }
     if (credits <= 0) { setPhase("shop"); return; }
     spend(1);
     setPhase("analyzing");
@@ -71,6 +77,7 @@ export default function FaceGlowApp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          claudeKey: key,
           system: `You are a professional beauty consultant and AI portrait prompt engineer.
 Analyze the face in the image and respond ONLY with a JSON object (no markdown, no preamble) with this structure:
 {
@@ -155,6 +162,49 @@ The portrait_prompt must be a highly specific, photorealistic prompt that descri
             チャージ +
           </button>
         </div>
+
+        {phase === "keysetup" && (
+          <div>
+            <h2 style={{ fontSize: 18, fontWeight: 400, textAlign: "center", marginBottom: 8, color: "#f0e8d8" }}>
+              🔑 Claude APIキーが必要です
+            </h2>
+            <p style={{ fontSize: 12, color: "#7a7060", textAlign: "center", marginBottom: 20, lineHeight: 1.7 }}>
+              FaceGlowは顔画像の解析にClaude AIを使用します。<br />
+              <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer"
+                style={{ color: "#c8a96e" }}>console.anthropic.com</a> でキーを取得してください。
+            </p>
+            <input
+              type="password"
+              value={keyInput}
+              onChange={e => setKeyInput(e.target.value)}
+              placeholder="sk-ant-..."
+              style={{
+                width: "100%", padding: "12px 16px", background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(200,169,110,0.3)", borderRadius: 8,
+                color: "#e8e0d0", fontSize: 14, fontFamily: "inherit", outline: "none",
+                boxSizing: "border-box", marginBottom: 12,
+              }}
+            />
+            <button onClick={() => {
+              const k = keyInput.trim();
+              if (!k) return;
+              save("claude", k);
+              setClaudeKeyState(k);
+              setKeyInput("");
+              setPhase("upload");
+            }} disabled={!keyInput.trim()} style={{
+              width: "100%", background: keyInput.trim() ? "linear-gradient(135deg, #c8a96e, #e2c97e)" : "#2a2820",
+              border: "none", color: keyInput.trim() ? "#000" : "#4a4438",
+              padding: 12, borderRadius: 8, cursor: keyInput.trim() ? "pointer" : "not-allowed",
+              fontSize: 14, letterSpacing: 1, fontWeight: 600, marginBottom: 10,
+            }}>保存して使う</button>
+            <button onClick={() => setPhase("upload")} style={{
+              display: "block", width: "100%",
+              background: "transparent", border: "1px solid #2a2820",
+              color: "#5a5040", padding: "10px", borderRadius: 6, cursor: "pointer", fontSize: 12,
+            }}>← 戻る</button>
+          </div>
+        )}
 
         {phase === "shop" && (
           <div>
