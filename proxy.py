@@ -415,28 +415,51 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_POST(self):
-        length = int(self.headers.get("Content-Length", 0))
-        body   = self.rfile.read(length) if length else None
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+        except Exception:
+            length = 0
+        print(f"[POST] {self.path} Content-Length={length}")
+        try:
+            body = self.rfile.read(length) if length > 0 else b""
+        except Exception as e:
+            print(f"[POST] body read error: {e}")
+            body = b""
 
-        if self.path.startswith("/sdapi/") or self.path.startswith("/controlnet/"):
-            self._proxy_sd("POST", self.path, body)
-        elif self.path.startswith("/hfapi/"):
-            hf_path = self.path[len("/hfapi"):]
-            token   = self.headers.get("X-HF-Token", "")
-            self._proxy_hf("POST", hf_path, body, token)
-        elif self.path.startswith("/polapi/"):
-            pol_path = self.path[len("/polapi"):]
-            self._proxy_pollinations("POST", pol_path, body)
-        elif self.path.startswith("/geminiapi/"):
-            gemini_path = self.path[len("/geminiapi"):]
-            self._proxy_gemini("POST", gemini_path, body)
-        elif self.path == "/faceswap-image":
-            self._run_faceswap_image(body)
-        elif self.path == "/deepfake":
-            self._run_deepfake(body)
-        else:
-            self.send_response(404)
-            self.end_headers()
+        try:
+            if self.path.startswith("/sdapi/") or self.path.startswith("/controlnet/"):
+                self._proxy_sd("POST", self.path, body)
+            elif self.path.startswith("/hfapi/"):
+                hf_path = self.path[len("/hfapi"):]
+                token   = self.headers.get("X-HF-Token", "")
+                self._proxy_hf("POST", hf_path, body, token)
+            elif self.path.startswith("/polapi/"):
+                pol_path = self.path[len("/polapi"):]
+                self._proxy_pollinations("POST", pol_path, body)
+            elif self.path.startswith("/geminiapi/"):
+                gemini_path = self.path[len("/geminiapi"):]
+                self._proxy_gemini("POST", gemini_path, body)
+            elif self.path == "/faceswap-image":
+                self._run_faceswap_image(body)
+            elif self.path == "/deepfake":
+                self._run_deepfake(body)
+            else:
+                self.send_response(404)
+                self.end_headers()
+        except Exception as e:
+            import traceback
+            print(f"[POST] unhandled error on {self.path}: {e}")
+            traceback.print_exc()
+            try:
+                err = json.dumps({"error": str(e)}).encode()
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", len(err))
+                self.send_cors()
+                self.end_headers()
+                self.wfile.write(err)
+            except Exception:
+                pass
 
     # ── ダウンロード状況 ──────────────────────────────────────────────
     def _serve_status(self):
@@ -765,7 +788,9 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
                 boundary = part[len("boundary="):].strip().encode()
                 break
         if not boundary:
-            return {}
+            return {}, {}
+        if raw_body is None:
+            return {}, {}
         parts    = {}   # name → bytes
         filenames = {}  # name → original filename
         delimiter = b"--" + boundary

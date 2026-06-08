@@ -45,17 +45,21 @@ export default function Genki() {
         </div>
       )}
 
-      <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <div style={{ fontSize: 64, color, fontWeight: 700, marginBottom: 4 }}>{mood}</div>
-        <div style={{ color, fontSize: 16, marginBottom: 16 }}>{labels[mood]}</div>
+      <div style={{ textAlign: "center", marginBottom: 24,
+        background: "#0C0F22", border: "1px solid #182040", borderRadius: 16, padding: "24px 20px" }}>
+        <div style={{ fontSize: 72, color, fontWeight: 700, marginBottom: 4,
+          textShadow: `0 0 40px ${color}55` }}>{mood}</div>
+        <div style={{ color, fontSize: 18, marginBottom: 20, fontWeight: 600 }}>{labels[mood]}</div>
         <input type="range" min={1} max={10} value={mood}
           onChange={e => { setMood(+e.target.value); setSubmitted(false); }}
-          style={{ width: "100%", accentColor: color }} />
+          style={{ width: "100%", accentColor: color, height: 6 }} />
         <div style={{ display: "flex", justifyContent: "space-between", color: "#4A5880", fontSize: 11, marginTop: 4 }}>
           <span>最悪</span><span>最高</span>
         </div>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 16 }}>
-          <Btn onClick={handleSubmit}>世界に送る</Btn>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20 }}>
+          <Btn onClick={handleSubmit} color={color.startsWith('#3') ? '#0D7A3A' : color.startsWith('#F') ? '#B45309' : '#CC3333'}>
+            世界に送る
+          </Btn>
           {submitted && (
             <button onClick={() => share('今日の気分', `今日の気分は${mood}/10（${labels[mood]}）。世界平均は${avg}/10。`)}
               style={{ padding: "11px 22px", background: "none", border: "1px solid #182040",
@@ -65,9 +69,12 @@ export default function Genki() {
           )}
         </div>
         {submitted && (
-          <div style={{ marginTop: 12, color: "#4A5880", fontSize: 13 }}>
-            世界平均 <span style={{ color: "#C5D0F0", fontWeight: 700 }}>{avg}/100</span> に対して
-            あなたは <span style={{ color, fontWeight: 700 }}>{mood * 10}/100</span>
+          <div style={{ marginTop: 14, padding: "10px 16px", background: "#07091A",
+            borderRadius: 8, border: "1px solid #182040" }}>
+            <span style={{ color: "#4A5880", fontSize: 13 }}>世界平均 </span>
+            <span style={{ color: "#C5D0F0", fontWeight: 700 }}>{avg}/100</span>
+            <span style={{ color: "#4A5880", fontSize: 13 }}> に対してあなたは </span>
+            <span style={{ color, fontWeight: 700 }}>{mood * 10}/100</span>
           </div>
         )}
       </div>

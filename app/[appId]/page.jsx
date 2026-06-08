@@ -15,13 +15,13 @@ import Marry from '../apps/Marry';
 import Kokoro from '../apps/Kokoro';
 import Koe from '../apps/Koe';
 import Untangle from '../apps/Untangle';
+import Konoka from '../apps/Konoka';
 
-const APPS = {
-  coach:   { name: 'AIコーチ', icon: '🎯', component: Coach,   desc: '自己改革・人生プランを毎日管理する専属AIコーチ' }, fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, kokoro: Kokoro, koe: Koe, untangle: Untangle };
+const APPS = { coach: Coach, fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, kokoro: Kokoro, koe: Koe, untangle: Untangle, konoka: Konoka };
 
 export default function AppPage({ params }) {
-  const { appId } = params;
+  const appId = params?.appId ?? '';
   const App = APPS[appId];
-  if (!App) return <div style={{ color: "#C5D0F0", padding: 32 }}>Not found</div>;
+  if (!App) return <div style={{ color: "#C5D0F0", padding: 32 }}>Not found: {JSON.stringify(params)}</div>;
   return <div style={{ padding: 16 }}><App /></div>;
 }
