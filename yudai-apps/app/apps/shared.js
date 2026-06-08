@@ -194,3 +194,74 @@ export const PageHeader = ({ icon, title, sub, color }) => (
     <div style={{ height: 1, background: `linear-gradient(90deg, ${(color || '#6366F1')}40, transparent)`, marginTop: 14 }} />
   </div>
 );
+
+/* ── AppHero（Canva風フルブリードヒーロー） ── */
+export const AppHero = ({ icon, title, sub, grad, badge, children }) => (
+  <div style={{
+    background: grad || 'linear-gradient(135deg,#4C1D95,#6366F1)',
+    padding: '56px 28px 48px',
+    textAlign: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    margin: '-16px -16px 32px -16px',
+  }}>
+    <a href="/" style={{
+      position: 'absolute', top: 18, left: 18,
+      color: 'rgba(255,255,255,0.65)', fontSize: 13, textDecoration: 'none',
+      background: 'rgba(0,0,0,0.18)', padding: '6px 14px', borderRadius: 20,
+      backdropFilter: 'blur(4px)',
+    }}>← 戻る</a>
+    {/* 装飾オーブ */}
+    <div style={{ position:'absolute', top:-80, right:-80, width:260, height:260, borderRadius:'50%', background:'rgba(255,255,255,0.07)', pointerEvents:'none' }} />
+    <div style={{ position:'absolute', bottom:-60, left:-60, width:200, height:200, borderRadius:'50%', background:'rgba(0,0,0,0.12)', pointerEvents:'none' }} />
+    <div style={{ position:'relative' }}>
+      <div style={{ fontSize:56, marginBottom:10, lineHeight:1, filter:'drop-shadow(0 4px 12px rgba(0,0,0,0.25))' }}>{icon}</div>
+      <h1 style={{
+        color:'#fff', fontSize:'clamp(40px,8vw,64px)',
+        fontWeight:900, margin:'0 0 14px',
+        letterSpacing:'-0.03em', lineHeight:1.05,
+        textShadow:'0 2px 24px rgba(0,0,0,0.25)',
+      }}>{title}</h1>
+      <p style={{
+        color:'rgba(255,255,255,0.78)', fontSize:16,
+        margin:'0 auto', lineHeight:1.75,
+        maxWidth:380,
+      }}>{sub}</p>
+      {badge && (
+        <div style={{ marginTop:18, display:'inline-flex', alignItems:'center', gap:8, padding:'7px 18px', background:'rgba(255,255,255,0.15)', borderRadius:20, backdropFilter:'blur(4px)', color:'#fff', fontSize:13, fontWeight:600 }}>
+          {badge}
+        </div>
+      )}
+      {children}
+    </div>
+  </div>
+);
+
+/* ── HeroBtn（ヒーロー下の大CTAボタン） ── */
+export const HeroBtn = ({ onClick, disabled, grad, children, style = {} }) => (
+  <button onClick={onClick} disabled={disabled} style={{
+    width:'100%', padding:'18px',
+    background: disabled ? '#111428' : (grad || 'linear-gradient(135deg,#6366F1,#A78BFA)'),
+    border: disabled ? '1px solid #1E2448' : 'none',
+    borderRadius:14, color: disabled ? '#2A3460' : '#fff',
+    fontSize:17, fontWeight:800, cursor: disabled ? 'default' : 'pointer',
+    fontFamily:'inherit',
+    boxShadow: disabled ? 'none' : '0 8px 32px rgba(0,0,0,0.3)',
+    transition:'all 0.2s',
+    letterSpacing: '-0.01em',
+    ...style,
+  }}>{children}</button>
+);
+
+/* ── InputCard（ホワイト寄りの入力カード） ── */
+export const InputCard = ({ children, style = {} }) => (
+  <div style={{
+    background:'#0D0F28',
+    border:'1px solid #252A52',
+    borderRadius:16, padding:'20px',
+    marginBottom:16,
+    ...style,
+  }}>{children}</div>
+);
