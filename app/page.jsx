@@ -18,7 +18,8 @@ const APPS = [
   { id:"rant",   icon:"💢", title:"鬱憤爆発",   sub:"理不尽を3つの視点で解剖する",  color:"#DC2626", tag:"社会" },
   { id:"muda",   icon:"🧠", title:"無駄削減",   sub:"認知負荷を削ぎ落として時間を取り戻す", color:"#0891B2", tag:"効率" },
   { id:"genki",  icon:"🌐", title:"元気玉",     sub:"あなたの気分が世界と繋がる",   color:"#D97706", tag:"気分" },
-  { id:"vending",icon:"🎰", title:"自販機マップ",sub:"近くの自販機を瞬時に発見",    color:"#2563EB", tag:"MAP" },
+  { id:"vending",   icon:"🎰", title:"自販機マップ", sub:"近くの自販機を瞬時に発見",       color:"#2563EB", tag:"MAP" },
+  { id:"faceglow",  icon:"✨", title:"FACEGLOW",   sub:"AIが顔を診断・理想の顔を可視化", color:"#c8a96e", tag:"美容" },
 ];
 
 export default function Hub() {

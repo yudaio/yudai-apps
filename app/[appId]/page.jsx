@@ -16,8 +16,9 @@ import Kokoro from '../apps/Kokoro';
 import Koe from '../apps/Koe';
 import Untangle from '../apps/Untangle';
 import Konoka from '../apps/Konoka';
+import FaceGlow from '../apps/FaceGlow';
 
-const APPS = { coach: Coach, fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, kokoro: Kokoro, koe: Koe, untangle: Untangle, konoka: Konoka };
+const APPS = { coach: Coach, fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, kokoro: Kokoro, koe: Koe, untangle: Untangle, konoka: Konoka, faceglow: FaceGlow };
 
 export default function AppPage({ params }) {
   const appId = params?.appId ?? '';
