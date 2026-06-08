@@ -22,12 +22,6 @@ const C = {
 /* ── アプリデータ ── */
 const FEATURED = [
   {
-    id: 'konoka', icon: '🌸', title: 'このちゃんAI',
-    sub: '松田好花（日向坂46）の話し方を再現したAIチャット。音声読み上げ付き。',
-    color: '#A78BFA', tag: 'チャット',
-    preview: ['「最近どう？」', '→ このちゃんだよ〜！', '元気にしてた？'],
-  },
-  {
     id: 'koe', icon: '🕯️', title: '声の遺産',
     sub: '大切な人の言葉・口癖を登録して、いつでも話しかけられる追悼AIチャット。',
     color: '#C8A84B', tag: '追悼',
@@ -186,7 +180,7 @@ export default function Hub() {
             color: '#A78BFA', fontSize: 12, fontWeight: 500, marginBottom: 28,
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6EE7B7', display: 'inline-block' }} />
-            11本のAIアプリ、すべて無料で使える
+            10本のAIアプリ、すべて無料で使える
           </div>
 
           <h1 style={{
@@ -207,11 +201,11 @@ export default function Hub() {
             lineHeight: 1.9, margin: '0 0 40px', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto',
           }}>
             チャット、診断、日記、図書館。<br />
-            感情を起点に設計された、11本のプロダクト。
+            感情を起点に設計された、10本のプロダクト。
           </p>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/konoka" style={{ textDecoration: 'none' }}>
+            <Link href="/koe" style={{ textDecoration: 'none' }}>
               <button
                 style={{
                   padding: '14px 28px',
@@ -251,7 +245,7 @@ export default function Hub() {
           borderRadius: 16, overflow: 'hidden',
         }}>
           {[
-            { val: '11', label: 'アプリ',    icon: '📦' },
+            { val: '10', label: 'アプリ',    icon: '📦' },
             { val: '6',  label: 'AI搭載',    icon: '🤖' },
             { val: '∞',  label: '無料で使える', icon: '✨' },
           ].map((s, i) => (
