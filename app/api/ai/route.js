@@ -20,9 +20,9 @@ export async function POST(req) {
     return Response.json({ text });
   }
 
-  // ── Claude（ユーザーキー or サーバーキー） ─────────────────
-  if (claudeKey || process.env.ANTHROPIC_API_KEY) {
-    const apiKey = claudeKey || process.env.ANTHROPIC_API_KEY;
+  // ── Claude（ユーザーキーのみ） ────────────────────────────
+  if (claudeKey) {
+    const apiKey = claudeKey;
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
