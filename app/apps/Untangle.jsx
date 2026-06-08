@@ -208,11 +208,6 @@ export default function Untangle() {
     setRoadmap(null);
   };
 
-  // ── API KEY SETUP ─────────────────────────────────────────────
-  if (!hasKey) return (
-    <ApiKeySetup onDone={() => setHasKey(true)} />
-  );
-
   // ── LANDING ──────────────────────────────────────────────────
   if (phase === 'landing') return (
     <div style={{ maxWidth: 480, margin: '0 auto', padding: '48px 16px', textAlign: 'center' }}>

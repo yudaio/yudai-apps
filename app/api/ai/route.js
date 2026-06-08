@@ -10,39 +10,50 @@ export async function POST(req) {
     }));
     const body = { contents, generationConfig: { maxOutputTokens: max } };
     if (system) body.system_instruction = { parts: [{ text: system }] };
-
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
     );
     const data = await res.json();
-    if (data.error) {
-      console.error('Gemini error:', JSON.stringify(data.error));
-      return Response.json({ text: `エラー: ${data.error.message}` });
-    }
+    if (data.error) return Response.json({ text: `エラー: ${data.error.message}` });
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'エラーが発生しました。';
     return Response.json({ text });
   }
 
   // ── Claude（ユーザーキー or サーバーキー） ─────────────────
-  const apiKey = claudeKey || process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return Response.json({ text: 'エラー: APIキーが未設定です。設定画面からAPIキーを入力してください。' });
+  if (claudeKey || process.env.ANTHROPIC_API_KEY) {
+    const apiKey = claudeKey || process.env.ANTHROPIC_API_KEY;
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: max, system, messages: msgs }),
+    });
+    const data = await res.json();
+    if (data.error) return Response.json({ text: `エラー: ${data.error.message}` });
+    const text = data.content?.[0]?.text ?? 'エラーが発生しました。';
+    return Response.json({ text });
   }
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+
+  // ── Pollinations.ai（キー不要・完全無料） ──────────────────
+  const pollinationsMsgs = system
+    ? [{ role: 'system', content: system }, ...msgs]
+    : msgs;
+
+  const res = await fetch('https://text.pollinations.ai/', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: max, system, messages: msgs }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      messages: pollinationsMsgs,
+      model: 'openai',
+      max_tokens: max,
+      private: true,
+    }),
   });
-  const data = await res.json();
-  if (data.error) {
-    console.error('Anthropic error:', JSON.stringify(data.error));
-    return Response.json({ text: `エラー: ${data.error.message}` });
-  }
-  const text = data.content?.[0]?.text ?? 'エラーが発生しました。';
-  return Response.json({ text });
+
+  const text = await res.text();
+  return Response.json({ text: text || 'エラーが発生しました。' });
 }
