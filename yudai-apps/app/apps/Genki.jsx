@@ -10,6 +10,7 @@ const WORLD = [
   { city:"シドニー", mood:75, flag:"🇦🇺" }, { city:"ムンバイ", mood:67, flag:"🇮🇳" },
 ];
 const labels=["","最悪","辛い","重い","しんどい","普通","まあまあ","良い","良い","とても良い","最高"];
+const EMOJIS=["","😭","😢","😕","😐","🙂","😊","😄","🤩","✨","🚀"];
 
 export default function Genki() {
   const[mood,setMood]=useState(7);
@@ -34,10 +35,18 @@ export default function Genki() {
 
       {/* 気分メーター */}
       <div style={{ background:'#0D0F28', border:'1px solid #252A52', borderRadius:20, padding:'32px 24px', marginBottom:20, textAlign:'center' }}>
-        <div style={{ fontSize:88, fontWeight:900, color, lineHeight:1, marginBottom:8, textShadow:`0 0 60px ${color}55`, transition:'color 0.3s' }}>{mood}</div>
-        <div style={{ color, fontSize:20, marginBottom:24, fontWeight:700, transition:'color 0.3s' }}>{labels[mood]}</div>
-        <input type="range" min={1} max={10} value={mood} onChange={e=>{setMood(+e.target.value);setSubmitted(false);}} style={{ width:'100%', accentColor:color, height:8, cursor:'pointer' }}/>
-        <div style={{ display:'flex', justifyContent:'space-between', color:'#3A4870', fontSize:12, marginTop:6 }}><span>最悪</span><span>最高</span></div>
+        <div style={{ fontSize:88, fontWeight:900, color, lineHeight:1, marginBottom:4, textShadow:`0 0 60px ${color}55`, transition:'all 0.3s' }}>{EMOJIS[mood]}</div>
+        <div style={{ fontSize:40, fontWeight:900, color, lineHeight:1, marginBottom:6, transition:'color 0.3s' }}>{mood}</div>
+        <div style={{ color, fontSize:18, marginBottom:20, fontWeight:700, transition:'color 0.3s' }}>{labels[mood]}</div>
+        {/* 絵文字グリッドセレクター */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:6, marginBottom:20 }}>
+          {[1,2,3,4,5,6,7,8,9,10].map(n=>(
+            <button key={n} onClick={()=>{setMood(n);setSubmitted(false);}} style={{ padding:'10px 4px', borderRadius:12, border:`2px solid ${mood===n?color:'#1A2040'}`, background:mood===n?`${color}22`:'#080A18', cursor:'pointer', fontFamily:'inherit', transition:'all 0.2s', display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+              <span style={{ fontSize:22 }}>{EMOJIS[n]}</span>
+              <span style={{ fontSize:10, color:mood===n?color:'#3A4870', fontWeight:mood===n?700:400 }}>{n}</span>
+            </button>
+          ))}
+        </div>
         {submitted&&(
           <div style={{ marginTop:20, padding:'14px 18px', background:'#080A18', borderRadius:12, border:'1px solid #1E2448' }}>
             <span style={{ color:'#5A6890', fontSize:14 }}>世界平均 </span>

@@ -32,6 +32,46 @@ async function analyzePatterns(entries,lang) {
 
 const EmotionTag = ({ tag, large }) => { const color=EMOTION_COLORS[tag]||C.muted; return <span style={{ display:'inline-flex', alignItems:'center', gap:4, padding:large?'7px 16px':'4px 10px', margin:3, borderRadius:20, fontSize:large?13:11, fontWeight:600, background:`${color}20`, color, border:`1px solid ${color}40` }}><span style={{ width:6,height:6,borderRadius:'50%',background:color,display:'inline-block' }}/>{tag}</span>; };
 
+const CalendarHeatmap = ({ entries }) => {
+  const weeks = 9;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const cells = [];
+  for (let w = weeks-1; w >= 0; w--) {
+    for (let d = 6; d >= 0; d--) {
+      const dt = new Date(today); dt.setDate(today.getDate() - (w*7+d));
+      const dateStr = dt.toLocaleDateString('en-CA');
+      const entry = entries.find(e=>e.date===dateStr);
+      const domTag = entry?.tags?.[0];
+      const color = domTag ? (EMOTION_COLORS[domTag]||'#4A5080') : null;
+      cells.push({ dateStr, color, hasEntry: !!entry });
+    }
+  }
+  const dayLabels = ['日','月','火','水','木','金','土'];
+  return (
+    <div style={{ marginBottom:20 }}>
+      <div style={{ color:C.muted, fontSize:11, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:10 }}>感情カレンダー</div>
+      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:'16px 18px' }}>
+        <div style={{ display:'flex', gap:4 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:3, marginRight:4 }}>
+            {dayLabels.map((d,i)=><div key={i} style={{ height:13, fontSize:9, color:C.muted, lineHeight:'13px', textAlign:'right' }}>{i%2===0?d:''}</div>)}
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:`repeat(${weeks},1fr)`, gridTemplateRows:'repeat(7,1fr)', gap:3, flex:1 }}>
+            {Array.from({length:weeks},(_,w)=>Array.from({length:7},(_,d)=>{
+              const cell=cells[w*7+(6-d)];
+              return <div key={`${w}-${d}`} title={cell?.dateStr||''} style={{ width:'100%', paddingTop:'100%', borderRadius:3, background: cell?.color ? `${cell.color}CC` : '#0D1230', border: cell?.hasEntry ? `1px solid ${cell.color}` : '1px solid #1A1E40', cursor: cell?.hasEntry ? 'pointer' : 'default', transition:'opacity 0.2s', position:'relative' }} onMouseEnter={e=>{if(cell?.hasEntry)e.currentTarget.style.opacity='0.7';}} onMouseLeave={e=>{e.currentTarget.style.opacity='1';}}/>;
+            }))}
+          </div>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:10, justifyContent:'flex-end' }}>
+          <span style={{ color:C.muted, fontSize:10 }}>少ない</span>
+          {['#FFD93A','#4DFFA0','#7B9FFF','#C49BFF','#FF6B6B'].map(c=><div key={c} style={{ width:10, height:10, borderRadius:2, background:c+'99' }}/>)}
+          <span style={{ color:C.muted, fontSize:10 }}>多い</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const EntryCard = ({ entry }) => { const[open,setOpen]=useState(false); return <div onClick={()=>setOpen(o=>!o)} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:'14px 18px', marginBottom:8, cursor:'pointer', transition:'border-color 0.2s' }} onMouseEnter={e=>e.currentTarget.style.borderColor='#4040A0'} onMouseLeave={e=>e.currentTarget.style.borderColor=C.border}><div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}><span style={{ color:C.muted, fontSize:11 }}>{entry.date}</span><div style={{ display:'flex', flexWrap:'wrap', justifyContent:'flex-end' }}>{entry.tags.map(t=><EmotionTag key={t} tag={t}/>)}</div></div>{open&&<div style={{ color:C.text, fontSize:13, lineHeight:1.9, marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}` }}>{entry.text}</div>}{!open&&<div style={{ color:C.muted, fontSize:12, lineHeight:1.7, marginTop:8 }}>{entry.text.slice(0,80)}{entry.text.length>80?'…':''}</div>}</div>; };
 
 export default function Kokoro() {
@@ -102,7 +142,7 @@ export default function Kokoro() {
       {/* 履歴タブ */}
       {tab===1&&(
         <div>
-          {entries.length===0?<div style={{ textAlign:'center', padding:'60px 0', color:C.muted, fontSize:15, lineHeight:2 }}>📝<br/>{t.emptyHistory}</div>:<>{topTags.length>0&&<div style={{ marginBottom:20, padding:'14px 18px', background:C.card, border:`1px solid ${C.border}`, borderRadius:14 }}><div style={{ color:C.muted, fontSize:11, marginBottom:10 }}>よく感じること</div><div style={{ display:'flex', flexWrap:'wrap' }}>{topTags.slice(0,4).map(([tag])=><EmotionTag key={tag} tag={tag}/>)}</div></div>}<div style={{ color:C.muted, fontSize:11, marginBottom:12 }}>{entries.length}件 · タップで開く</div>{entries.map(e=><EntryCard key={e.id||e.date} entry={e}/>)}</>}
+          {entries.length===0?<div style={{ textAlign:'center', padding:'60px 0', color:C.muted, fontSize:15, lineHeight:2 }}>📝<br/>{t.emptyHistory}</div>:<>{entries.length>=3&&<CalendarHeatmap entries={entries}/>}{topTags.length>0&&<div style={{ marginBottom:20, padding:'14px 18px', background:C.card, border:`1px solid ${C.border}`, borderRadius:14 }}><div style={{ color:C.muted, fontSize:11, marginBottom:10 }}>よく感じること</div><div style={{ display:'flex', flexWrap:'wrap' }}>{topTags.slice(0,4).map(([tag])=><EmotionTag key={tag} tag={tag}/>)}</div></div>}<div style={{ color:C.muted, fontSize:11, marginBottom:12 }}>{entries.length}件 · タップで開く</div>{entries.map(e=><EntryCard key={e.id||e.date} entry={e}/>)}</>}
         </div>
       )}
 
