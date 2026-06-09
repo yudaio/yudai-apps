@@ -15,9 +15,10 @@ import Untangle from '../apps/Untangle';
 import Konoka from '../apps/Konoka';
 import Koe from '../apps/Koe';
 import Kokoro from '../apps/Kokoro';
+import Suno from '../apps/Suno';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno };
 
 export default function AppPage({ params }) {
   const { appId } = params;

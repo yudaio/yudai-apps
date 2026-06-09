@@ -23,6 +23,7 @@ const APPS = [
   { id:'muda',    icon:'🧠', title:'無駄削減',     sub:'週の節約時間を数値で可視化',     color:'#0891B2', tag:'効率' },
   { id:'genki',   icon:'🌐', title:'元気玉',       sub:'あなたの気分が世界と繋がる',     color:'#D97706', tag:'気分' },
   { id:'vending', icon:'🎰', title:'自販機マップ', sub:'近くの自販機を瞬時に発見',       color:'#2563EB', tag:'MAP' },
+  { id:'suno',   icon:'🎵', title:'Melody AI',  sub:'テキストから楽曲を瞬時に生成',   color:'#8B5CF6', tag:'音楽' },
 ];
 
 /* ── Bento カード ── */
