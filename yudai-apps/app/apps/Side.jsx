@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { callAI } from './shared';
 
 const C = {
   bg: "#07091A", card: "#0C0F22", border: "#182040",
@@ -127,21 +128,20 @@ SNS・PCスキル：${fields.sns || '特になし'}
 `.trim();
 
     try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: 'あなたは副業・フリーランス戦略の専門コンサルタントです。具体的・実践的なアドバイスを提供してください。曖昧な表現は避け、固有名詞・数字・具体的サービス名を必ず含めてください。',
-          user: prompt,
-          max: 2000,
-        }),
-      });
-      const { text } = await res.json();
-      setReport(text);
-      bumpUsage();
-      setUsage(getUsage());
+      const text = await callAI(
+        'あなたは副業・フリーランス戦略の専門コンサルタントです。具体的・実践的なアドバイスを提供してください。曖昧な表現は避け、固有名詞・数字・具体的サービス名を必ず含めてください。',
+        prompt,
+        2000,
+      );
+      if (!text) {
+        setReport('__error__');
+      } else {
+        setReport(text);
+        bumpUsage();
+        setUsage(getUsage());
+      }
     } catch {
-      setReport('エラーが発生しました。もう一度お試しください。');
+      setReport('__error__');
     }
     setLoading(false);
   }
@@ -247,6 +247,13 @@ SNS・PCスキル：${fields.sns || '特になし'}
                 あなた専用のロードマップを生成中...
               </div>
               <div style={{ color: C.muted, fontSize: 12 }}>スキルと目標を分析しています</div>
+            </div>
+          ) : report === '__error__' ? (
+            <div style={{ textAlign:'center', padding:'48px 20px' }}>
+              <div style={{ fontSize:48, marginBottom:16 }}>⚠️</div>
+              <div style={{ color:'#FCA5A5', fontSize:16, fontWeight:700, marginBottom:8 }}>AI接続エラー</div>
+              <div style={{ color:C.muted, fontSize:13, lineHeight:1.7, marginBottom:24 }}>APIキーが設定されていないか、一時的に利用できません。</div>
+              <button onClick={() => { setStep(0); setReport(''); }} style={{ padding:'12px 28px', background:C.accent, color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>もう一度試す</button>
             </div>
           ) : (
             <div>

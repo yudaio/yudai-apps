@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { callAI } from './shared';
 
 /* ─────────────── デザイントークン ─────────────── */
 const T = {
@@ -130,21 +131,20 @@ export default function Marry() {
 `.trim();
 
     try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: 'あなたは婚活市場の辛口プロコンサルタントです。耳障りの良いことだけでなく、本当に役立つ現実的なアドバイスを提供してください。具体的なサービス名・数字・事例を必ず含めてください。',
-          user: prompt,
-          max: 2000,
-        }),
-      });
-      const { text } = await res.json();
-      setReport(text);
-      bumpUsage();
-      setUsage(getUsage());
+      const text = await callAI(
+        'あなたは婚活市場の辛口プロコンサルタントです。耳障りの良いことだけでなく、本当に役立つ現実的なアドバイスを提供してください。具体的なサービス名・数字・事例を必ず含めてください。',
+        prompt,
+        2000,
+      );
+      if (!text) {
+        setReport('__error__');
+      } else {
+        setReport(text);
+        bumpUsage();
+        setUsage(getUsage());
+      }
     } catch {
-      setReport('エラーが発生しました。もう一度お試しください。');
+      setReport('__error__');
     }
     setLoading(false);
   }
@@ -315,6 +315,17 @@ function ResultScreen({ loading, report, copied, onCopy, onUpgrade, onReset }) {
             <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: T.roseSoft, animation: `bounce${i} 1.2s ${i * 0.2}s infinite` }} />
           ))}
         </div>
+      </div>
+    </div>
+  );
+
+  if (report === '__error__') return (
+    <div style={{ minHeight:'100vh', background:`linear-gradient(160deg, #FDF2F8, #FFF7ED)`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:24 }}>
+      <div style={{ textAlign:'center' }}>
+        <div style={{ fontSize:48, marginBottom:16 }}>⚠️</div>
+        <div style={{ color:T.rose, fontSize:18, fontWeight:700, marginBottom:8 }}>AI接続エラー</div>
+        <div style={{ color:T.muted, fontSize:13, lineHeight:1.7, marginBottom:24 }}>APIキーが設定されていないか、一時的に利用できません。<br/>しばらく経ってから再度お試しください。</div>
+        <button onClick={onReset} style={{ padding:'12px 28px', background:T.rose, color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>もう一度試す</button>
       </div>
     </div>
   );

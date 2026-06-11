@@ -19,11 +19,13 @@ export default function Muda() {
   const[savedHours,setSavedHours]=useState('');
   const[loading,setLoading]=useState(false);
   const[history,setHistory]=useState([]);
+  const[aiError,setAiError]=useState(false);
 
   useEffect(()=>{ async function load(){ if(auth?.user){const r=await getHistoryRemote('muda',auth.user.id);setHistory(r||getHistoryLocal('muda'));}else setHistory(getHistoryLocal('muda')); } load(); },[auth?.user]);
 
-  const run=async()=>{ setLoading(true);setRes('');setSavedHours('');
+  const run=async()=>{ setLoading(true);setRes('');setSavedHours('');setAiError(false);
     const r=await callAI('あなたは時間効率化の専門家です。週のルーティンを分析し、無駄な習慣を特定して改善策を提案します。出力：\n【節約時間】約○時間（数字のみ）\n【削除すべき習慣】具体的に2〜3項目\n【最適化できる行動】具体的に2〜3項目\n【維持すべき習慣】価値ある行動2〜3項目',`週のルーティン：${routine}`);
+    if(!r){setLoading(false);setAiError(true);return;}
     setRes(r);
     const h=r.match(/【節約時間】約?(\d+\.?\d*)/)?.[1]||'';
     setSavedHours(h);
@@ -47,6 +49,7 @@ export default function Muda() {
             <textarea value={routine} onChange={e=>setRoutine(e.target.value)} placeholder="例：毎朝SNSを1時間見る。週3回残業2時間。会議が週5回各1時間。通勤片道1時間…" rows={6} style={{ width:'100%', padding:'12px 14px', background:'#040810', border:`1px solid ${C.border}`, borderRadius:10, color:C.text, fontSize:14, fontFamily:'inherit', lineHeight:1.9, resize:'vertical', outline:'none', boxSizing:'border-box' }} onFocus={e=>{e.target.style.borderColor='#0891B255';e.target.style.boxShadow='0 0 0 3px #0891B215';}} onBlur={e=>{e.target.style.borderColor=C.border;e.target.style.boxShadow='none';}}/>
           </div>
           <HeroBtn onClick={run} disabled={!routine.trim()} grad={GRAD}>🧠 無駄を分析する</HeroBtn>
+          {aiError&&<div style={{marginTop:12,padding:'12px 16px',background:'#071018',border:'1px solid #0891B240',borderRadius:10,color:'#7DD3FC',fontSize:13,textAlign:'center'}}>⚠️ AI接続エラー。しばらく経ってから再度お試しください。</div>}
         </div>
       )}
 

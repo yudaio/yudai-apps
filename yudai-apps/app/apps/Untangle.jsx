@@ -52,13 +52,48 @@ const C = {
 };
 
 async function callAI(messages, system, max = 400) {
-  const res = await fetch('/api/ai', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system, messages, max }),
-  });
-  const data = await res.json();
-  return data.text;
+  // Pollinations をクライアントから直接呼ぶ（ブラウザIP使用）
+  const polMessages = [
+    ...(system ? [{ role: 'system', content: system }] : []),
+    ...messages,
+  ];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch('https://text.pollinations.ai/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'openai',
+          messages: polMessages,
+          max_tokens: max,
+          temperature: 0.85,
+          seed: Math.floor(Math.random() * 9999),
+        }),
+      });
+      if (res.status === 403) break; // Turnstile ブロック → すぐフォールバック
+      if (res.status === 429) {
+        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
+        continue;
+      }
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) return text;
+    } catch { /* retry */ }
+    if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+  }
+  // フォールバック: サーバー経由
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system, messages, max }),
+    });
+    const data = await res.json();
+    if (!data.text || data.text.startsWith('エラーが発生')) return null;
+    return data.text;
+  } catch {
+    return null;
+  }
 }
 
 export default function Untangle() {
@@ -86,7 +121,7 @@ export default function Untangle() {
     );
     setMessages([
       { role: 'user', content: 'はじめます' },
-      { role: 'assistant', content: opening },
+      { role: 'assistant', content: opening || 'ごめんなさい、今AIに接続できません。しばらく経ってから再試行してください。' },
     ]);
     setLoading(false);
     setTimeout(() => inputRef.current?.focus(), 100);
@@ -101,7 +136,7 @@ export default function Untangle() {
     setInput('');
     setLoading(true);
 
-    const reply = await callAI(newMessages, SYSTEM);
+    const reply = await callAI(newMessages, SYSTEM) || '申し訳ありません、AIに接続できません。もう一度試してください。';
     const revealMatch = reply.match(/\[REVEAL:\s*([\s\S]+?)\]/);
     let displayReply = reply;
 
@@ -129,7 +164,7 @@ export default function Untangle() {
       ROADMAP_SYSTEM,
       800
     );
-    setRoadmap(result);
+    setRoadmap(result || 'AI接続エラー。しばらく経ってから再試行してください。');
     setLoading(false);
   };
 

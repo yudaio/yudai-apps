@@ -20,11 +20,13 @@ export default function Fate() {
   const[imgLoaded,setImgLoaded]=useState(false);
   const[loading,setLoading]=useState(false);
   const[history,setHistory]=useState([]);
+  const[aiError,setAiError]=useState(false);
 
   useEffect(()=>{ async function load(){ if(auth?.user){const r=await getHistoryRemote('fate',auth.user.id);setHistory(r||getHistoryLocal('fate'));}else setHistory(getHistoryLocal('fate')); } load(); },[auth?.user]);
 
-  const run=async()=>{ setLoading(true);setRes('');setImgUrl('');setImgLoaded(false);
+  const run=async()=>{ setLoading(true);setRes('');setImgUrl('');setImgLoaded(false);setAiError(false);
     const r=await callAI('あなたは統計・心理学・哲学を融合した運命分析の専門家です。出力：\n【統計的視点】この悩みを持つ人の統計・データを2〜3文\n【心理的視点】心理学的な深層分析を2〜3文\n【人生の指針】具体的な行動指針と可能性を2〜3文',`相談：${q}`);
+    if(!r){setLoading(false);setAiError(true);return;}
     setRes(r);
     const imgPrompt=`mystical fate oracle, cosmic destiny, ${q.slice(0,30)}, glowing runes, deep purple nebula, tarot card aesthetic, cinematic, no text`;
     setImgUrl(`https://image.pollinations.ai/prompt/${encodeURIComponent(imgPrompt)}?width=512&height=300&nologo=true&seed=${Date.now()}`);
@@ -48,6 +50,7 @@ export default function Fate() {
             <textarea value={q} onChange={e=>setQ(e.target.value)} placeholder="例：転職すべきか、このまま続けるべきか。自分の適性がわからない…" rows={5} style={{ width:'100%', padding:'12px 14px', background:'#070610', border:`1px solid ${C.border}`, borderRadius:10, color:C.text, fontSize:14, fontFamily:'inherit', lineHeight:1.9, resize:'vertical', outline:'none', boxSizing:'border-box' }} onFocus={e=>{e.target.style.borderColor='#7C3AED55';e.target.style.boxShadow='0 0 0 3px #7C3AED15';}} onBlur={e=>{e.target.style.borderColor=C.border;e.target.style.boxShadow='none';}}/>
           </div>
           <HeroBtn onClick={run} disabled={!q.trim()} grad={GRAD}>🔮 運命を解析する</HeroBtn>
+          {aiError&&<div style={{marginTop:12,padding:'12px 16px',background:'#1A0808',border:'1px solid #EF444440',borderRadius:10,color:'#FCA5A5',fontSize:13,textAlign:'center'}}>⚠️ AI接続エラー。しばらく経ってから再度お試しください。<br/><span style={{fontSize:11,color:'#6A3A3A'}}>（APIキーの設定が必要な場合があります）</span></div>}
         </div>
       )}
 

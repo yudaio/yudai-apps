@@ -19,11 +19,13 @@ export default function Rant() {
   const[question,setQuestion]=useState('');
   const[loading,setLoading]=useState(false);
   const[history,setHistory]=useState([]);
+  const[aiError,setAiError]=useState(false);
 
   useEffect(()=>{ async function load(){ if(auth?.user){const r=await getHistoryRemote('rant',auth.user.id);setHistory(r||getHistoryLocal('rant'));}else setHistory(getHistoryLocal('rant')); } load(); },[auth?.user]);
 
-  const run=async()=>{ setLoading(true);setRes('');setQuestion('');
+  const run=async()=>{ setLoading(true);setRes('');setQuestion('');setAiError(false);
     const r=await callAI('あなたはAIジャーナリストです。社会問題を哲学・データ・人間の3視点で公平に解剖します。出力：\n【哲学的視点】本質的な矛盾や構造を2〜3文\n【データ的視点】統計や研究が示す事実を2〜3文\n【人間的視点】当事者が感じていることを2〜3文\n【問い】読者に残す哲学的な問いかけを1文',`テーマ：${topic}`);
+    if(!r){setLoading(false);setAiError(true);return;}
     setRes(r);
     const q=r.match(/【問い】([\s\S]+?)$/)?.[1]?.trim()||'';
     setQuestion(q);
@@ -47,6 +49,7 @@ export default function Rant() {
             <textarea value={topic} onChange={e=>setTopic(e.target.value)} placeholder="例：なぜ努力しても賃金が上がらないのか。" rows={5} style={{ width:'100%', padding:'12px 14px', background:'#0A0404', border:`1px solid ${C.border}`, borderRadius:10, color:C.text, fontSize:14, fontFamily:'inherit', lineHeight:1.9, resize:'vertical', outline:'none', boxSizing:'border-box' }} onFocus={e=>{e.target.style.borderColor='#DC262655';e.target.style.boxShadow='0 0 0 3px #DC262615';}} onBlur={e=>{e.target.style.borderColor=C.border;e.target.style.boxShadow='none';}}/>
           </div>
           <HeroBtn onClick={run} disabled={!topic.trim()} grad={GRAD}>💢 解剖する</HeroBtn>
+          {aiError&&<div style={{marginTop:12,padding:'12px 16px',background:'#120404',border:'1px solid #DC262640',borderRadius:10,color:'#FCA5A5',fontSize:13,textAlign:'center'}}>⚠️ AI接続エラー。しばらく経ってから再度お試しください。</div>}
         </div>
       )}
 

@@ -121,6 +121,7 @@ Bメロの歌詞（3〜4行）
 
     const userPrompt = `楽曲のテーマ：${prompt}${style ? `\nスタイル：${style}` : ''}`;
     const result = await callAI(system, userPrompt, 1000);
+    if (!result) { setLoading(false); setActiveTab('create'); return; }
 
     const titleM = result.match(/【TITLE】([^\n]+)/);
     const tagsM  = result.match(/【TAGS】([^\n]+)/);

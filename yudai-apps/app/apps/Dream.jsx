@@ -21,13 +21,15 @@ export default function Dream() {
   const[imgLoaded,setImgLoaded]=useState(false);
   const[loading,setLoading]=useState(false);
   const[history,setHistory]=useState([]);
+  const[aiError,setAiError]=useState(false);
   const t=T[lang];
   const gate=useGate('dream');
 
   useEffect(()=>{ async function load(){ if(auth?.user){const r=await getHistoryRemote('dream',auth.user.id);setHistory(r||getHistoryLocal('dream'));}else setHistory(getHistoryLocal('dream')); } load(); },[auth?.user]);
 
-  const run=async()=>{ if(!gate.check())return; setLoading(true);setImgUrl('');setImgLoaded(false);
+  const run=async()=>{ if(!gate.check())return; setLoading(true);setImgUrl('');setImgLoaded(false);setAiError(false);
     const r=await callAI(t.system,t.userPrompt(dream));
+    if(!r){setLoading(false);setAiError(true);return;}
     setRes(r);
     const title=r.match(t.titleKey)?.[1]?.trim()||'surreal dreamscape';
     const prose=r.match(t.proseKey)?.[1]?.replace(/\n/g,' ').slice(0,100)||'';
@@ -63,6 +65,7 @@ export default function Dream() {
             <textarea value={dream} onChange={e=>setDream(e.target.value)} placeholder={t.placeholder} rows={6} style={{ width:'100%', padding:'12px 14px', background:'#020808', border:`1px solid ${C.border}`, borderRadius:10, color:C.text, fontSize:14, fontFamily:'inherit', lineHeight:1.9, resize:'vertical', outline:'none', boxSizing:'border-box' }} onFocus={e=>{e.target.style.borderColor='#0D948855';e.target.style.boxShadow='0 0 0 3px #0D948815';}} onBlur={e=>{e.target.style.borderColor=C.border;e.target.style.boxShadow='none';}}/>
           </div>
           <HeroBtn onClick={run} disabled={!dream.trim()} grad={GRAD}>{t.btn}</HeroBtn>
+          {aiError&&<div style={{marginTop:12,padding:'12px 16px',background:'#020F0E',border:'1px solid #0D948840',borderRadius:10,color:'#5EEAD4',fontSize:13,textAlign:'center'}}>⚠️ AI接続エラー。しばらく経ってから再度お試しください。</div>}
         </div>
       )}
 

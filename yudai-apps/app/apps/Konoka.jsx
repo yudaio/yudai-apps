@@ -45,7 +45,13 @@ async function chat(history, userMessage) {
     m.role === 'user' ? `ファン：${m.content}` : `このちゃん：${m.content}`
   ).join('\n');
   const prompt = historyText ? `${historyText}\nファン：${userMessage}` : `ファン：${userMessage}`;
-  return callAI(SYSTEM_PROMPT, prompt, 200);
+  try {
+    const text = await callAI(SYSTEM_PROMPT, prompt, 200);
+    if (!text || text.includes('"error"')) return 'ごめんね、ちょっと今つながりにくいみたい…もう一回話しかけてみてな？';
+    return text;
+  } catch {
+    return 'ごめんね、ちょっと今つながりにくいみたい…もう一回話しかけてみてな？';
+  }
 }
 
 function speak(text, voiceRef) {

@@ -16,13 +16,50 @@ export const C = {
 };
 
 export async function callAI(system, user, max = 700) {
-  const res = await fetch("/api/ai", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ system, user, max }),
-  });
-  const data = await res.json();
-  return data.text;
+  // 1. Pollinations.ai を直接クライアントから呼ぶ（ブラウザのIPを使用→レート制限を回避）
+  const polMessages = [
+    ...(system ? [{ role: 'system', content: system }] : []),
+    { role: 'user', content: user },
+  ];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch('https://text.pollinations.ai/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'openai',
+          messages: polMessages,
+          max_tokens: max,
+          temperature: 0.8,
+          seed: Math.floor(Math.random() * 9999),
+        }),
+      });
+      if (res.status === 429 || res.status === 403) {
+        // 429 = レート制限, 403 = Turnstile 認証エラー → サーバー経由にフォールバック
+        if (res.status === 403) break; // Turnstile はリトライしても無意味
+        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
+        continue;
+      }
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) return text;
+    } catch { /* network error → retry */ }
+    if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+  }
+  // 2. フォールバック: サーバー経由（Anthropic/Gemini/Groq/Pollinations）
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system, user, max }),
+    });
+    const data = await res.json();
+    // エラー文字列はnullに変換（呼び出し元でnullチェック可能にする）
+    if (!data.text || data.text.startsWith('エラーが発生')) return null;
+    return data.text;
+  } catch {
+    return null;
+  }
 }
 
 export async function saveHistory(appId, input, result, userId = null) {

@@ -22,7 +22,7 @@ async function saveRemote(uid,e) { if (!supabase) return; await supabase.from('d
 async function loadRemote(uid) { if (!supabase) return []; const{data}=await supabase.from('daily_entries').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(100); return (data||[]).map(d=>({ id:d.id, date:d.entry_date, text:d.mood_text, tags:d.emotion_tags||[], lang:d.lang, created_at:d.created_at })); }
 async function extractTags(text,lang) {
   const p=lang==='en'?`Extract 2-4 emotion tags from this journal. Output ONLY a JSON array. Example: ["hope","anxiety"]\n\nEntry: "${text}"` :`この日記から感情タグを2〜4個抽出。JSON配列のみ出力。例：["希望","不安"]\n\n日記：「${text}」`;
-  try{ const r=await callAI('You extract emotion tags. Output only a JSON array.',p,100); const m=r.match(/\[.*\]/s); return m?JSON.parse(m[0]):[];}catch{return[];}
+  try{ const r=await callAI('You extract emotion tags. Output only a JSON array.',p,100); if(!r)return[]; const m=r.match(/\[.*\]/s); return m?JSON.parse(m[0]):[];}catch{return[];}
 }
 async function analyzePatterns(entries,lang) {
   const s=entries.slice(0,30).map((e,i)=>`${i+1}. [${e.date}] ${e.tags.join(',')} - ${e.text.slice(0,60)}`).join('\n');
@@ -99,7 +99,7 @@ export default function Kokoro() {
   const topTags=Object.entries(tagCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
 
   const handleSave=async()=>{ if(!text.trim())return; setSaving(true); const tags=await extractTags(text,lang); const entry={id:Date.now(),date:today,text,tags,lang,created_at:new Date().toISOString()}; saveLocal(entry); if(auth?.user)await saveRemote(auth.user.id,entry); setEntries([entry,...entries.filter(e=>e.date!==today)]); setNewTags(tags); setText(''); setSaving(false); setSaved(true); setTimeout(()=>{setSaved(false);setNewTags([]);},4000); };
-  const handleAnalyze=async()=>{ setAnalyzing(true); const r=await analyzePatterns(entries,lang); setPattern(r); setAnalyzing(false); };
+  const handleAnalyze=async()=>{ setAnalyzing(true); const r=await analyzePatterns(entries,lang); setPattern(r||'AI接続エラー。APIキーを設定してください。'); setAnalyzing(false); };
 
   return (
     <div style={{ maxWidth:640, margin:'0 auto', color:C.text }}>

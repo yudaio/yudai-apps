@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { callAI } from './shared';
 
 const C = { bg:"#07091A", card:"#0C0F22", border:"#182040", text:"#C5D0F0", muted:"#4A5880", accent:"#10B981", danger:"#EF4444" };
 
@@ -88,23 +89,19 @@ export default function Biz() {
     setLoading(true);
     const prompt = PROMPTS[docType.id](fields);
     try {
-      const r = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: 'あなたはプロの日本語ビジネス文書ライターです。丁寧で格調のある文章を書いてください。余計な説明は不要で、文書本文のみ出力してください。',
-          user: prompt,
-          max: 1000,
-        }),
-      });
-      const { text } = await r.json();
+      const text = await callAI(
+        'あなたはプロの日本語ビジネス文書ライターです。丁寧で格調のある文章を書いてください。余計な説明は不要で、文書本文のみ出力してください。',
+        prompt,
+        1000,
+      );
+      if (!text) throw new Error('AI unavailable');
       setResult(text);
       const newUsage = { count: usage.count + 1, month: usage.month };
       saveUsage(newUsage);
       setUsage(newUsage);
       setStep('result');
     } catch {
-      setResult('エラーが発生しました。もう一度お試しください。');
+      setResult('__error__');
       setStep('result');
     }
     setLoading(false);
@@ -215,6 +212,14 @@ export default function Biz() {
       {/* STEP: Result */}
       {step === 'result' && (
         <div>
+          {result === '__error__' ? (
+            <div style={{ background: C.card, border: `1px solid #EF444440`, borderRadius: 14, padding: 24, marginBottom: 16, textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+              <div style={{ color: '#FCA5A5', fontSize: 15, fontWeight: 700, marginBottom: 8 }}>AI接続エラー</div>
+              <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 20 }}>APIキーが設定されていないか、一時的に利用できません。</div>
+              <button onClick={() => { setStep('form'); setResult(''); }} style={{ padding: '10px 24px', background: C.accent, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 700 }}>もう一度試す</button>
+            </div>
+          ) : (
           <div style={{ background: C.card, border: `1px solid ${C.accent}33`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <span style={{ color: C.accent, fontSize: 13, fontWeight: 700 }}>✅ 生成完了</span>
@@ -226,6 +231,7 @@ export default function Biz() {
               {result}
             </div>
           </div>
+          )}
 
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={() => { setStep('form'); setResult(''); }} style={{ flex: 1, background: 'transparent', border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, padding: '12px', cursor: 'pointer', fontSize: 13 }}>

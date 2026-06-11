@@ -20,7 +20,10 @@ function saveConvo(id,c){const all=JSON.parse(localStorage.getItem(CONVOS_KEY)||
 async function talkAs(person,echoes,question,lang){
   const echoText=echoes.map((e,i)=>`${i+1}. ${e.text}`).join('\n');
   const system=lang==='en'?`You ARE ${person.name} (${person.rel}). Speak in first person as them.\nRespond based on their personality shown in these memories:\n${echoText}\n\nRules:\n- Speak as ${person.name}, not about them\n- Use their speech patterns from the memories\n- Be warm and authentic\n- Keep response under 150 words`:`あなたは${person.name}（${person.rel}）本人です。一人称で話してください。\n以下の思い出・言葉からその人の人柄を読み取って応答してください：\n${echoText}\n\nルール：\n- ${person.name}として話す\n- 口癖・話し方を使う\n- 温かく、自然に\n- 150字以内`;
-  return callAI(system,question,300);
+  const r = await callAI(system,question,300);
+  return r || (lang==='en'
+    ? 'Sorry, I can\'t connect right now. Please try again.'
+    : 'ごめん、今うまく話せない…また話しかけてくれる？');
 }
 
 export default function Koe() {
