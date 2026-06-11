@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share } from './shared';
+import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share, QuickGuide } from './shared';
 import { AuthBadge, useAuth } from './AuthGate';
 import { useGate, PaywallModal, UsageBadge } from './Paywall';
 
@@ -57,6 +57,12 @@ export default function Dream() {
       <AuthBadge/>
       <UsageBadge remaining={gate.remaining} premium={gate.premium} lang={lang}/>
       {gate.blocked&&<PaywallModal onClose={gate.dismiss} lang={lang}/>}
+      <QuickGuide color="#0D9488" steps={[
+        '昨夜（または過去）の夢の断片を思い出してテキストで書く（断片でOK）',
+        '「夢を映像化する」ボタンを押す',
+        'AIが夢を詩的散文に変換 ＋ AI画像も自動生成される',
+        '夢日記として保存・SNSにシェアできる。毎日続けると夢パターンが見えてくる',
+      ]}/>
 
       {!res&&(
         <div>

@@ -1,10 +1,21 @@
 import { AuthProvider } from './apps/AuthGate';
-export const metadata = { title: "Yudai Apps", description: "AIと感情が交差する、11本のアプリ" };
+export const metadata = {
+  title: "Yudai Apps — AIと感情が交差する17本のプロダクト",
+  description: "診断・チャット・生成・記録。登録不要で全部無料。運命診断・夢映像化・声の遺産・婚活診断・副業診断など17本のAIアプリ。",
+  keywords: "AI, 診断, チャット, 夢, 運命, 副業, 婚活, 感情, 無料, アプリ",
+  openGraph: {
+    title: "Yudai Apps — AIと感情が交差する17本のプロダクト",
+    description: "登録不要・全部無料。運命診断・夢映像化・声の遺産など17本のAIアプリ",
+    type: "website",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="ja">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="theme-color" content="#050812" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
@@ -101,6 +112,26 @@ export default function RootLayout({ children }) {
           ::-webkit-scrollbar-track { background: #07091A; }
           ::-webkit-scrollbar-thumb { background: #2A3060; border-radius: 3px; }
           ::-webkit-scrollbar-thumb:hover { background: #4A5890; }
+
+          /* ── モバイル最適化 ── */
+          @media (max-width: 640px) {
+            body { font-size: 15px; }
+            input, textarea, button { font-size: 16px !important; }
+          }
+          @media (max-width: 480px) {
+            .hero-title { font-size: 36px !important; }
+          }
+
+          /* ── タッチデバイス ── */
+          @media (hover: none) {
+            button:active { opacity: 0.8; transform: scale(0.98); }
+          }
+
+          /* ── フォーカスリング ── */
+          button:focus-visible, a:focus-visible {
+            outline: 2px solid #6366F1;
+            outline-offset: 2px;
+          }
         `}</style>
       </head>
       <body style={{

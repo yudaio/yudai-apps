@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 
 export const C = {
@@ -182,20 +183,81 @@ export const HistoryPanel = ({ items, onSelect }) => {
   );
 };
 
-export const Loading = () => (
-  <div style={{ textAlign: "center", padding: "32px 0" }}>
-    <div style={{ display: "inline-flex", gap: 6 }}>
+export const Loading = ({ message = 'AIが考えています…' }) => (
+  <div style={{ textAlign: "center", padding: "32px 16px" }}>
+    <div style={{ display: "inline-flex", gap: 8, marginBottom: 12 }}>
       {[0, 1, 2].map(n => (
         <div key={n} style={{
-          width: 8, height: 8, borderRadius: "50%", background: "#6366F1",
-          animation: `bounce 1.2s ease-in-out ${n * 0.2}s infinite`,
+          width: 10, height: 10, borderRadius: "50%",
+          background: `linear-gradient(135deg,#6366F1,#A78BFA)`,
+          animation: `bounce 1.4s ease-in-out ${n * 0.22}s infinite`,
+          boxShadow: '0 0 8px #6366F150',
         }} />
       ))}
     </div>
-    <style>{`@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}`}</style>
-    <div style={{ color: "#3A4870", fontSize: 12, marginTop: 10 }}>処理中…</div>
+    <style>{`@keyframes bounce{0%,80%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-10px) scale(1.15)}}`}</style>
+    <div style={{ color: "#6A78A8", fontSize: 13, fontWeight: 500 }}>{message}</div>
+    <div style={{ color: "#2A3460", fontSize: 11, marginTop: 6 }}>通常10〜20秒かかります</div>
   </div>
 );
+
+/* ── AIエラーカード ── */
+export const AIErrorCard = ({ onRetry, color = '#6366F1', message = 'AI接続エラー' }) => {
+  const [countdown, setCountdown] = useState(0);
+  useEffect(() => {
+    if (countdown > 0) {
+      const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [countdown]);
+  const handleRetry = () => { setCountdown(5); if (onRetry) onRetry(); };
+  return (
+    <div style={{ marginTop:16, padding:'16px 20px', background:'#0A0812', border:'1px solid #FF444430', borderRadius:14, textAlign:'center' }}>
+      <div style={{ fontSize:28, marginBottom:8 }}>⚠️</div>
+      <div style={{ color:'#FCA5A5', fontSize:14, fontWeight:700, marginBottom:6 }}>{message}</div>
+      <div style={{ color:'#6A4848', fontSize:12, lineHeight:1.7, marginBottom:14 }}>
+        AIサービスに一時的に接続できません。<br/>
+        しばらく経ってから再度お試しください。
+      </div>
+      {onRetry && (
+        <button
+          onClick={handleRetry}
+          disabled={countdown > 0}
+          style={{ padding:'9px 20px', background: countdown > 0 ? '#111428' : `${color}20`, border:`1px solid ${countdown > 0 ? '#1E2448' : color+'50'}`, borderRadius:10, color: countdown > 0 ? '#3A4870' : color, fontSize:13, fontWeight:600, cursor: countdown > 0 ? 'default' : 'pointer', fontFamily:'inherit', transition:'all 0.2s' }}>
+          {countdown > 0 ? `${countdown}秒後に再試行...` : '🔄 もう一度試す'}
+        </button>
+      )}
+    </div>
+  );
+};
+
+/* ── アプリ使い方ガイド ── */
+export const QuickGuide = ({ steps, color = '#6366F1', collapsed = true }) => {
+  const [open, setOpen] = useState(!collapsed);
+  return (
+    <div style={{ marginBottom:20, border:`1px solid ${color}30`, borderRadius:14, overflow:'hidden', background:`${color}08` }}>
+      <button
+        onClick={()=>setOpen(o=>!o)}
+        style={{ width:'100%', padding:'12px 18px', background:'transparent', border:'none', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', fontFamily:'inherit' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ fontSize:14 }}>📖</span>
+          <span style={{ color:C.mutedHi, fontSize:13, fontWeight:600 }}>使い方ガイド</span>
+        </div>
+        <span style={{ color:C.muted, fontSize:16, transform:open?'rotate(90deg)':'none', transition:'transform 0.2s' }}>›</span>
+      </button>
+      {open && (
+        <div style={{ padding:'4px 18px 16px', borderTop:`1px solid ${color}20` }}>
+          {steps.map((s,i)=>(
+            <div key={i} style={{ display:'flex', gap:12, marginBottom: i<steps.length-1?10:0, paddingTop:10 }}>
+              <div style={{ width:22, height:22, borderRadius:'50%', background:`${color}20`, border:`1px solid ${color}40`, display:'flex', alignItems:'center', justifyContent:'center', color, fontSize:11, fontWeight:900, flexShrink:0, marginTop:1 }}>{i+1}</div>
+              <div style={{ color:C.muted, fontSize:13, lineHeight:1.65 }}>{s}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const BackBtn = () => (
   <a href="/" style={{

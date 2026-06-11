@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { callAI } from './shared';
+import { callAI, QuickGuide } from './shared';
 
 const C = {
   bg: "#07091A", card: "#0C0F22", border: "#182040",
@@ -163,6 +163,14 @@ SNS・PCスキル：${fields.sns || '特になし'}
           <span style={{ color: C.accent, fontWeight: 700 }}>専用の収益化ロードマップ</span>を即時生成
         </p>
       </div>
+
+      {/* 使い方ガイド */}
+      {step === 0 && <QuickGuide color="#F59E0B" steps={[
+        '現在のスキル・職種・稼働できる時間・目標収入を入力する',
+        'AIが副業の市場データと照合してベストな副業カテゴリを選定',
+        '選んだ副業の「具体的な始め方・使うサービス・月収目安」を生成',
+        'プレミアムで詳細な30/60/90日ロードマップも取得できる',
+      ]}/>}
 
       {/* STEP: フォーム (0, 1) */}
       {step <= 1 && (

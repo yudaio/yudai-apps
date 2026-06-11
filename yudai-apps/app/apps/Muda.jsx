@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share } from './shared';
+import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share, QuickGuide } from './shared';
 import { AuthBadge, useAuth } from './AuthGate';
 
 const GRAD = 'linear-gradient(135deg,#0C4A6E,#0891B2,#0E7490)';
@@ -41,6 +41,12 @@ export default function Muda() {
     <div style={{ maxWidth:640, margin:'0 auto', color:C.text }}>
       <AppHero icon="🧠" title="無駄削減" sub="あなたの週に、何時間が隠れていますか？" grad={GRAD}/>
       <AuthBadge/>
+      <QuickGuide color="#0891B2" steps={[
+        '週のルーティンをテキストで書く（例：毎朝SNS1時間、残業週3回2時間…）',
+        '「🧠 無駄を分析する」ボタンを押す',
+        'AIが各行動を分析し、週・月・年の節約時間を数値で算出する',
+        '「削減提案」と「置き換えアクション」も一緒に提示される',
+      ]}/>
 
       {!res&&(
         <div>

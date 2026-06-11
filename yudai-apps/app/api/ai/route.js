@@ -24,7 +24,8 @@ export async function POST(req) {
       if (data.content?.[0]?.text) {
         return Response.json({ text: data.content[0].text });
       }
-    } catch { /* fall through */ }
+      console.error('[/api/ai] Anthropic error:', JSON.stringify(data).slice(0, 200));
+    } catch (e) { console.error('[/api/ai] Anthropic error:', e.message); }
   }
 
   // ── 2. Google Gemini（無料 API キー — aistudio.google.com で取得）──────
@@ -34,24 +35,22 @@ export async function POST(req) {
       if (system) geminiMsgs.push({ role: 'user', parts: [{ text: `System: ${system}` }] }, { role: 'model', parts: [{ text: 'OK.' }] });
       msgs.forEach(m => geminiMsgs.push({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: geminiMsgs,
-            generationConfig: { maxOutputTokens: max, temperature: 0.8 },
+            generationConfig: { maxOutputTokens: max, temperature: 0.85 },
           }),
-          signal: AbortSignal.timeout(30000),
+          signal: AbortSignal.timeout(25000),
         }
       );
       const data = await res.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (text) return Response.json({ text });
       console.error('[/api/ai] Gemini error:', JSON.stringify(data).slice(0, 200));
-    } catch (e) {
-      console.error('[/api/ai] Gemini fetch error:', e.message);
-    }
+    } catch (e) { console.error('[/api/ai] Gemini error:', e.message); }
   }
 
   // ── 3. Groq（無料 — console.groq.com で取得）────────────────────────────
@@ -67,27 +66,53 @@ export async function POST(req) {
           'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
+          model: 'llama-3.3-70b-versatile',
           max_tokens: max,
           messages: groqMsgs,
           temperature: 0.8,
         }),
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(25000),
       });
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content;
       if (text) return Response.json({ text });
       console.error('[/api/ai] Groq error:', JSON.stringify(data).slice(0, 200));
-    } catch (e) {
-      console.error('[/api/ai] Groq fetch error:', e.message);
-    }
+    } catch (e) { console.error('[/api/ai] Groq error:', e.message); }
   }
 
-  // ── 4. Pollinations.ai（最終フォールバック・レート制限あり）──────────────
+  // ── 4. OpenRouter 無料モデル（無料枠あり）─────────────────────────────
+  if (process.env.OPENROUTER_API_KEY) {
+    try {
+      const orMsgs = system
+        ? [{ role: 'system', content: system }, ...msgs]
+        : msgs;
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          max_tokens: max,
+          messages: orMsgs,
+          temperature: 0.8,
+        }),
+        signal: AbortSignal.timeout(25000),
+      });
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) return Response.json({ text });
+      console.error('[/api/ai] OpenRouter error:', JSON.stringify(data).slice(0, 200));
+    } catch (e) { console.error('[/api/ai] OpenRouter error:', e.message); }
+  }
+
+  // ── 5. Pollinations.ai（最終フォールバック）─────────────────────────────
   const polMessages = system
     ? [{ role: 'system', content: system }, ...msgs]
     : msgs;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await fetch('https://text.pollinations.ai/openai', {
         method: 'POST',
@@ -99,19 +124,19 @@ export async function POST(req) {
           temperature: 0.8,
           seed: Math.floor(Math.random() * 9999),
         }),
-        signal: AbortSignal.timeout(25000),
+        signal: AbortSignal.timeout(20000),
       });
-      if (res.status === 429) {
-        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
+      if (res.status === 429 || res.status === 403) {
+        if (attempt === 0) await new Promise(r => setTimeout(r, 3000));
         continue;
       }
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content;
       if (text) return Response.json({ text });
-    } catch {
-      if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+    } catch (e) {
+      if (attempt === 0) await new Promise(r => setTimeout(r, 2000));
     }
   }
 
-  return Response.json({ text: 'エラーが発生しました。もう一度お試しください。' });
+  return Response.json({ text: 'エラーが発生しました。もう一度お試しください。' }, { status: 503 });
 }

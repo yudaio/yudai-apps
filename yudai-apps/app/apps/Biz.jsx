@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { callAI } from './shared';
+import { callAI, QuickGuide } from './shared';
 
 const C = { bg:"#07091A", card:"#0C0F22", border:"#182040", text:"#C5D0F0", muted:"#4A5880", accent:"#10B981", danger:"#EF4444" };
 
@@ -127,6 +127,13 @@ export default function Biz() {
           無料
         </p>
       </div>
+
+      {step === 'select' && <QuickGuide color="#2563EB" steps={[
+        '作りたい文書の種類を選ぶ（提案書・企画書・お礼メールなど）',
+        '案件名・目的・相手先など必要な情報を入力する',
+        'AIが業界標準のプロ品質文書を生成する（10〜20秒）',
+        '結果をコピーしてそのままメールや書類に使える',
+      ]}/>}
 
       {/* Upgrade banner */}
       {isLimited && step !== 'upgrade' && (

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { callAI } from './shared';
+import { callAI, QuickGuide } from './shared';
 
 /* ─────────────── デザイントークン ─────────────── */
 const T = {
@@ -206,6 +206,16 @@ export default function Marry() {
 
       {/* フォームカード */}
       <div style={{ maxWidth: 520, margin: '-24px auto 0', padding: '0 16px' }}>
+        {step === 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <QuickGuide color="#DB2777" steps={[
+              '基本情報（年齢・職業・年収）と婚活状況を4ステップで入力する',
+              'AI面接官が10項目の婚活スコアを算出する',
+              '「強み・弱点・改善策」をレポートで受け取る',
+              'プレミアムで「マッチング戦略・プロフィール文」も生成できる',
+            ]}/>
+          </div>
+        )}
         <div style={{ background: T.bgCard, borderRadius: 20, padding: '28px 24px', boxShadow: T.shadowLg, border: `1px solid ${T.border}` }}>
           <div style={{ marginBottom: 24 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: T.rosePale, borderRadius: 20, padding: '4px 14px', marginBottom: 12 }}>

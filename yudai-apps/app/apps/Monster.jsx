@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share } from './shared';
+import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share, QuickGuide } from './shared';
 import { AuthBadge, useAuth } from './AuthGate';
 import { useGate, PaywallModal, UsageBadge } from './Paywall';
 
@@ -53,6 +53,12 @@ export default function Monster() {
       <AuthBadge />
       <UsageBadge remaining={gate.remaining} premium={gate.premium} lang={lang} />
       {gate.blocked&&<PaywallModal onClose={gate.dismiss} lang={lang}/>}
+      <QuickGuide color="#34D399" steps={[
+        '「今日の気持ちや出来事」に自由に日記を書く（1〜5行でOK）',
+        'オプションでモンスターのイメージ（色・形）を追加できる',
+        '「モンスターを召喚」でAIがユニークな感情モンスターを生成',
+        'AI画像も自動生成。図鑑に蓄積してコレクションを育てよう！',
+      ]}/>
 
       {/* タブ */}
       <div style={{ display:'flex', gap:4, marginBottom:24, background:C.card, borderRadius:14, padding:4, border:`1px solid ${C.border}` }}>

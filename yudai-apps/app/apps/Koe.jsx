@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { AppHero, HeroBtn, callAI } from './shared';
+import { AppHero, HeroBtn, callAI, QuickGuide } from './shared';
 import { AuthBadge } from './AuthGate';
 
 const GRAD = 'linear-gradient(135deg,#78350F,#B45309,#92400E)';
@@ -59,6 +59,12 @@ export default function Koe() {
       </AppHero>
 
       <AuthBadge />
+      <QuickGuide color="#C8A84B" steps={[
+        '「👤 登録」タブで話しかけたい人の名前・関係を登録する',
+        'その人の口癖・思い出・エピソードを「言葉」として追加していく',
+        '「💬 話す」タブでチャット形式で話しかける',
+        'AIがその人の話し方・口癖を再現して応答してくれる。会話記録も残る',
+      ]}/>
 
       {/* プロフィール選択 */}
       {profiles.length>0&&(

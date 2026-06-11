@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share } from './shared';
+import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share, QuickGuide } from './shared';
 import { AuthBadge, useAuth } from './AuthGate';
 
 const GRAD = 'linear-gradient(135deg,#7F1D1D,#DC2626,#EA580C)';
@@ -41,6 +41,12 @@ export default function Rant() {
     <div style={{ maxWidth:640, margin:'0 auto', color:C.text }}>
       <AppHero icon="💢" title="鬱憤爆発" sub="理不尽を哲学・データ・人間の3視点で解剖する" grad={GRAD}/>
       <AuthBadge/>
+      <QuickGuide color="#DC2626" steps={[
+        '理不尽に感じること・社会や職場への怒り・疑問を自由に書く',
+        '「💢 解剖する」ボタンを押す',
+        'AIが「哲学的視点・データ統計・人間心理」の3角度から分析する',
+        '怒りが整理され、次のアクションが見えてくる。シェアして共感を集めよう',
+      ]}/>
 
       {!res&&(
         <div>

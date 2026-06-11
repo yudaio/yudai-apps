@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share } from './shared';
+import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share, QuickGuide } from './shared';
 import { AuthBadge, useAuth } from './AuthGate';
 
 const GRAD = 'linear-gradient(135deg,#1E1057,#4C1D95,#7C3AED)';
@@ -42,6 +42,12 @@ export default function Fate() {
     <div style={{ maxWidth:640, margin:'0 auto', color:C.text }}>
       <AppHero icon="🔮" title="運命診断" sub="統計と心理学が、あなたのビジョンを解析する" grad={GRAD}/>
       <AuthBadge/>
+      <QuickGuide color="#7C3AED" steps={[
+        'テキストボックスに悩み・選択肢・人生の岐路などを自由に書く',
+        '「🔮 運命を解析する」ボタンを押す（10〜20秒待つ）',
+        'AIが「統計的視点・心理的視点・人生の指針」の3角度で分析',
+        '結果と一緒にAIアート画像も自動生成される。シェアも可能！',
+      ]}/>
 
       {!res&&(
         <div>

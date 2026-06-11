@@ -175,23 +175,37 @@ export default function Untangle() {
 
   // ── LANDING ──────────────────────────────────────────────────
   if (phase === 'landing') return (
-    <div style={{ maxWidth: 480, margin: '0 auto', padding: '48px 16px', textAlign: 'center' }}>
-      <div style={{ fontSize: 52, marginBottom: 20 }}>🧩</div>
+    <div style={{ maxWidth: 480, margin: '0 auto', padding: '32px 16px', textAlign: 'center' }}>
+      <div style={{ fontSize: 52, marginBottom: 16 }}>🧩</div>
       <h1 style={{ color: C.text, fontSize: 30, fontWeight: 800, margin: '0 0 10px', letterSpacing: '-0.5px' }}>
         Untangle
       </h1>
-      <p style={{ color: C.accent, fontSize: 11, letterSpacing: 3, marginBottom: 28, textTransform: 'uppercase' }}>
+      <p style={{ color: C.accent, fontSize: 11, letterSpacing: 3, marginBottom: 20, textTransform: 'uppercase' }}>
         The thing holding you back has a name
       </p>
-      <div style={{
-        background: C.accentDim, border: `1px solid ${C.accentBorder}`,
-        borderRadius: 12, padding: '20px 24px', marginBottom: 32, textAlign: 'left'
-      }}>
+
+      {/* 使い方ガイド */}
+      <div style={{ textAlign:'left', background:C.accentDim, border:`1px solid ${C.accentBorder}`, borderRadius:12, padding:'16px 20px', marginBottom:16 }}>
+        <div style={{ color:C.accent, fontSize:11, fontWeight:700, letterSpacing:2, marginBottom:12 }}>HOW IT WORKS</div>
+        {[
+          'AIカウンセラーが恋愛・仕事・人間関係について深掘り質問する',
+          '最低6往復の対話で、行き詰まりのパターンを探っていく',
+          '根っこの「足かせ」が特定されたら診断完了（ネタバレは有料）',
+          'プレミアムで「足かせの正体」と90日ロードマップを解放できる',
+        ].map((s,i)=>(
+          <div key={i} style={{ display:'flex', gap:10, marginBottom:i<3?8:0 }}>
+            <div style={{ width:20, height:20, borderRadius:'50%', background:`${C.accent}25`, border:`1px solid ${C.accentBorder}`, display:'flex', alignItems:'center', justifyContent:'center', color:C.accent, fontSize:10, fontWeight:900, flexShrink:0, marginTop:1 }}>{i+1}</div>
+            <div style={{ color:C.text, fontSize:12, lineHeight:1.7, opacity:0.85 }}>{s}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: C.accentDim, border: `1px solid ${C.accentBorder}`, borderRadius: 12, padding: '16px 20px', marginBottom: 24, textAlign: 'left' }}>
         <p style={{ color: C.text, fontSize: 14, lineHeight: 2, margin: 0 }}>
           恋愛・仕事・人間関係——<br />
           どこに行っても「これじゃない」と感じる。<br />
           頭から離れないあの後悔。動けない自分。<br /><br />
-          それには、名前がある。
+          <strong style={{ color: C.accent }}>それには、名前がある。</strong>
         </p>
       </div>
       <button onClick={startChat} style={{
@@ -200,7 +214,7 @@ export default function Untangle() {
         fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
         boxShadow: '0 8px 32px rgba(124,92,252,0.35)', transition: 'opacity 0.15s'
       }}>
-        足かせの正体を探る
+        足かせの正体を探る（無料）
       </button>
       <p style={{ color: C.muted, fontSize: 11, marginTop: 14 }}>
         診断まで無料 · 正体の開示＋ロードマップは有料
