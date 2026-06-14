@@ -4,6 +4,32 @@ import { useState } from 'react';
 
 const C = { bg:"#07091A", card:"#0C0F22", border:"#182040", text:"#C5D0F0", muted:"#4A5880", accent:"#5B7BFF" };
 
+// YouTube埋め込みURLを貼り付けると動画が表示されます
+// 例: "https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&loop=1"
+const DEMO_VIDEOS = {
+  konoka: null, koe: null, monster: null,
+  kokoro: null, books: null, dream: null, fate: null,
+  rant: null, muda: null, genki: null, vending: null,
+  faceglow: null, suno: null, growth: null,
+};
+
+const ALL_APPS_STRIP = [
+  { id:"konoka",  icon:"🌸", title:"このちゃんAI",    color:"#A78BFA" },
+  { id:"koe",     icon:"🕯️", title:"声の遺産",        color:"#C8A84B" },
+  { id:"monster", icon:"👾", title:"言葉モンスター",   color:"#059669" },
+  { id:"kokoro",  icon:"🪞", title:"内省",             color:"#7C6FFF" },
+  { id:"books",   icon:"📖", title:"図書館",            color:"#4F46E5" },
+  { id:"dream",   icon:"🌙", title:"夢映像化",          color:"#0D9488" },
+  { id:"fate",    icon:"🔮", title:"運命診断",          color:"#7C3AED" },
+  { id:"rant",    icon:"💢", title:"鬱憤爆発",          color:"#DC2626" },
+  { id:"muda",    icon:"🧠", title:"無駄削減",          color:"#0891B2" },
+  { id:"genki",   icon:"🌐", title:"元気玉",            color:"#D97706" },
+  { id:"vending", icon:"🎰", title:"自販機MAP",         color:"#2563EB" },
+  { id:"faceglow",icon:"✨", title:"FACEGLOW",          color:"#c8a96e" },
+  { id:"suno",    icon:"🎵", title:"Melody AI",         color:"#8B5CF6" },
+  { id:"growth",  icon:"📈", title:"Growth Tracker",    color:"#22C55E" },
+];
+
 const FEATURED = [
   { id:"konoka", icon:"🌸", title:"このちゃんAI",  sub:"松田好花の話し方でAIと会話", color:"#A78BFA", tag:"チャット" },
   { id:"koe",    icon:"🕯️", title:"声の遺産",      sub:"あの人の言葉を、永遠に",     color:"#C8A84B", tag:"追悼" },
@@ -20,6 +46,8 @@ const APPS = [
   { id:"genki",  icon:"🌐", title:"元気玉",     sub:"あなたの気分が世界と繋がる",   color:"#D97706", tag:"気分" },
   { id:"vending",   icon:"🎰", title:"自販機マップ", sub:"近くの自販機を瞬時に発見",       color:"#2563EB", tag:"MAP" },
   { id:"faceglow",  icon:"✨", title:"FACEGLOW",   sub:"AIが顔を診断・理想の顔を可視化", color:"#c8a96e", tag:"美容" },
+  { id:"suno",      icon:"🎵", title:"Melody AI",  sub:"テキストから楽曲を瞬時に生成",     color:"#8B5CF6", tag:"音楽" },
+  { id:"growth",   icon:"📈", title:"Growth Tracker", sub:"習慣・目標をAIと一緒に管理",      color:"#22C55E", tag:"成長" },
 ];
 
 export default function Hub() {
@@ -27,6 +55,14 @@ export default function Hub() {
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", padding: "16px 16px 40px" }}>
+      <style>{`
+        @keyframes shimmer {
+          0%   { background-position: -200% 0; }
+          100% { background-position:  200% 0; }
+        }
+        .demo-strip { scrollbar-width: none; }
+        .demo-strip::-webkit-scrollbar { display: none; }
+      `}</style>
 
       {/* ヘッダー */}
       <div style={{ textAlign: "center", padding: "36px 0 28px" }}>
@@ -35,8 +71,35 @@ export default function Hub() {
           遊べる・使える・感じられる
         </h1>
         <p style={{ color: C.muted, fontSize: 13, margin: 0, lineHeight: 1.8 }}>
-          AIと感情が交差する、11本のアプリ
+          AIと感情が交差する、14本のアプリ
         </p>
+      </div>
+
+      {/* アプリ一覧ストリップ */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ color: C.muted, fontSize: 11, letterSpacing: "0.1em", marginBottom: 10 }}>
+          ▶ すばやく開く
+        </div>
+        <div className="demo-strip" style={{
+          display: "flex", gap: 10, overflowX: "auto",
+          paddingBottom: 8, scrollSnapType: "x mandatory",
+        }}>
+          {ALL_APPS_STRIP.map(app => (
+            <Link key={app.id} href={`/${app.id}`} style={{ textDecoration: "none", flexShrink: 0, scrollSnapAlign: "start" }}>
+              <div style={{ width: 80, height: 80, borderRadius: 20, overflow: "hidden",
+                background: `linear-gradient(135deg, ${app.color}55 0%, ${app.color}22 100%)`,
+                border: `1px solid ${app.color}44`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <div style={{ fontSize: 34 }}>{app.icon}</div>
+              </div>
+              <div style={{ color: C.muted, fontSize: 10, marginTop: 5, textAlign: "center",
+                width: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {app.title}
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* 注目の3本 */}

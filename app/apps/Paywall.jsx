@@ -74,7 +74,7 @@ export function PaywallModal({ onClose, lang = 'ja' }) {
       subtitle: "プレミアムプランで無制限に使えます",
       price: "¥600 / 月",
       features: [
-        "✦ 3アプリ 使い放題",
+        "✦ 全14アプリ 使い放題",
         "✦ モンスター図鑑 クラウド同期",
         "✦ 優先AIレスポンス",
         "✦ 新機能への早期アクセス",
@@ -88,7 +88,7 @@ export function PaywallModal({ onClose, lang = 'ja' }) {
       subtitle: "Go premium for unlimited access",
       price: "$4.99 / month",
       features: [
-        "✦ Unlimited use of all 3 apps",
+        "✦ Unlimited use of all 14 apps",
         "✦ Monster collection cloud sync",
         "✦ Priority AI responses",
         "✦ Early access to new features",
