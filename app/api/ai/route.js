@@ -30,7 +30,7 @@ export async function POST(req) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: max, system, messages: msgs }),
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: max, system, messages: msgs }),
     });
     const data = await res.json();
     if (data.error) return Response.json({ text: `エラー: ${data.error.message}` });
@@ -43,17 +43,37 @@ export async function POST(req) {
     ? [{ role: 'system', content: system }, ...msgs]
     : msgs;
 
-  const res = await fetch('https://text.pollinations.ai/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      messages: pollinationsMsgs,
-      model: 'openai',
-      max_tokens: max,
-      private: true,
-    }),
-  });
+  // リトライ付きで Pollinations に接続
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch('https://text.pollinations.ai/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: pollinationsMsgs,
+        model: 'openai',
+        max_tokens: max,
+        private: true,
+      }),
+    });
 
-  const text = await res.text();
-  return Response.json({ text: text || 'エラーが発生しました。' });
+    if (res.ok) {
+      const text = await res.text();
+      if (text && !text.includes('"error"')) {
+        return Response.json({ text });
+      }
+    }
+
+    if (res.status === 429) {
+      // レート制限: 少し待ってリトライ
+      if (attempt < 2) {
+        await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+        continue;
+      }
+      return Response.json({ text: 'ただいまアクセスが集中しています。少し待ってから再度お試しください。' });
+    }
+
+    const errText = await res.text().catch(() => '');
+    return Response.json({ text: errText && !errText.includes('"error"') ? errText : 'エラーが発生しました。' });
+  }
+  return Response.json({ text: 'ただいまアクセスが集中しています。少し待ってから再度お試しください。' });
 }

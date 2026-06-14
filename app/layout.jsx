@@ -1,5 +1,13 @@
 import { AuthProvider } from './apps/AuthGate';
-export const metadata = { title: "App Portfolio", description: "8つのAIアプリ" };
+export const metadata = {
+  title: "YUDAI APPS — 遊べる・使える・感じられるAIアプリ",
+  description: "AIと感情が交差する14本のアプリ。チャット・診断・音楽・美容・成長管理など、無料で今すぐ体験。",
+  openGraph: {
+    title: "YUDAI APPS",
+    description: "AIと感情が交差する14本のアプリ",
+    type: "website",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (

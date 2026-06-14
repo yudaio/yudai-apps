@@ -7,10 +7,18 @@ export const C = {
 };
 
 export async function callAI(system, user, max = 700) {
+  let geminiKey, claudeKey;
+  try {
+    const provider = localStorage.getItem('ai_provider') || 'gemini';
+    const key = localStorage.getItem(`ai_key_${provider}`) || '';
+    if (provider === 'gemini' && key) geminiKey = key;
+    if (provider === 'claude' && key) claudeKey = key;
+  } catch {}
+
   const res = await fetch("/api/ai", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ system, user, max }),
+    body: JSON.stringify({ system, user, max, geminiKey, claudeKey }),
   });
   const data = await res.json();
   return data.text;
