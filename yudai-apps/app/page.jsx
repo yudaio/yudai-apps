@@ -302,6 +302,248 @@ function CategorySection({ cat }) {
   );
 }
 
+/* ── デモ動画設定 ── */
+// 実際のYouTubeショート動画URLを入れると動画が優先表示されます
+// 例: "https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&loop=1&playlist=VIDEO_ID"
+const DEMO_VIDEOS = {
+  koe: null, konoka: null, untangle: null,
+  fate: null, marry: null, side: null, muda: null, rant: null,
+  dream: null, monster: null, suno: null, biz: null, kokoro: null,
+  books: null, genki: null, yamato: null, vending: null,
+};
+
+/* ── アプリごとのデモシナリオ (入力→AI処理→結果) ── */
+const APP_DEMOS = {
+  koe:     [
+    { t:'in',    text:'お父さん\n聞こえる？' },
+    { t:'out',   text:'ああ、元気か？\n毎日来いよ' },
+    { t:'in',    text:'声が聞けて\nうれしい😭' },
+  ],
+  konoka:  [
+    { t:'in',    text:'悩みがあって\n話していい？' },
+    { t:'proc' },
+    { t:'out',   text:'えっ！聞く聞く〜\n何があったの？🌸' },
+  ],
+  untangle:[
+    { t:'input', text:'会社辞めたい\nでも怖い…' },
+    { t:'proc' },
+    { t:'res',   text:'根本: 人間関係72%\n→ 具体的対処法を提案' },
+  ],
+  fate:    [
+    { t:'input', text:'1998年5月12日\n東京生まれ' },
+    { t:'proc' },
+    { t:'res',   text:'創造性 ★★★★★\n転機は28歳\n隠れた才: 芸術' },
+  ],
+  marry:   [
+    { t:'input', text:'外見重視: 40%\n価値観重視: 80%' },
+    { t:'proc' },
+    { t:'res',   text:'婚活力 78/100\nタイプ: 誠実派\nマッチ率 高め' },
+  ],
+  side:    [
+    { t:'input', text:'スキル: デザイン\n週3h / 月3万目標' },
+    { t:'proc' },
+    { t:'res',   text:'Canva副業\n月5万可能\n3ヶ月で達成見込み' },
+  ],
+  muda:    [
+    { t:'input', text:'会議: 週8h\n通勤: 週5h\nSNS: 週7h' },
+    { t:'proc' },
+    { t:'res',   text:'削減可能\n週9.2時間\n= 年間480時間！' },
+  ],
+  rant:    [
+    { t:'input', text:'理不尽な\nサービス残業\nもう限界です' },
+    { t:'proc' },
+    { t:'res',   text:'📐 哲学的視点\n📊 統計的視点\n❤️ 感情的視点' },
+  ],
+  dream:   [
+    { t:'input', text:'空を飛んでた\n光の中で誰かが\n呼んでいた' },
+    { t:'proc' },
+    { t:'res',   text:'✨ 詩＋AI画像生成済\n夢日記に保存完了' },
+  ],
+  monster: [
+    { t:'input', text:'今日も孤独感…\nずっとグルグル\n頭から離れない' },
+    { t:'proc' },
+    { t:'res',   text:'👾 召喚成功!\nソリュードラゴン\nLv.3 誕生' },
+  ],
+  suno:    [
+    { t:'input', text:'失恋の夜\nJ-POPバラードで\n切ない雰囲気' },
+    { t:'proc' },
+    { t:'res',   text:'♪ 歌詞完成\n4コーラス構成\n→ Sunoで楽曲生成へ' },
+  ],
+  biz:     [
+    { t:'input', text:'SNS広告\n提案書\n食品業界向け' },
+    { t:'proc' },
+    { t:'res',   text:'📄 文書完成\n8ページ構成\nすぐ使える' },
+  ],
+  kokoro:  [
+    { t:'input', text:'今日は疲れた\nでも頑張れた' },
+    { t:'res',   text:'タグ: 疲労・達成感\n今週: 疲労↑ 希望→' },
+    { t:'res',   text:'📊 3週間グラフ\n感情の変化を可視化' },
+  ],
+  books:   [
+    { t:'input', text:'今日は虚しくて\n何もしたくない' },
+    { t:'proc' },
+    { t:'res',   text:'📖 人間失格\n太宰 治\n→ 今の心に刺さる' },
+  ],
+  genki:   [
+    { t:'input', text:'気分: 70点\nエネルギー高め\n前向きな朝' },
+    { t:'proc' },
+    { t:'res',   text:'🌐 世界と繋がった\n今日の平均 65点\n上位 20%' },
+  ],
+  yamato:  [
+    { t:'res',   text:'Q: 武士道の\n精神とは？\n①〜③から選択' },
+    { t:'in',    text:'① 誠実・礼儀\n   ・勇気' },
+    { t:'res',   text:'✅ 正解！+10pt\n連続正解: 3🔥' },
+  ],
+  vending: [
+    { t:'input', text:'📍 現在地を\n取得中...' },
+    { t:'proc' },
+    { t:'res',   text:'周辺に7台発見\n最近: 80m先\n→ ルート案内' },
+  ],
+};
+
+/* ── アプリデモカード（アニメーション付き） ── */
+function AppVideoCard({ app }) {
+  const steps = APP_DEMOS[app.id] || [];
+  const [phase, setPhase] = useState(0);
+  useEffect(() => {
+    if (!steps.length) return;
+    const t = setInterval(() => setPhase(p => (p + 1) % steps.length), 2200);
+    return () => clearInterval(t);
+  }, [steps.length]);
+  const step = steps[phase] || {};
+  return (
+    <div style={{ width:'100%', height:'100%', background:'linear-gradient(180deg,#0A0D1A 0%,#050810 100%)', border:`1px solid ${app.color}44`, display:'flex', flexDirection:'column' }}>
+      {/* ヘッダー */}
+      <div style={{ padding:'7px 8px', background:app.color+'18', borderBottom:`1px solid ${app.color}22`, display:'flex', alignItems:'center', gap:5, flexShrink:0 }}>
+        <span style={{ fontSize:11 }}>{app.icon}</span>
+        <span style={{ color:app.color, fontSize:8, fontWeight:700, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{app.title}</span>
+      </div>
+      {/* コンテンツ */}
+      <div style={{ flex:1, padding:'8px', display:'flex', flexDirection:'column', justifyContent:'center', gap:5, overflow:'hidden' }}>
+        {step.t === 'in' && (
+          <div style={{ alignSelf:'flex-end', maxWidth:'88%', background:app.color+'30', border:`1px solid ${app.color}44`, borderRadius:'8px 8px 2px 8px', padding:'5px 7px', color:'#E2E8FF', fontSize:8.5, lineHeight:1.5, whiteSpace:'pre-line' }}>{step.text}</div>
+        )}
+        {step.t === 'out' && (
+          <div style={{ alignSelf:'flex-start', maxWidth:'88%', background:'#161930', border:'1px solid #252848', borderRadius:'8px 8px 8px 2px', padding:'5px 7px', color:'#C5D0F0', fontSize:8.5, lineHeight:1.5, whiteSpace:'pre-line' }}>{step.text}</div>
+        )}
+        {step.t === 'proc' && (
+          <div style={{ textAlign:'center' }}>
+            <div style={{ display:'flex', gap:5, justifyContent:'center', marginBottom:6 }}>
+              {[0,1,2].map(i => <div key={i} style={{ width:6, height:6, borderRadius:'50%', background:app.color, animation:`dotPulse 1.2s ease-in-out ${i*0.2}s infinite` }}/>)}
+            </div>
+            <div style={{ color:'#3A4870', fontSize:8 }}>AI処理中...</div>
+          </div>
+        )}
+        {step.t === 'input' && (
+          <div style={{ background:'#0A0D1A', border:'1px solid #1A2040', borderRadius:8, padding:'5px 7px', color:'#8A9CC0', fontSize:8, lineHeight:1.5, whiteSpace:'pre-line' }}>{step.text}</div>
+        )}
+        {step.t === 'res' && (
+          <div style={{ background:app.color+'12', border:`1px solid ${app.color}30`, borderRadius:8, padding:'6px 8px', color:app.color, fontSize:8.5, fontWeight:600, lineHeight:1.6, whiteSpace:'pre-line' }}>{step.text}</div>
+        )}
+      </div>
+      {/* プログレスバー */}
+      <div style={{ padding:'5px 8px 7px', display:'flex', gap:3, flexShrink:0 }}>
+        {steps.map((_,i) => <div key={i} style={{ flex:i===phase?2:1, height:2, borderRadius:2, background:i===phase?app.color:app.color+'28', transition:'all 0.4s ease' }}/>)}
+      </div>
+    </div>
+  );
+}
+
+function VideoStrip() {
+  return (
+    <section style={{ padding:'0 0 52px', overflow:'hidden' }}>
+      <div style={{ maxWidth:940, margin:'0 auto', padding:'0 24px', marginBottom:14 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ fontSize:11, color:C.rose, letterSpacing:'0.15em', fontWeight:700, textTransform:'uppercase' }}>▶ デモ動画</div>
+          <div style={{ flex:1, height:1, background:'#1E2448' }}/>
+          <div style={{ fontSize:10, color:C.muted }}>← スクロール →</div>
+        </div>
+      </div>
+      <div className="video-strip" style={{ paddingLeft:24, display:'flex', gap:10, overflowX:'auto', scrollSnapType:'x mandatory', WebkitOverflowScrolling:'touch' }}>
+        {ALL_APPS.map(app => {
+          const url = DEMO_VIDEOS[app.id];
+          return (
+            <Link key={app.id} href={`/${app.id}`} style={{ textDecoration:'none', flexShrink:0, scrollSnapAlign:'start' }}>
+              <div style={{ width:120, height:213, borderRadius:14, overflow:'hidden' }}>
+                {url
+                  ? <iframe src={url} style={{ width:'100%', height:'100%', border:'none', display:'block' }} allow="autoplay; encrypted-media" allowFullScreen/>
+                  : <AppVideoCard app={app}/>
+                }
+              </div>
+              <div style={{ color:C.muted, fontSize:9, marginTop:5, textAlign:'center', width:120, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{app.title}</div>
+            </Link>
+          );
+        })}
+        <div style={{ flexShrink:0, width:24 }}/>
+      </div>
+    </section>
+  );
+}
+
+/* ── カテゴリナビゲーション ── */
+const CATEGORY_NAV = [
+  { id:'chat',      href:'/chat',      icon:'💬', color:'#C8A84B', label:'AIチャット',    desc:'話す・相談する・つながる',         count:3, badge:'人気No.1',      names:['声の遺産','このちゃんAI','Untangle'] },
+  { id:'diagnosis', href:'/diagnosis', icon:'🔮', color:'#818CF8', label:'AI診断・分析', desc:'本質・才能・行動を数値化する',     count:5, badge:'最多5種類',     names:['運命診断','婚活診断','副業診断','無駄削減','鬱憤爆発'] },
+  { id:'create',    href:'/create',    icon:'✨', color:'#34D399', label:'AI生成・創作', desc:'文章・画像・音楽・日記をAIで',    count:5, badge:'クリエイティブ', names:['夢映像化','言葉モンスター','Melody AI','ビジネス文書','内省'] },
+  { id:'tools',     href:'/tools',     icon:'🛠️', color:'#38BDF8', label:'ツール・体験', desc:'日常を豊かにする体験型アプリ',    count:4, badge:'無料ツール',     names:['感情図書館','元気玉','大和魂教育','自販機MAP'] },
+];
+
+function CategoryNav() {
+  const [hov, setHov] = useState(null);
+  return (
+    <section id="apps" style={{ padding:'0 24px 80px' }}>
+      <div style={{ maxWidth:900, margin:'0 auto' }}>
+        <div style={{ textAlign:'center', marginBottom:36 }}>
+          <div style={{ fontSize:11, color:C.violet, letterSpacing:'0.15em', fontWeight:700, textTransform:'uppercase', marginBottom:12 }}>✦ カテゴリから探す</div>
+          <h2 style={{ fontSize:'clamp(22px,4vw,30px)', fontWeight:900, color:C.text, letterSpacing:'-0.025em', margin:'0 0 10px' }}>どの体験をしたいですか？</h2>
+          <p style={{ color:C.muted, fontSize:14, margin:0 }}>4カテゴリ・全17アプリ · 全部無料 · 登録不要</p>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16 }}>
+          {CATEGORY_NAV.map(cat => (
+            <Link key={cat.id} href={cat.href} style={{ textDecoration:'none' }}>
+              <div
+                onMouseEnter={() => setHov(cat.id)}
+                onMouseLeave={() => setHov(null)}
+                style={{
+                  padding:'24px', borderRadius:20, cursor:'pointer',
+                  background: hov===cat.id ? '#0F1330' : '#0C0E22',
+                  border:`1px solid ${hov===cat.id ? cat.color+'55' : '#1E2448'}`,
+                  transition:'all 0.22s ease',
+                  transform: hov===cat.id ? 'translateY(-4px)' : 'none',
+                  boxShadow: hov===cat.id ? `0 20px 60px ${cat.color}20` : 'none',
+                  position:'relative', overflow:'hidden',
+                }}>
+                <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:`radial-gradient(circle, ${cat.color}15, transparent 70%)`, pointerEvents:'none' }}/>
+                <div style={{ position:'relative' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+                    <div style={{ width:50, height:50, borderRadius:14, background:cat.color+'18', border:`1px solid ${cat.color}30`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>{cat.icon}</div>
+                    <div>
+                      <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:3 }}>
+                        <span style={{ color:C.text, fontSize:16, fontWeight:800 }}>{cat.label}</span>
+                        <span style={{ fontSize:9, padding:'2px 7px', borderRadius:10, background:cat.color+'20', color:cat.color, border:`1px solid ${cat.color}35`, fontWeight:700 }}>{cat.badge}</span>
+                      </div>
+                      <div style={{ color:C.muted, fontSize:11, lineHeight:1.4 }}>{cat.desc}</div>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:16 }}>
+                    {cat.names.map((name,i) => (
+                      <span key={i} style={{ fontSize:10, padding:'3px 9px', borderRadius:20, background:i===0?cat.color+'22':'#14172A', color:i===0?cat.color:C.muted, border:`1px solid ${i===0?cat.color+'40':'#252848'}`, fontWeight:i===0?700:400 }}>{name}</span>
+                    ))}
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                    <span style={{ color:'#3A4870', fontSize:11 }}>{cat.count}本のアプリ</span>
+                    <span style={{ color:cat.color, fontSize:13, fontWeight:700, opacity:hov===cat.id?1:0.3, transform:hov===cat.id?'translateX(0)':'translateX(-6px)', transition:'all 0.2s' }}>見てみる →</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ── メインコンポーネント ── */
 export default function Hub() {
   return (
@@ -310,6 +552,10 @@ export default function Hub() {
         @keyframes floatSlow { 0%,100%{transform:translateY(0)scale(1)} 50%{transform:translateY(-18px)scale(1.04)} }
         @keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shimmerVid { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes dotPulse { 0%,80%,100%{transform:scale(0.65);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+        .video-strip { scrollbar-width: none; }
+        .video-strip::-webkit-scrollbar { display: none; }
         * { box-sizing: border-box; }
         @media (max-width: 600px) {
           .stat-bar { grid-template-columns: repeat(2,1fr) !important; }
@@ -387,30 +633,16 @@ export default function Hub() {
         </div>
       </section>
 
+      {/* ── デモ動画ストリップ ── */}
+      <VideoStrip />
+
       {/* ── 統計バー ── */}
       <section style={{ padding:'0 24px 52px' }}>
         <StatBar/>
       </section>
 
-      {/* ── デモセクション ── */}
-      <div id="demo">
-        <DemoSection/>
-      </div>
-
-      {/* ── 使い方 3ステップ ── */}
-      <HowItWorks/>
-
-      {/* ── 全アプリ（カテゴリ別） ── */}
-      <section id="apps" style={{ padding:'0 24px 72px' }}>
-        <div style={{ maxWidth:940, margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:40 }}>
-            <div style={{ fontSize:11, color:C.violet, letterSpacing:'0.15em', fontWeight:700, textTransform:'uppercase', marginBottom:12 }}>✦ すべてのアプリ</div>
-            <h2 style={{ fontSize:'clamp(22px,4vw,30px)', fontWeight:900, color:C.text, letterSpacing:'-0.025em', margin:'0 0 10px' }}>17本、全部無料</h2>
-            <p style={{ color:C.muted, fontSize:14, margin:0 }}>登録不要・アカウントなしで今すぐ使える</p>
-          </div>
-          {CATEGORIES.map(cat => <CategorySection key={cat.id} cat={cat}/>)}
-        </div>
-      </section>
+      {/* ── カテゴリナビ ── */}
+      <CategoryNav/>
 
       {/* ── プレミアムCTA ── */}
       <PremiumCTA/>

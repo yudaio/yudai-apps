@@ -6,8 +6,26 @@ import { useAuth } from './AuthGate';
 const FREE_LIMIT = 3;           // 無料: 1日3回
 const LS_PREMIUM = 'premium_v1'; // localStorageキー
 
-// Lemon Squeezy のチェックアウトURL（あなたのURLに差し替えてください）
-export const CHECKOUT_URL = process.env.NEXT_PUBLIC_LS_CHECKOUT_URL || 'https://your-store.lemonsqueezy.com/checkout/buy/YOUR_VARIANT_ID';
+const STRIPE_ENABLED = !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
+async function openCheckout(userId, email) {
+  if (STRIPE_ENABLED) {
+    const res = await fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, email }),
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; return; }
+  }
+  // フォールバック: Lemon Squeezy URL がある場合
+  const lsUrl = process.env.NEXT_PUBLIC_LS_CHECKOUT_URL;
+  if (lsUrl) { window.open(lsUrl, '_blank'); return; }
+  // 最終フォールバック: メール
+  const subject = encodeURIComponent('【YUDAI APPS】プレミアムプランの申し込み');
+  const body = encodeURIComponent('プレミアムプランに申し込みたいです。\n\nお名前：\n');
+  window.location.href = `mailto:yamamor1208@icloud.com?subject=${subject}&body=${body}`;
+}
 
 // ── Premium判定 ───────────────────────────────────
 export function usePremium() {
@@ -109,10 +127,10 @@ export function PaywallModal({ onClose, lang = 'ja' }) {
   };
 
   const t = copy[lang] || copy.en;
+  const auth = useAuth();
+  const ctaLabel = STRIPE_ENABLED ? t.trial : (lang === 'ja' ? '📧 メールで申し込む' : '📧 Apply via email');
 
-  const handleCheckout = () => {
-    window.open(CHECKOUT_URL, '_blank');
-  };
+  const handleCheckout = () => openCheckout(auth?.user?.id, auth?.user?.email);
 
   return (
     <div style={{
@@ -168,7 +186,7 @@ export function PaywallModal({ onClose, lang = 'ja' }) {
             transition: 'all 0.2s',
             transform: hov ? 'translateY(-1px)' : 'none',
           }}>
-          {t.trial}
+          {ctaLabel}
         </button>
         <div style={{ textAlign:'center', color:'#4A5880', fontSize:12, marginBottom:10 }}>{t.price}</div>
         <div style={{ textAlign:'center', color:'#3A4870', fontSize:11, marginBottom:14 }}>{t.cancel}</div>
