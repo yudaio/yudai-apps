@@ -2,3 +2,12 @@ node_modules/
 .next/
 .env.local
 .vercel
+
+# GFPGAN / ML モデル（大容量バイナリ）
+gfpgan/weights/
+*.pth
+*.onnx
+
+# ログファイル
+*proxy_log.txt
+*.log
