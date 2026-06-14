@@ -220,7 +220,7 @@ function PremiumCTA() {
 /* ── 使い方 3ステップ ── */
 function HowItWorks() {
   const steps = [
-    { icon:'📲', title:'アプリを選ぶ', desc:'17本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
+    { icon:'📲', title:'アプリを選ぶ', desc:'20本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
     { icon:'✍️', title:'テキストを入力', desc:'今の気持ちや質問を自由に書くだけ。難しい設定は一切なし。' },
     { icon:'🤖', title:'AIが即座に応答', desc:'最新AIが個別の回答・診断・創作物を数秒で生成する。' },
   ];
@@ -585,7 +585,7 @@ export default function Hub() {
         <div style={{ position:'relative', maxWidth:720, margin:'0 auto', animation:'fadeUp 0.7s ease' }}>
           <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'6px 18px', borderRadius:20, background:'#6366F112', border:'1px solid #6366F130', color:'#A78BFA', fontSize:12, fontWeight:600, marginBottom:24, backdropFilter:'blur(8px)' }}>
             <span style={{ width:6, height:6, borderRadius:'50%', background:'#6EE7B7', display:'inline-block', boxShadow:'0 0 6px #6EE7B7' }}/>
-            AIと感情が交差する17本のプロダクト
+            AIと感情が交差する20本のプロダクト
           </div>
 
           <h1 style={{ fontSize:'clamp(38px,7vw,70px)', fontWeight:900, lineHeight:1.05, letterSpacing:'-0.035em', margin:'0 0 20px' }}>
