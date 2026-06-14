@@ -61,6 +61,17 @@ const CATEGORIES = [
       { id:'vending', icon:'🎰', title:'自販機マップ', sub:'現在地周辺の自販機を地図で即表示。無料GPSツール', color:'#2563EB', tag:'MAP' },
     ],
   },
+  {
+    id: 'beauty-growth',
+    label: '美容・成長',
+    icon: '✨',
+    color: '#C8A96E',
+    apps: [
+      { id:'faceglow', icon:'✨', title:'FACEGLOW',      sub:'AIが顔を診断し理想のルックスを可視化。改善ポイントを詳しく解説', color:'#C8A96E', tag:'美容', badge:'NEW' },
+      { id:'growth',   icon:'📈', title:'Growth Tracker', sub:'13軸レーダーチャートで自己成長を可視化。AIと一緒に習慣管理', color:'#22C55E', tag:'成長' },
+      { id:'coach',    icon:'🎯', title:'AIコーチ',       sub:'専属AIコーチとチャットしながら目標達成を加速。タスク管理付き', color:'#7C5CFC', tag:'コーチング' },
+    ],
+  },
 ];
 
 const ALL_APPS = CATEGORIES.flatMap(c => c.apps);

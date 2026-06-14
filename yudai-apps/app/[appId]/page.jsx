@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Fate from '../apps/Fate';
 import Muda from '../apps/Muda';
 import Vending from '../apps/Vending';
@@ -16,9 +17,11 @@ import Koe from '../apps/Koe';
 import Kokoro from '../apps/Kokoro';
 import Suno from '../apps/Suno';
 import GrowthTracker from '../apps/GrowthTracker';
+import FaceGlow from '../apps/FaceGlow';
+import Coach from '../apps/Coach';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -39,6 +42,8 @@ const APP_META = {
   yamato:  { title: '大和魂教育',    description: '日本の文化・歴史・精神をゲーム形式で学べる教育コンテンツ。' },
   vending: { title: '自販機マップ',  description: '現在地周辺の自販機をAIが瞬時に発見。最寄りルートも案内。' },
   growth:  { title: 'Growth Tracker',description: '習慣・目標をAIと一緒に管理。成長の軌跡を可視化する自己成長記録アプリ。' },
+  faceglow:{ title: 'FACEGLOW',      description: 'AIが顔を診断し理想の顔を可視化する美容アプリ。改善ポイントをAIが詳しく解説。' },
+  coach:   { title: 'AIコーチ',      description: '専属AIコーチとチャットしながら目標達成を加速。毎日の進捗をタスク管理で可視化。' },
 };
 
 export function generateMetadata({ params }) {
@@ -60,7 +65,14 @@ export default function AppPage({ params }) {
   const App = APPS[appId];
   if (!App) return <div style={{ color: '#E2E8FF', padding: 32 }}>Not found</div>;
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: '12px 16px 40px' }}>
+      <Link href="/" style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        color: '#4A5880', fontSize: 13, textDecoration: 'none',
+        marginBottom: 12,
+      }}>
+        ← 一覧に戻る
+      </Link>
       <App />
     </div>
   );
