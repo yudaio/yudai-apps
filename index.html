@@ -864,11 +864,20 @@ async function runDeepfake() {
       throw new Error(d.error || `エラー ${res.status}`);
     }
 
-    setProgress('df', 100, '');
+    setProgress('df', 100, '⬇️ 動画を受信中... しばらくお待ちください');
     const videoBlob = await res.blob();
     const url = URL.createObjectURL(videoBlob);
     dfResultVideoUrl = url;
 
+    // 自動ダウンロード（ページを閉じても動画が手元に残る）
+    const dlA = document.createElement('a');
+    dlA.href = url;
+    dlA.download = `deepfake_${Date.now()}.mp4`;
+    document.body.appendChild(dlA);
+    dlA.click();
+    setTimeout(() => document.body.removeChild(dlA), 100);
+
+    setProgress('df', 100, '');
     const elapsed = ((Date.now() - genStart) / 1000).toFixed(1);
     document.getElementById('dfTiming').textContent = `⏱ ${elapsed}秒`;
 
@@ -889,7 +898,9 @@ function downloadVideo() {
   const a = document.createElement('a');
   a.href = dfResultVideoUrl;
   a.download = `deepfake_${Date.now()}.mp4`;
+  document.body.appendChild(a);
   a.click();
+  setTimeout(() => document.body.removeChild(a), 100);
 }
 
 // ══════════════════════════════════════════

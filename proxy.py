@@ -114,14 +114,42 @@ def _get_restorer():
         # ── 試行2: GFPGAN ────────────────────────────────────────────
         try:
             import torch; _xpu_stub()
+            import gfpgan as _gfpgan_pkg
+
+            # GFPGANv1.4.pth をローカルパスで探す（URLダウンロードを避ける）
+            _pkg_weights_dir = os.path.join(os.path.dirname(_gfpgan_pkg.__file__), "weights")
+            _script_dir      = os.path.dirname(os.path.abspath(__file__))
+            _local_weights_dir = os.path.join(_script_dir, "gfpgan", "weights")
+
+            _gfpgan_model = None
+            for _candidate in [
+                os.path.join(_pkg_weights_dir,   "GFPGANv1.4.pth"),
+                os.path.join(_local_weights_dir, "GFPGANv1.4.pth"),
+            ]:
+                if os.path.exists(_candidate):
+                    _gfpgan_model = _candidate
+                    break
+            if _gfpgan_model is None:
+                raise RuntimeError("GFPGANv1.4.pth が見つかりません（サイトパッケージ / gfpgan/weights/）")
+
+            # facexlib 前提モデルが存在するか確認（ない場合はダウンロードが発生するためスキップ）
+            _det_path = os.path.join(_local_weights_dir, "detection_Resnet50_Final.pth")
+            _par_path = os.path.join(_local_weights_dir, "parsing_parsenet.pth")
+            _missing  = [os.path.basename(p) for p in [_det_path, _par_path] if not os.path.exists(p)]
+            if _missing:
+                raise RuntimeError(
+                    f"facexlib モデル未キャッシュ: {', '.join(_missing)} "
+                    f"— gfpgan/weights/ にダウンロード後に再起動してください"
+                )
+
             from gfpgan import GFPGANer
             enhancer = GFPGANer(
-                model_path="https://github.com/TencentARC/GFPGAN/releases/download/v1.3.4/GFPGANv1.4.pth",
+                model_path=_gfpgan_model,
                 upscale=1, arch="clean", channel_multiplier=2, bg_upsampler=None,
             )
             _restorer      = enhancer
             _restorer_type = "gfpgan"
-            print("[Restorer] GFPGAN 初期化完了")
+            print(f"[Restorer] GFPGAN 初期化完了: {_gfpgan_model}")
             return _restorer, _restorer_type
         except Exception as e:
             print(f"[Restorer] GFPGAN 失敗: {e}")
@@ -248,7 +276,7 @@ def _enhance_skin(img_bgr, face):
             ch, cw = crop.shape[:2]
             _, _, enhanced = restorer.enhance(
                 crop, has_aligned=False, only_center_face=True,
-                paste_back=True, weight=0.5)
+                paste_back=True, weight=0.9)
             if enhanced is not None:
                 if enhanced.shape[:2] != (ch, cw):
                     enhanced = cv2.resize(enhanced, (cw, ch), interpolation=cv2.INTER_LANCZOS4)
@@ -878,8 +906,8 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
             src_face = sorted(src_faces, key=lambda f: f.bbox[2]-f.bbox[0], reverse=True)[0]
             print(f"[df] src_face embedding: {src_face.normed_embedding is not None}")
 
-            # フレーム検出用: 480×480（精度と速度のバランス）
-            app.prepare(ctx_id=0, det_size=(480, 480))
+            # フレーム検出用: 640×640（高精度）
+            app.prepare(ctx_id=0, det_size=(640, 640))
             _set_progress(26, "✅ ソース顔取得完了、動画処理開始...")
 
             # ── 動画処理 ──────────────────────────────────────────────
@@ -908,8 +936,7 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
             prev_bboxes    = []
             swapped_count  = 0
             no_face_count  = 0
-            prev_result    = None   # 時系列ブレンド用（チラつき抑制）
-            GFPGAN_EVERY   = 2      # 2フレームに1回 GFPGAN（品質と速度のバランス）
+            GFPGAN_EVERY   = 1      # 全フレームに GFPGAN（最高品質）
 
             frame_idx = 0
             while True:
@@ -933,7 +960,7 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
                         if crop_r.size == 0: continue
                         app.prepare(ctx_id=0, det_size=(640, 640))
                         sub_faces = app.get(crop_r)
-                        app.prepare(ctx_id=0, det_size=(480, 480))
+                        app.prepare(ctx_id=0, det_size=(640, 640))
                         if sub_faces:
                             for sf in sub_faces:
                                 sf.bbox[0] += rx1; sf.bbox[2] += rx1
@@ -946,7 +973,6 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
                 if not faces:
                     no_face_count += 1
                     prev_bboxes = []
-                    prev_result = None
                 else:
                     prev_bboxes = [f.bbox.astype(int).tolist() for f in faces]
 
@@ -965,17 +991,10 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
                     swapped_raw = result.copy()
 
                     # ════ ② GFPGAN で肌を滑らかに ════
-                    # 2フレームに1回適用（毎フレームだと重い）
                     if frame_idx % GFPGAN_EVERY == 0:
                         result = _enhance_skin(result, faces[0])
 
-                    # ════ ③ 表情復元 ════
-                    # GFPGAN が正規化した目・口を swapped_raw で上書き
-                    # → 白目・半目・口の形が正確に保持される
-                    for face in faces:
-                        result = _restore_expressions(result, swapped_raw, face)
-
-                    # ════ ④ 色補正（肌色を元動画に合わせる）════
+                    # ════ ③ 色補正（肌色を元動画に合わせる）════
                     for face in faces:
                         bbox = face.bbox.astype(int)
                         x1=max(0,bbox[0]); y1=max(0,bbox[1])
@@ -987,18 +1006,9 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
                                 om = orig_roi[:,:,c].mean()
                                 sm = swap_roi[:,:,c].mean()
                                 if sm > 10:
-                                    gain = np.clip(om/(sm+1e-6), 0.88, 1.12)
+                                    gain = np.clip(om/(sm+1e-6), 0.85, 1.15)
                                     result[y1:y2,x1:x2,c] = np.clip(
                                         swap_roi[:,:,c]*gain, 0, 255).astype(np.uint8)
-
-                    # ════ ⑤ 時系列ブレンド（フリッカー抑制）════
-                    # 前フレームと 20% 混合するだけ → ぼやけを出さず揺れを抑える
-                    if prev_result is not None:
-                        result = np.clip(
-                            result.astype(np.float32) * 0.80
-                            + prev_result.astype(np.float32) * 0.20,
-                            0, 255).astype(np.uint8)
-                    prev_result = result.copy()
 
                 out_writer.write(result)
                 frame_idx += 1
@@ -1037,9 +1047,9 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
                     cmd += ["-map", "0:v:0"]
 
                 cmd += [
-                    "-vcodec", "libx264", "-preset", "slow",
-                    "-crf", "10",
-                    "-vf", "unsharp=5:5:1.2:5:5:0",
+                    "-vcodec", "libx264", "-preset", "medium",
+                    "-crf", "18",
+                    "-vf", "unsharp=5:5:1.5:5:5:0",
                     "-profile:v", "high", "-level", "4.1",
                     "-pix_fmt", "yuv420p",
                     "-movflags", "+faststart",
@@ -1053,26 +1063,52 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
                 print(f"[encode] ffmpeg失敗、mp4vで返します: {enc_err}")
                 video_out_path = output_path
 
-            with open(video_out_path, "rb") as f:
-                video_data = f.read()
+            video_size = os.path.getsize(video_out_path)
+            print(f"[df] output video: {video_out_path} ({video_size//1024//1024}MB)")
 
-            _set_progress(100, "完了")
+            _set_progress(100, "✅ 完了 - 動画を送信中...")
             self.send_response(200)
             self.send_header("Content-Type", "video/mp4")
-            self.send_header("Content-Length", len(video_data))
-            self.send_header("Content-Disposition", "attachment; filename=deepfake.mp4")
+            self.send_header("Content-Length", str(video_size))
+            self.send_header("Content-Disposition", "inline; filename=deepfake.mp4")
             self.send_cors()
             self.end_headers()
-            self.wfile.write(video_data)
 
-            # 一時ファイル削除
-            import shutil
-            shutil.rmtree(tmpdir, ignore_errors=True)
+            # チャンク送信（大容量ファイルでもメモリを圧迫しない）
+            CHUNK = 65536  # 64KB
+            sent = 0
+            try:
+                with open(video_out_path, "rb") as f:
+                    while True:
+                        chunk = f.read(CHUNK)
+                        if not chunk:
+                            break
+                        self.wfile.write(chunk)
+                        sent += len(chunk)
+                print(f"[df] sent {sent//1024//1024}MB OK")
+            except (BrokenPipeError, ConnectionResetError, OSError) as write_err:
+                # クライアントが切断した場合はエラーログのみ（ヘッダー送信後はエラーレスポンス不可）
+                print(f"[df] 送信失敗（クライアント切断）: {write_err}  送信済: {sent//1024}KB")
+            finally:
+                # 一時ファイル削除（送信成否に関わらず確実に実行）
+                import shutil, time
+                for attempt in range(3):
+                    try:
+                        shutil.rmtree(tmpdir)
+                        break
+                    except Exception:
+                        if attempt < 2:
+                            time.sleep(1)
+                        else:
+                            shutil.rmtree(tmpdir, ignore_errors=True)
 
         except Exception as e:
             import traceback
             err_msg = json.dumps({"error": str(e), "detail": traceback.format_exc()}).encode()
-            self._send_error(500, err_msg)
+            try:
+                self._send_error(500, err_msg)
+            except Exception:
+                print(f"[df] エラーレスポンス送信失敗（ヘッダー送信済み）: {e}")
 
 
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
