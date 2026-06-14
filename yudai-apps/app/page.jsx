@@ -153,9 +153,9 @@ function DemoCard({ app, steps }) {
 /* ── 統計カウンター ── */
 function StatBar() {
   const stats = [
-    { val:'17', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
-    { val:'9',  label:'AI搭載',   icon:'🤖', sub:'生成AI活用' },
-    { val:'3',  label:'カテゴリ', icon:'🗂️', sub:'診断・チャット・創作' },
+    { val:'20', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
+    { val:'12', label:'AI搭載',   icon:'🤖', sub:'生成AI活用' },
+    { val:'5',  label:'カテゴリ', icon:'🗂️', sub:'診断・チャット・創作' },
     { val:'∞',  label:'使い放題', icon:'✨', sub:'登録不要でOK' },
   ];
   return (
