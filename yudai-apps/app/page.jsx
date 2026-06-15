@@ -39,6 +39,15 @@ const CATEGORIES = [
     ],
   },
   {
+    id: 'ai-learning',
+    label: '学習・スキル',
+    icon: '📚',
+    color: '#38BDF8',
+    apps: [
+      { id:'eigo',    icon:'🗣️', title:'AI英会話',    sub:'ネイティブAIと英語でチャット練習。レベル・トピックを選んで会話力を磨く', color:'#38BDF8', tag:'英語', badge:'NEW' },
+    ],
+  },
+  {
     id: 'ai-creation',
     label: 'AI生成・創作',
     icon: '✨',
@@ -155,9 +164,9 @@ function DemoCard({ app, steps }) {
 /* ── 統計カウンター ── */
 function StatBar() {
   const stats = [
-    { val:'22', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
+    { val:'23', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
     { val:'12', label:'AI搭載',   icon:'🤖', sub:'生成AI活用' },
-    { val:'5',  label:'カテゴリ', icon:'🗂️', sub:'診断・チャット・創作' },
+    { val:'6',  label:'カテゴリ', icon:'🗂️', sub:'診断・チャット・英語' },
     { val:'∞',  label:'使い放題', icon:'✨', sub:'登録不要でOK' },
   ];
   return (
@@ -222,7 +231,7 @@ function PremiumCTA() {
 /* ── 使い方 3ステップ ── */
 function HowItWorks() {
   const steps = [
-    { icon:'📲', title:'アプリを選ぶ', desc:'22本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
+    { icon:'📲', title:'アプリを選ぶ', desc:'23本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
     { icon:'✍️', title:'テキストを入力', desc:'今の気持ちや質問を自由に書くだけ。難しい設定は一切なし。' },
     { icon:'🤖', title:'AIが即座に応答', desc:'最新AIが個別の回答・診断・創作物を数秒で生成する。' },
   ];
@@ -320,7 +329,7 @@ function CategorySection({ cat }) {
 // 例: "https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&loop=1&playlist=VIDEO_ID"
 const DEMO_VIDEOS = {
   koe: null, konoka: null, untangle: null,
-  fate: null, marry: null, side: null, muda: null, rant: null, tarot: null, fortune: null,
+  fate: null, marry: null, side: null, muda: null, rant: null, tarot: null, fortune: null, eigo: null,
   dream: null, monster: null, suno: null, biz: null, kokoro: null,
   books: null, genki: null, yamato: null, vending: null,
 };
@@ -422,6 +431,11 @@ const APP_DEMOS = {
     { t:'proc' },
     { t:'res',  text:'総合運 82 🌟\n恋愛 ★★★★☆\n仕事 ★★★★★' },
   ],
+  eigo: [
+    { t:'in',  text:'Hello! My name is\nYudai and I\'m from\nYokohama!' },
+    { t:'proc' },
+    { t:'out', text:'That\'s great, Yudai!\nYokohama is amazing.\nWhat do you like there?' },
+  ],
 };
 
 /* ── アプリデモカード（アニメーション付き） ── */
@@ -519,7 +533,7 @@ function CategoryNav() {
         <div style={{ textAlign:'center', marginBottom:36 }}>
           <div style={{ fontSize:11, color:C.violet, letterSpacing:'0.15em', fontWeight:700, textTransform:'uppercase', marginBottom:12 }}>✦ カテゴリから探す</div>
           <h2 style={{ fontSize:'clamp(22px,4vw,30px)', fontWeight:900, color:C.text, letterSpacing:'-0.025em', margin:'0 0 10px' }}>どの体験をしたいですか？</h2>
-          <p style={{ color:C.muted, fontSize:14, margin:0 }}>4カテゴリ・全22アプリ · 全部無料 · 登録不要</p>
+          <p style={{ color:C.muted, fontSize:14, margin:0 }}>5カテゴリ・全23アプリ · 全部無料 · 登録不要</p>
         </div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16 }}>
           {CATEGORY_NAV.map(cat => (
@@ -597,7 +611,7 @@ export default function Hub() {
         <div style={{ position:'relative', maxWidth:720, margin:'0 auto', animation:'fadeUp 0.7s ease' }}>
           <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'6px 18px', borderRadius:20, background:'#6366F112', border:'1px solid #6366F130', color:'#A78BFA', fontSize:12, fontWeight:600, marginBottom:24, backdropFilter:'blur(8px)' }}>
             <span style={{ width:6, height:6, borderRadius:'50%', background:'#6EE7B7', display:'inline-block', boxShadow:'0 0 6px #6EE7B7' }}/>
-            AIと感情が交差する22本のプロダクト
+            AIと感情が交差する23本のプロダクト
           </div>
 
           <h1 style={{ fontSize:'clamp(38px,7vw,70px)', fontWeight:900, lineHeight:1.05, letterSpacing:'-0.035em', margin:'0 0 20px' }}>
@@ -676,7 +690,7 @@ export default function Hub() {
           <span style={{ background:'linear-gradient(135deg,#A78BFA,#6366F1)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontWeight:900, fontSize:20, letterSpacing:'-0.03em' }}>Yudai Apps</span>
         </div>
         <p style={{ color:C.muted, fontSize:12, margin:'0 0 16px', lineHeight:2 }}>
-          AIと感情が交差するプロダクト集 · 22アプリ全部無料<br/>
+          AIと感情が交差するプロダクト集 · 23アプリ全部無料<br/>
           <span style={{ fontSize:11 }}>Powered by Claude AI · 画像生成 Pollinations.ai · 音楽生成 Suno AI</span>
         </p>
         <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>

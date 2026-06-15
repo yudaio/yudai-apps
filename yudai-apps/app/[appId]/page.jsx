@@ -21,9 +21,10 @@ import FaceGlow from '../apps/FaceGlow';
 import Coach from '../apps/Coach';
 import Tarot from '../apps/Tarot';
 import Fortune from '../apps/Fortune';
+import Eigo from '../apps/Eigo';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -48,6 +49,7 @@ const APP_META = {
   coach:   { title: 'AIコーチ',      description: '専属AIコーチとチャットしながら目標達成を加速。毎日の進捗をタスク管理で可視化。' },
   tarot:   { title: 'AIタロット',    description: '3枚のカードが過去・現在・未来を映す。AIが詩的かつ深い洞察でリーディングを生成。' },
   fortune: { title: '今日の運勢',    description: '12星座ごとに毎日更新されるAI星占い。恋愛・仕事・健康・金運をスコアで可視化。' },
+  eigo:    { title: 'AI英会話',      description: 'ネイティブAIと英語でチャット練習。レベル・トピックを選んで自分のペースで会話力を磨く。' },
 };
 
 export function generateMetadata({ params }) {
