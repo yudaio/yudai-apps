@@ -1,11 +1,11 @@
 import { AuthProvider } from './apps/AuthGate';
 export const metadata = {
-  title: "Yudai Apps — AIと感情が交差する28本のプロダクト",
-  description: "診断・チャット・生成・美容・占い・英語・詩・相性・代筆・レシピ。登録不要で全部無料。AIレシピ・AI相性診断・AIメッセージ・AI英会話・AIポエムなど28本のAIアプリ。",
+  title: "Yudai Apps — AIと感情が交差する29本のプロダクト",
+  description: "診断・チャット・生成・美容・占い・英語・詩・相性・レシピ・旅行。登録不要で全部無料。AI旅行プランナー・AIレシピ・AI相性診断・AI英会話・AIポエムなど29本のAIアプリ。",
   keywords: "AI, 診断, チャット, 夢, 運命, 副業, 婚活, 感情, 無料, アプリ, 美容, 成長, FACEGLOW, Growth Tracker",
   openGraph: {
-    title: "Yudai Apps — AIと感情が交差する28本のプロダクト",
-    description: "登録不要・全部無料。AIレシピ・AI相性診断・AIメッセージ・AIタロット・AI英会話・AIポエムなど28本のAIアプリ",
+    title: "Yudai Apps — AIと感情が交差する29本のプロダクト",
+    description: "登録不要・全部無料。AI旅行プランナー・AIレシピ・AI相性診断・AIタロット・AI英会話・AIポエムなど29本のAIアプリ",
     type: "website",
   },
 };
