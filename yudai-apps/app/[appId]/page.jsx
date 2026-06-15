@@ -28,9 +28,10 @@ import Aiai from '../apps/Aiai';
 import Message from '../apps/Message';
 import Recipe from '../apps/Recipe';
 import Travel from '../apps/Travel';
+import Interview from '../apps/Interview';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -61,7 +62,8 @@ const APP_META = {
   aiai:    { title: 'AI相性診断',   description: '2人の名前と星座を入力するだけでAIが相性をスコア診断。恋愛・友情・仕事の視点で詳細分析。' },
   message: { title: 'AIメッセージ', description: 'シーンとトーンを選んで送るだけ。誕生日・感謝・告白・謝罪など8シーン対応のAIメッセージ生成。' },
   recipe:  { title: 'AIレシピ',          description: '冷蔵庫の食材を入力するだけでAIがレシピを提案。ジャンル・時間・人数を選んで最適な一品を。' },
-  travel:  { title: 'AI旅行プランナー',  description: '目的地・日数・スタイルを入力するだけで旅行プランを自動生成。午前・午後・夜の詳細スケジュール付き。' },
+  travel:    { title: 'AI旅行プランナー', description: '目的地・日数・スタイルを入力するだけで旅行プランを自動生成。午前・午後・夜の詳細スケジュール付き。' },
+  interview: { title: 'AI面接練習',      description: 'AIが面接官となり実践的な質問を出題。回答後にスコア・良い点・改善点・模範回答を即座にフィードバック。' },
 };
 
 export function generateMetadata({ params }) {

@@ -6,8 +6,9 @@ const C = { bg:'#050812', card:'#0C0E22', border:'#1A2040', text:'#E2E8FF', mute
 const CAT = { label:'学習・スキル', icon:'📚', color:'#38BDF8', badge:'英語強化', desc:'ネイティブAIと本物の英会話を練習。レベルとトピックを選んで自分のペースでスキルアップ。' };
 
 const APPS = [
-  { id:'eigo',  icon:'🗣️', title:'AI英会話',    color:'#38BDF8', tag:'英語', badge:'NEW', cta:'英会話を始める', sub:'ネイティブAIと英語でチャット練習。初心者〜上級まで対応。5つのトピックから選べる会話シミュレーター' },
-  { id:'vocab', icon:'📖', title:'英単語クイズ', color:'#A78BFA', tag:'語彙', badge:'NEW', cta:'クイズを始める', sub:'初・中・上級3レベルの10問クイズ。正解後にAIが例文と解説を生成。スコアで実力をチェックする' },
+  { id:'eigo',      icon:'🗣️', title:'AI英会話',    color:'#38BDF8', tag:'英語', badge:'NEW', cta:'英会話を始める',  sub:'ネイティブAIと英語でチャット練習。初心者〜上級まで対応。5つのトピックから選べる会話シミュレーター' },
+  { id:'vocab',     icon:'📖', title:'英単語クイズ', color:'#A78BFA', tag:'語彙', badge:'NEW', cta:'クイズを始める',  sub:'初・中・上級3レベルの10問クイズ。正解後にAIが例文と解説を生成。スコアで実力をチェックする' },
+  { id:'interview', icon:'🎤', title:'AI面接練習',   color:'#7C5CFC', tag:'就活', badge:'NEW', cta:'面接を始める',   sub:'AIが面接官となり3問の質問に答えると、スコア・良い点・改善点・模範回答をリアルタイムで提供する' },
 ];
 
 const DEMOS = {
@@ -20,6 +21,11 @@ const DEMOS = {
     { t:'res',  text:'resilient の意味は？\n① 回復力がある\n② もろい\n③ 頑固な' },
     { t:'in',   text:'① 回復力がある' },
     { t:'res',  text:'✅ 正解！\n例文: She is resilient\nand never gives up.' },
+  ],
+  interview: [
+    { t:'res',  text:'Q1: 自己紹介と\nこの職種を選んだ\n理由を教えてください' },
+    { t:'in',   text:'3年間のエンジニア経験で\nチームを率いて...' },
+    { t:'res',  text:'スコア: 82点✨\n良い点: 具体的な経験\n改善: 数値を加えると◎' },
   ],
 };
 
