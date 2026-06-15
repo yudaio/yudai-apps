@@ -523,6 +523,7 @@ const CATEGORY_NAV = [
   { id:'diagnosis', href:'/diagnosis', icon:'🔮', color:'#818CF8', label:'AI診断・分析', desc:'本質・才能・行動を数値化する',     count:7, badge:'最多7種類',     names:['運命診断','婚活診断','副業診断','AIタロット','今日の運勢'] },
   { id:'create',    href:'/create',    icon:'✨', color:'#34D399', label:'AI生成・創作', desc:'文章・画像・音楽・日記をAIで',    count:5, badge:'クリエイティブ', names:['夢映像化','言葉モンスター','Melody AI','ビジネス文書','内省'] },
   { id:'tools',     href:'/tools',     icon:'🛠️', color:'#38BDF8', label:'ツール・体験', desc:'日常を豊かにする体験型アプリ',    count:4, badge:'無料ツール',     names:['感情図書館','元気玉','大和魂教育','自販機MAP'] },
+  { id:'learn',     href:'/learn',     icon:'📚', color:'#06B6D4', label:'学習・スキル', desc:'ネイティブAIと英語で会話力アップ', count:1, badge:'英語強化',      names:['AI英会話'] },
 ];
 
 function CategoryNav() {
