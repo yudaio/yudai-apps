@@ -168,7 +168,7 @@ function StatBar() {
   const stats = [
     { val:'25', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
     { val:'12', label:'AI搭載',   icon:'🤖', sub:'生成AI活用' },
-    { val:'6',  label:'カテゴリ', icon:'🗂️', sub:'診断・チャット・英語' },
+    { val:'6',  label:'カテゴリ', icon:'🗂️', sub:'診断・英語・美容・詩' },
     { val:'∞',  label:'使い放題', icon:'✨', sub:'登録不要でOK' },
   ];
   return (
@@ -531,6 +531,7 @@ const CATEGORY_NAV = [
   { id:'create',    href:'/create',    icon:'✨', color:'#34D399', label:'AI生成・創作', desc:'文章・画像・音楽・詩・日記をAIで', count:6, badge:'クリエイティブ', names:['夢映像化','言葉モンスター','Melody AI','ビジネス文書','内省','AIポエム'] },
   { id:'tools',     href:'/tools',     icon:'🛠️', color:'#38BDF8', label:'ツール・体験', desc:'日常を豊かにする体験型アプリ',    count:4, badge:'無料ツール',     names:['感情図書館','元気玉','大和魂教育','自販機MAP'] },
   { id:'learn',     href:'/learn',     icon:'📚', color:'#06B6D4', label:'学習・スキル', desc:'AIで英語力をスキルアップ',       count:2, badge:'英語強化',      names:['AI英会話','英単語クイズ'] },
+  { id:'beauty',    href:'/beauty',    icon:'✨', color:'#C8A96E', label:'美容・成長',   desc:'顔診断・習慣管理・コーチング',   count:3, badge:'セルフアップ',  names:['FACEGLOW','Growth Tracker','AIコーチ'] },
 ];
 
 function CategoryNav() {
@@ -541,7 +542,7 @@ function CategoryNav() {
         <div style={{ textAlign:'center', marginBottom:36 }}>
           <div style={{ fontSize:11, color:C.violet, letterSpacing:'0.15em', fontWeight:700, textTransform:'uppercase', marginBottom:12 }}>✦ カテゴリから探す</div>
           <h2 style={{ fontSize:'clamp(22px,4vw,30px)', fontWeight:900, color:C.text, letterSpacing:'-0.025em', margin:'0 0 10px' }}>どの体験をしたいですか？</h2>
-          <p style={{ color:C.muted, fontSize:14, margin:0 }}>5カテゴリ・全25アプリ · 全部無料 · 登録不要</p>
+          <p style={{ color:C.muted, fontSize:14, margin:0 }}>6カテゴリ・全25アプリ · 全部無料 · 登録不要</p>
         </div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16 }}>
           {CATEGORY_NAV.map(cat => (
