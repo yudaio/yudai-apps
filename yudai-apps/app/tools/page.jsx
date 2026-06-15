@@ -11,7 +11,8 @@ const APPS = [
   { id:'yamato',  icon:'⛩️', title:'大和魂教育',  color:'#B45309', tag:'教育',    badge:null, cta:'学び始める',       sub:'日本の文化・歴史・武士道・精神をゲーム形式のクイズで楽しく学ぶ教育コンテンツ' },
   { id:'vending', icon:'🎰', title:'自販機マップ', color:'#2563EB', tag:'MAP',    badge:null,   cta:'自販機を探す',      sub:'現在地周辺の自動販売機を地図上で即座に表示。GPSを使ってリアルタイムで最寄りを案内する' },
   { id:'recipe',  icon:'🍳', title:'AIレシピ',    color:'#FB923C', tag:'料理',   badge:'NEW',  cta:'レシピを作る',      sub:'冷蔵庫の食材を入力するだけでAIが美味しいレシピを提案。ジャンル・調理時間・人数で細かく絞り込み' },
-  { id:'travel',  icon:'✈️', title:'AI旅行プランナー', color:'#38BDF8', tag:'旅行', badge:'NEW', cta:'旅程を作る', sub:'目的地と日数を入力するだけで旅行プランを自動生成。観光・グルメ・自然など6スタイルから選べる' },
+  { id:'travel',  icon:'✈️', title:'AI旅行プランナー', color:'#38BDF8', tag:'旅行',  badge:'NEW', cta:'旅程を作る',    sub:'目的地と日数を入力するだけで旅行プランを自動生成。観光・グルメ・自然など6スタイルから選べる' },
+  { id:'kakeibo', icon:'💴', title:'AI家計簿',        color:'#34D399', tag:'お金', badge:'NEW', cta:'支出を記録する', sub:'支出をカテゴリ別に記録して円グラフで可視化。AIがデータを分析して具体的な節約アドバイスを生成' },
 ];
 
 const DEMOS = {
@@ -20,7 +21,8 @@ const DEMOS = {
   yamato:  [{t:'res',text:'Q: 武士道の\n精神とは？'},{t:'in',text:'① 誠実・礼儀\n   ・勇気'},{t:'res',text:'✅ 正解！+10pt\n連続正解: 3🔥'}],
   vending: [{t:'input',text:'📍 現在地\n取得完了'},{t:'proc'},{t:'res',text:'周辺に7台発見\n最近: 80m先'}],
   recipe:  [{t:'input',text:'鶏肉、玉ねぎ\nにんにく、トマト缶\n(30分以内)'},{t:'proc'},{t:'res',text:'🍳 チキントマト煮\n調理時間: 25分\n4ステップで完成'}],
-  travel:  [{t:'input',text:'目的地: 京都\n3日間・2人\nスタイル: 歴史'},{t:'proc'},{t:'res',text:'1日目: 伏見稲荷→\n金閣寺→嵐山\n夜: 祇園でディナー'}],
+  travel:   [{t:'input',text:'目的地: 京都\n3日間・2人\nスタイル: 歴史'},{t:'proc'},{t:'res',text:'1日目: 伏見稲荷→\n金閣寺→嵐山\n夜: 祇園でディナー'}],
+  kakeibo:  [{t:'input',text:'🍚 食費 ¥1,200\nランチ代'},{t:'res',text:'今月合計\n¥38,400\n食費45%が最多'},{t:'res',text:'🤖 食費を週単位で\n予算管理すると◎\n来月目標: ¥35,000'}],
 };
 
 function DemoCard({ app }) {

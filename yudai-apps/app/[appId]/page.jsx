@@ -33,9 +33,10 @@ import SelfIntro from '../apps/SelfIntro';
 import Sleep from '../apps/Sleep';
 import Kiku from '../apps/Kiku';
 import Stress from '../apps/Stress';
+import Kakeibo from '../apps/Kakeibo';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep, kiku: Kiku, stress: Stress };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep, kiku: Kiku, stress: Stress, kakeibo: Kakeibo };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -72,6 +73,7 @@ const APP_META = {
   sleep:     { title: 'AI睡眠分析',      description: '就寝・起床時刻・睡眠の質・悩みを入力するだけでAIが睡眠スコアと改善アドバイスを生成。毎日の記録で睡眠パターンを可視化。' },
   kiku:      { title: 'AIきいて',        description: '今日の気分・出来事・気持ちをなんでも話して。批判せず、解決を押しつけず、ただ聴いてくれるAI聴き役。' },
   stress:    { title: 'AIストレス診断',  description: '8つの質問でストレスレベルとパターンをレーダーチャートで可視化。AIが科学的根拠に基づいたケアアドバイスを生成。' },
+  kakeibo:   { title: 'AI家計簿',        description: '支出を記録してカテゴリ別に可視化。AIがデータを分析して具体的な節約アドバイスと来月の目標を生成。' },
 };
 
 export function generateMetadata({ params }) {

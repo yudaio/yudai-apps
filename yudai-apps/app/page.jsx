@@ -80,6 +80,7 @@ const CATEGORIES = [
       { id:'vending', icon:'🎰', title:'自販機マップ', sub:'現在地周辺の自販機を地図で即表示。無料GPSツール', color:'#2563EB', tag:'MAP' },
       { id:'recipe',  icon:'🍳', title:'AIレシピ',    sub:'冷蔵庫の食材を入力するだけでAIがレシピを提案。ジャンル・時間・人数で絞り込み', color:'#FB923C', tag:'料理', badge:'NEW' },
       { id:'travel',  icon:'✈️', title:'AI旅行プランナー', sub:'目的地と日数を入力するだけでAIが旅行プランを自動生成。午前・午後・夜の詳細スケジュール付き', color:'#38BDF8', tag:'旅行', badge:'NEW' },
+      { id:'kakeibo', icon:'💴', title:'AI家計簿',         sub:'支出をカテゴリ別に記録して可視化。AIがデータを分析して節約アドバイスと来月の目標を生成する', color:'#34D399', tag:'お金', badge:'NEW' },
     ],
   },
   {
@@ -175,7 +176,7 @@ function DemoCard({ app, steps }) {
 /* ── 統計カウンター ── */
 function StatBar() {
   const stats = [
-    { val:'34', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
+    { val:'35', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
     { val:'12', label:'AI搭載',   icon:'🤖', sub:'生成AI活用' },
     { val:'6',  label:'カテゴリ', icon:'🗂️', sub:'診断・英語・美容・詩' },
     { val:'∞',  label:'使い放題', icon:'✨', sub:'登録不要でOK' },
@@ -242,7 +243,7 @@ function PremiumCTA() {
 /* ── 使い方 3ステップ ── */
 function HowItWorks() {
   const steps = [
-    { icon:'📲', title:'アプリを選ぶ', desc:'34本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
+    { icon:'📲', title:'アプリを選ぶ', desc:'35本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
     { icon:'✍️', title:'テキストを入力', desc:'今の気持ちや質問を自由に書くだけ。難しい設定は一切なし。' },
     { icon:'🤖', title:'AIが即座に応答', desc:'最新AIが個別の回答・診断・創作物を数秒で生成する。' },
   ];
@@ -342,7 +343,7 @@ const DEMO_VIDEOS = {
   koe: null, konoka: null, untangle: null,
   fate: null, marry: null, side: null, muda: null, rant: null, tarot: null, fortune: null, eigo: null, vocab: null, aiai: null,
   dream: null, monster: null, suno: null, biz: null, kokoro: null, poem: null, message: null, recipe: null, travel: null, interview: null,
-  books: null, genki: null, yamato: null, vending: null, selfintro: null, sleep: null, kiku: null, stress: null,
+  books: null, genki: null, yamato: null, vending: null, selfintro: null, sleep: null, kiku: null, stress: null, kakeibo: null,
 };
 
 /* ── アプリごとのデモシナリオ (入力→AI処理→結果) ── */
@@ -477,6 +478,11 @@ const APP_DEMOS = {
     { t:'in',   text:'② よくある' },
     { t:'res',  text:'🧘 スコア: 67/100\n高いストレス\n今週のケア→' },
   ],
+  kakeibo: [
+    { t:'input', text:'🍚 食費 ¥1,200\nランチ代' },
+    { t:'res',   text:'今月合計: ¥38,400\n食費45%が最多' },
+    { t:'res',   text:'🤖 食費を週単位で\n管理すると◎\n目標: ¥35,000' },
+  ],
   sleep: [
     { t:'input', text:'就寝: 23:00\n起床: 07:00\n質: まあまあ' },
     { t:'proc' },
@@ -568,7 +574,7 @@ const CATEGORY_NAV = [
   { id:'chat',      href:'/chat',      icon:'💬', color:'#C8A84B', label:'AIチャット',    desc:'話す・相談する・つながる',         count:4, badge:'人気No.1',      names:['声の遺産','このちゃんAI','Untangle','AIきいて'] },
   { id:'diagnosis', href:'/diagnosis', icon:'🔮', color:'#818CF8', label:'AI診断・分析', desc:'本質・才能・行動を数値化する',     count:9, badge:'最多9種類',     names:['運命診断','婚活診断','副業診断','AIタロット','今日の運勢','AI相性診断','AIストレス診断'] },
   { id:'create',    href:'/create',    icon:'✨', color:'#34D399', label:'AI生成・創作', desc:'文章・画像・音楽・詩・日記をAIで', count:8, badge:'クリエイティブ', names:['夢映像化','言葉モンスター','Melody AI','ビジネス文書','AIポエム','AIメッセージ','AI自己紹介文'] },
-  { id:'tools',     href:'/tools',     icon:'🛠️', color:'#38BDF8', label:'ツール・体験', desc:'日常を豊かにする体験型アプリ',    count:6, badge:'無料ツール',     names:['感情図書館','元気玉','大和魂教育','AIレシピ','AI旅行プランナー'] },
+  { id:'tools',     href:'/tools',     icon:'🛠️', color:'#38BDF8', label:'ツール・体験', desc:'日常を豊かにする体験型アプリ',    count:7, badge:'無料ツール',     names:['感情図書館','元気玉','大和魂教育','AIレシピ','AI旅行プランナー','AI家計簿'] },
   { id:'learn',     href:'/learn',     icon:'📚', color:'#06B6D4', label:'学習・スキル', desc:'AIで英語力・就活力をスキルアップ', count:3, badge:'英語・就活',     names:['AI英会話','英単語クイズ','AI面接練習'] },
   { id:'beauty',    href:'/beauty',    icon:'✨', color:'#C8A96E', label:'美容・成長',   desc:'顔診断・睡眠分析・習慣管理・コーチング',   count:4, badge:'セルフアップ',  names:['FACEGLOW','Growth Tracker','AIコーチ','AI睡眠分析'] },
 ];
@@ -581,7 +587,7 @@ function CategoryNav() {
         <div style={{ textAlign:'center', marginBottom:36 }}>
           <div style={{ fontSize:11, color:C.violet, letterSpacing:'0.15em', fontWeight:700, textTransform:'uppercase', marginBottom:12 }}>✦ カテゴリから探す</div>
           <h2 style={{ fontSize:'clamp(22px,4vw,30px)', fontWeight:900, color:C.text, letterSpacing:'-0.025em', margin:'0 0 10px' }}>どの体験をしたいですか？</h2>
-          <p style={{ color:C.muted, fontSize:14, margin:0 }}>6カテゴリ・全34アプリ · 全部無料 · 登録不要</p>
+          <p style={{ color:C.muted, fontSize:14, margin:0 }}>6カテゴリ・全35アプリ · 全部無料 · 登録不要</p>
         </div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16 }}>
           {CATEGORY_NAV.map(cat => (
@@ -659,7 +665,7 @@ export default function Hub() {
         <div style={{ position:'relative', maxWidth:720, margin:'0 auto', animation:'fadeUp 0.7s ease' }}>
           <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'6px 18px', borderRadius:20, background:'#6366F112', border:'1px solid #6366F130', color:'#A78BFA', fontSize:12, fontWeight:600, marginBottom:24, backdropFilter:'blur(8px)' }}>
             <span style={{ width:6, height:6, borderRadius:'50%', background:'#6EE7B7', display:'inline-block', boxShadow:'0 0 6px #6EE7B7' }}/>
-            AIと感情が交差する34本のプロダクト
+            AIと感情が交差する35本のプロダクト
           </div>
 
           <h1 style={{ fontSize:'clamp(38px,7vw,70px)', fontWeight:900, lineHeight:1.05, letterSpacing:'-0.035em', margin:'0 0 20px' }}>
@@ -738,7 +744,7 @@ export default function Hub() {
           <span style={{ background:'linear-gradient(135deg,#A78BFA,#6366F1)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontWeight:900, fontSize:20, letterSpacing:'-0.03em' }}>Yudai Apps</span>
         </div>
         <p style={{ color:C.muted, fontSize:12, margin:'0 0 16px', lineHeight:2 }}>
-          AIと感情が交差するプロダクト集 · 34アプリ全部無料<br/>
+          AIと感情が交差するプロダクト集 · 35アプリ全部無料<br/>
           <span style={{ fontSize:11 }}>Powered by Claude AI · 画像生成 Pollinations.ai · 音楽生成 Suno AI</span>
         </p>
         <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>
