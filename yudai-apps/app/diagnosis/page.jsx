@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 const C = { bg:'#050812', card:'#0C0E22', border:'#1A2040', text:'#E2E8FF', muted:'#5A6890' };
-const CAT = { label:'AI診断・分析', icon:'🔮', color:'#818CF8', badge:'最多5種類', desc:'自分の本質・才能・運命・行動パターンをAIが数値化して暴く。' };
+const CAT = { label:'AI診断・分析', icon:'🔮', color:'#818CF8', badge:'最多6種類', desc:'自分の本質・才能・運命・行動パターン・未来をAIが数値化して暴く。' };
 
 const APPS = [
   { id:'fate',  icon:'🔮', title:'運命診断',  color:'#7C3AED', tag:'運命',  badge:'定番人気', cta:'運命を診断する',   sub:'生年月日・名前を入力するだけ。統計と心理学があなたの本質・強み・人生の転機を解析する' },
@@ -11,6 +11,7 @@ const APPS = [
   { id:'side',  icon:'💰', title:'副業診断',  color:'#F59E0B', tag:'副業',  badge:null,       cta:'副業を見つける',   sub:'スキル・時間・目標を入力 → AIが最適な副業ロードマップと収益シミュレーションを生成' },
   { id:'muda',  icon:'🧠', title:'無駄削減',  color:'#0891B2', tag:'効率',  badge:null,       cta:'時間を取り戻す',   sub:'週のルーティンを入力するだけ。削れる時間を数値化して年間〇〇時間の余白を作り出す' },
   { id:'rant',  icon:'💢', title:'鬱憤爆発',  color:'#DC2626', tag:'社会',  badge:null,       cta:'爆発させる',       sub:'理不尽・怒り・社会への不満を哲学的・統計的・感情的の3視点で徹底解剖する' },
+  { id:'tarot', icon:'🎴', title:'AIタロット', color:'#7C3AED', tag:'占い', badge:'NEW',       cta:'カードを引く',     sub:'3枚のカードが過去・現在・未来を映し出す。AIが深い洞察で詩的なリーディングを生成する' },
 ];
 
 const DEMOS = {
@@ -19,6 +20,7 @@ const DEMOS = {
   side:  [{t:'input',text:'スキル: デザイン\n週3h / 月3万目標'},{t:'proc'},{t:'res',text:'Canva副業\n月5万可・3ヶ月で達成'}],
   muda:  [{t:'input',text:'会議:週8h\n通勤:週5h\nSNS:週7h'},{t:'proc'},{t:'res',text:'削減可能\n週9.2時間\n年480時間！'}],
   rant:  [{t:'input',text:'理不尽な\nサービス残業\nもう限界です'},{t:'proc'},{t:'res',text:'📐 哲学的視点\n📊 統計的視点\n❤️ 感情的視点'}],
+  tarot: [{t:'input',text:'好きな人に\n告白すべきか…'},{t:'proc'},{t:'res',text:'🎴 恋人・塔・星\n転換期を経て\n希望が待つ'}],
 };
 
 function DemoCard({ app }) {
