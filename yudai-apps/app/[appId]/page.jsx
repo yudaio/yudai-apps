@@ -30,9 +30,10 @@ import Recipe from '../apps/Recipe';
 import Travel from '../apps/Travel';
 import Interview from '../apps/Interview';
 import SelfIntro from '../apps/SelfIntro';
+import Sleep from '../apps/Sleep';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -66,6 +67,7 @@ const APP_META = {
   travel:    { title: 'AI旅行プランナー', description: '目的地・日数・スタイルを入力するだけで旅行プランを自動生成。午前・午後・夜の詳細スケジュール付き。' },
   interview: { title: 'AI面接練習',      description: 'AIが面接官となり実践的な質問を出題。回答後にスコア・良い点・改善点・模範回答を即座にフィードバック。' },
   selfintro: { title: 'AI自己紹介文',    description: '用途・情報を入力するだけで魅力的な自己紹介文をAIが生成。SNS・婚活・名刺・スピーチなど6シーン対応。' },
+  sleep:     { title: 'AI睡眠分析',      description: '就寝・起床時刻・睡眠の質・悩みを入力するだけでAIが睡眠スコアと改善アドバイスを生成。毎日の記録で睡眠パターンを可視化。' },
 };
 
 export function generateMetadata({ params }) {

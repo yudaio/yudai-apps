@@ -18,6 +18,10 @@ const APPS = [
     id:'coach', icon:'🎯', title:'AIコーチ', color:'#7C5CFC', tag:'コーチング', badge:null, cta:'コーチと話す',
     sub:'専属AIコーチとチャットしながら目標達成を加速。タスク管理・振り返り・励ましがワンアプリに凝縮',
   },
+  {
+    id:'sleep', icon:'🌙', title:'AI睡眠分析', color:'#6366F1', tag:'睡眠', badge:'NEW', cta:'睡眠を記録する',
+    sub:'毎日の睡眠を記録してAIがスコアと改善アドバイスを生成。睡眠パターンを可視化して質の良い眠りへ',
+  },
 ];
 
 const DEMOS = {
@@ -35,6 +39,11 @@ const DEMOS = {
     { t:'in',  text:'英語の勉強を\n習慣化したい' },
     { t:'proc' },
     { t:'out', text:'毎日15分から\n始めましょう！\n今日のタスクを設定します' },
+  ],
+  sleep: [
+    { t:'input', text:'就寝: 23:00\n起床: 07:00\n質: まあまあ' },
+    { t:'proc' },
+    { t:'res',   text:'🌙 睡眠スコア 68\n改善: 就寝を1h早く\n明日の目標: 7.5h' },
   ],
 };
 
