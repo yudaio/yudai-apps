@@ -11,6 +11,7 @@ const APPS = [
   { id:'suno',    icon:'🎵', title:'Melody AI',      color:'#8B5CF6', tag:'音楽',   badge:null,   cta:'曲を作る',        sub:'テキスト→プロ品質の歌詞を瞬時に生成。ジャンル・テーマ・感情を指定してSunoで楽曲化' },
   { id:'biz',     icon:'📊', title:'ビジネス文書',   color:'#2563EB', tag:'仕事',   badge:null,   cta:'文書を生成する',  sub:'提案書・企画書・メール・報告書をAIが業界水準で自動生成。すぐに使えるビジネス文書を秒速で' },
   { id:'kokoro',  icon:'🪞', title:'内省',           color:'#7C6FFF', tag:'日記',   badge:null,   cta:'記録を始める',    sub:'毎日の記録をAIが感情タグ付け・パターン分析。自分の感情の地図を描いて自己理解を深める' },
+  { id:'poem',    icon:'✍️', title:'AIポエム',       color:'#F472B6', tag:'詩',     badge:'NEW',  cta:'詩を詠む',        sub:'テーマを入力するだけでAIが俳句・短歌・自由詩・恋詩を生成。日本語の美しさをAIが詠む' },
 ];
 
 const DEMOS = {
@@ -19,6 +20,7 @@ const DEMOS = {
   suno:    [{t:'input',text:'失恋の夜\nJ-POPバラード\n切ない雰囲気'},{t:'proc'},{t:'res',text:'♪ 歌詞完成\n4コーラス\n→ Sunoで生成へ'}],
   biz:     [{t:'input',text:'SNS広告\n提案書\n食品業界向け'},{t:'proc'},{t:'res',text:'📄 8ページ完成\nすぐ使える'}],
   kokoro:  [{t:'input',text:'少し疲れたけど\n頑張れた一日'},{t:'res',text:'タグ: 疲労・達成感\n今週: 疲労↑'},{t:'res',text:'📊 3週間グラフ\n感情の変化を可視化'}],
+  poem:    [{t:'input',text:'テーマ: 失恋\nスタイル: 俳句'},{t:'proc'},{t:'res',text:'傘もなく\n雨の中で笑った\nその日のことを'}],
 };
 
 function DemoCard({ app }) {

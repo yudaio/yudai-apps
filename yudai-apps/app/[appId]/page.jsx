@@ -23,9 +23,10 @@ import Tarot from '../apps/Tarot';
 import Fortune from '../apps/Fortune';
 import Eigo from '../apps/Eigo';
 import Vocab from '../apps/Vocab';
+import Poem from '../apps/Poem';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -52,6 +53,7 @@ const APP_META = {
   fortune: { title: '今日の運勢',    description: '12星座ごとに毎日更新されるAI星占い。恋愛・仕事・健康・金運をスコアで可視化。' },
   eigo:    { title: 'AI英会話',      description: 'ネイティブAIと英語でチャット練習。レベル・トピックを選んで自分のペースで会話力を磨く。' },
   vocab:   { title: '英単語クイズ',  description: '初・中・上級3レベルの10問クイズ。AIが正解後に例文と解説を生成。スコアで実力をチェック。' },
+  poem:    { title: 'AIポエム',      description: 'テーマを入力するだけでAIが俳句・短歌・自由詩・恋詩を生成。日本語の美しさをAIが詠む。' },
 };
 
 export function generateMetadata({ params }) {
