@@ -9,12 +9,14 @@ const APPS = [
   { id:'koe',      icon:'🕯️', title:'声の遺産',    color:'#C8A84B', tag:'追悼',         badge:'人気No.1', cta:'声を残す',        sub:'大切な人の口癖・思い出を登録 → AIがその人の話し方でいつでも応答してくれる追悼チャットアプリ' },
   { id:'konoka',   icon:'🌸', title:'このちゃんAI', color:'#F472B6', tag:'ファン',        badge:null,       cta:'このちゃんと話す', sub:'日向坂46・松田好花の話し方をAIが完全再現。毎日話しかけたくなるファン必見のチャット体験' },
   { id:'untangle', icon:'🧩', title:'Untangle',     color:'#7C5CFC', tag:'カウンセリング', badge:null,       cta:'悩みを話す',      sub:'人生の「足かせ」をAIカウンセラーと対話しながら少しずつ解きほぐしていくセルフケアアプリ' },
+  { id:'kiku',     icon:'👂', title:'AIきいて',      color:'#818CF8', tag:'聴き役',        badge:'NEW',       cta:'話してみる',      sub:'今日の気分・出来事・気持ちをなんでも話して。批判せず解決を押しつけず、ただ寄り添って聴いてくれるAI' },
 ];
 
 const DEMOS = {
   koe:     [{t:'in',text:'お父さん\n聞こえる？'},{t:'out',text:'ああ、元気か？\n毎日来いよ'},{t:'in',text:'声が聞けて\nうれしい😭'}],
   konoka:  [{t:'in',text:'悩みがあって\n話していい？'},{t:'proc'},{t:'out',text:'えっ！聞く聞く〜\n何があったの？🌸'}],
   untangle:[{t:'input',text:'会社辞めたい\nでも怖い…'},{t:'proc'},{t:'res',text:'根本: 人間関係72%\n→ 具体的対処法'}],
+  kiku:    [{t:'in',text:'今日も疲れた\nなんか色々あって'},{t:'proc'},{t:'out',text:'それはつらかったね😊\nゆっくり話してみて\nちゃんと聴くから'}],
 };
 
 function DemoCard({ app }) {
