@@ -26,9 +26,10 @@ import Vocab from '../apps/Vocab';
 import Poem from '../apps/Poem';
 import Aiai from '../apps/Aiai';
 import Message from '../apps/Message';
+import Recipe from '../apps/Recipe';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -58,6 +59,7 @@ const APP_META = {
   poem:    { title: 'AIポエム',      description: 'テーマを入力するだけでAIが俳句・短歌・自由詩・恋詩を生成。日本語の美しさをAIが詠む。' },
   aiai:    { title: 'AI相性診断',   description: '2人の名前と星座を入力するだけでAIが相性をスコア診断。恋愛・友情・仕事の視点で詳細分析。' },
   message: { title: 'AIメッセージ', description: 'シーンとトーンを選んで送るだけ。誕生日・感謝・告白・謝罪など8シーン対応のAIメッセージ生成。' },
+  recipe:  { title: 'AIレシピ',     description: '冷蔵庫の食材を入力するだけでAIがレシピを提案。ジャンル・時間・人数を選んで最適な一品を。' },
 };
 
 export function generateMetadata({ params }) {

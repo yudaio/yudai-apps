@@ -9,7 +9,8 @@ const APPS = [
   { id:'books',   icon:'📖', title:'感情図書館',  color:'#4F46E5', tag:'読書',    badge:null, cta:'本を選んでもらう',  sub:'今の感情・気分を入力するだけ。AIが今のあなたの心に最もフィットする運命の一冊を選書してくれる' },
   { id:'genki',   icon:'🌐', title:'元気玉',      color:'#D97706', tag:'コミュニティ', badge:null, cta:'気分を送信する',    sub:'あなたの今日の気分を送信 → 世界中のユーザーの感情とリアルタイムで繋がる参加型体験' },
   { id:'yamato',  icon:'⛩️', title:'大和魂教育',  color:'#B45309', tag:'教育',    badge:null, cta:'学び始める',       sub:'日本の文化・歴史・武士道・精神をゲーム形式のクイズで楽しく学ぶ教育コンテンツ' },
-  { id:'vending', icon:'🎰', title:'自販機マップ', color:'#2563EB', tag:'MAP',    badge:null, cta:'自販機を探す',      sub:'現在地周辺の自動販売機を地図上で即座に表示。GPSを使ってリアルタイムで最寄りを案内する' },
+  { id:'vending', icon:'🎰', title:'自販機マップ', color:'#2563EB', tag:'MAP',    badge:null,   cta:'自販機を探す',      sub:'現在地周辺の自動販売機を地図上で即座に表示。GPSを使ってリアルタイムで最寄りを案内する' },
+  { id:'recipe',  icon:'🍳', title:'AIレシピ',    color:'#FB923C', tag:'料理',   badge:'NEW',  cta:'レシピを作る',      sub:'冷蔵庫の食材を入力するだけでAIが美味しいレシピを提案。ジャンル・調理時間・人数で細かく絞り込み' },
 ];
 
 const DEMOS = {
@@ -17,6 +18,7 @@ const DEMOS = {
   genki:   [{t:'input',text:'気分: 70点\n前向きな朝'},{t:'proc'},{t:'res',text:'🌐 世界と繋がった\n平均65点・上位20%'}],
   yamato:  [{t:'res',text:'Q: 武士道の\n精神とは？'},{t:'in',text:'① 誠実・礼儀\n   ・勇気'},{t:'res',text:'✅ 正解！+10pt\n連続正解: 3🔥'}],
   vending: [{t:'input',text:'📍 現在地\n取得完了'},{t:'proc'},{t:'res',text:'周辺に7台発見\n最近: 80m先'}],
+  recipe:  [{t:'input',text:'鶏肉、玉ねぎ\nにんにく、トマト缶\n(30分以内)'},{t:'proc'},{t:'res',text:'🍳 チキントマト煮\n調理時間: 25分\n4ステップで完成'}],
 };
 
 function DemoCard({ app }) {
