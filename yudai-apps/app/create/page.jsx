@@ -12,7 +12,8 @@ const APPS = [
   { id:'biz',     icon:'📊', title:'ビジネス文書',   color:'#2563EB', tag:'仕事',   badge:null,   cta:'文書を生成する',  sub:'提案書・企画書・メール・報告書をAIが業界水準で自動生成。すぐに使えるビジネス文書を秒速で' },
   { id:'kokoro',  icon:'🪞', title:'内省',           color:'#7C6FFF', tag:'日記',   badge:null,   cta:'記録を始める',    sub:'毎日の記録をAIが感情タグ付け・パターン分析。自分の感情の地図を描いて自己理解を深める' },
   { id:'poem',    icon:'✍️', title:'AIポエム',       color:'#F472B6', tag:'詩',     badge:'NEW',  cta:'詩を詠む',        sub:'テーマを入力するだけでAIが俳句・短歌・自由詩・恋詩を生成。日本語の美しさをAIが詠む' },
-  { id:'message', icon:'💌', title:'AIメッセージ',   color:'#FB923C', tag:'言葉',   badge:'NEW',  cta:'メッセージを作る', sub:'誕生日・感謝・告白・謝罪など8シーン対応。トーンも4種類から選べる心のこもった代筆AI' },
+  { id:'message',   icon:'💌', title:'AIメッセージ',   color:'#FB923C', tag:'言葉',   badge:'NEW',  cta:'メッセージを作る',   sub:'誕生日・感謝・告白・謝罪など8シーン対応。トーンも4種類から選べる心のこもった代筆AI' },
+  { id:'selfintro', icon:'🪪', title:'AI自己紹介文',   color:'#A78BFA', tag:'紹介',   badge:'NEW',  cta:'自己紹介文を作る',   sub:'SNS・婚活・名刺・スピーチなど6用途に最適化した自己紹介文をAIが即座に生成する' },
 ];
 
 const DEMOS = {
@@ -22,7 +23,8 @@ const DEMOS = {
   biz:     [{t:'input',text:'SNS広告\n提案書\n食品業界向け'},{t:'proc'},{t:'res',text:'📄 8ページ完成\nすぐ使える'}],
   kokoro:  [{t:'input',text:'少し疲れたけど\n頑張れた一日'},{t:'res',text:'タグ: 疲労・達成感\n今週: 疲労↑'},{t:'res',text:'📊 3週間グラフ\n感情の変化を可視化'}],
   poem:    [{t:'input',text:'テーマ: 失恋\nスタイル: 俳句'},{t:'proc'},{t:'res',text:'傘もなく\n雨の中で笑った\nその日のことを'}],
-  message: [{t:'input',text:'シーン: 誕生日\nトーン: 温かく\n宛先: お母さん'},{t:'proc'},{t:'res',text:'お母さん、いつも\nありがとう。あなたの\n笑顔が私の力です💕'}],
+  message:   [{t:'input',text:'シーン: 誕生日\nトーン: 温かく\n宛先: お母さん'},{t:'proc'},{t:'res',text:'お母さん、いつも\nありがとう。あなたの\n笑顔が私の力です💕'}],
+  selfintro: [{t:'input',text:'📱 SNS用\n職業: エンジニア\n趣味: 旅行・写真'},{t:'proc'},{t:'res',text:'🪪 自己紹介完成!\n親しみやすく\n100字で生成済み'}],
 };
 
 function DemoCard({ app }) {
