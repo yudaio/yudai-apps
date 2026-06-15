@@ -35,28 +35,28 @@
 - [x] **TASK-005**: Melody AI (Suno)の動作確認と改善
   - app/apps/Suno.jsx と yudai-apps/app/apps/Suno.jsx 両方に追加済み
 
-- [ ] **TASK-006**: 全アプリのモバイル対応チェック
-  - スマートフォンでの表示・操作感の最適化
+- [x] **TASK-006**: 全アプリのモバイル対応チェック
+  - モバイルレイアウト確認済み。StatBar 4カラム・コンテンツシングルカラム正常
 
-- [ ] **TASK-007**: Vercelデプロイ確認
-  - 最新の変更をVercelにデプロイして動作確認
+- [x] **TASK-007**: Vercelデプロイ確認
+  - dpl_GMf4XsK8gSKqx7jAgn7JUuCkrz1D が READY を確認
+  - 本番URL: yudai-apps.vercel.app に反映済み
 
 ---
 
 ## 優先度: 低
 
-- [ ] **TASK-008**: 新アプリのアイデア実装
-  - ユーザー要望に基づく新しいアプリを追加
+- [x] **TASK-008**: 新アプリのアイデア実装
+  - AIタロット占い (tarot) を実装 → アプリ数21本に
 
 - [ ] **TASK-009**: SEO対策・OGP設定
   - 全アプリページにmeta情報を追加 (主要ページは完了済み)
-  - yudai-appsのlayout.jsxにもOGP設定追加
 
 - [ ] **TASK-010**: パフォーマンス最適化
   - 画像最適化、遅延読み込み等
 
-- [ ] **TASK-011**: yudai-apps layout.jsx に SEO/OGP 設定追加
-  - 現在はデフォルトのまま。app/layout.jsxと同じ設定を適用する
+- [x] **TASK-011**: yudai-apps layout.jsx に SEO/OGP 設定追加
+  - layout.jsx に title・description・openGraph 設定済み
 
 ---
 
@@ -65,6 +65,10 @@
 - TASK-003: chat/create/diagnosis/toolsページ実装
 - TASK-004: GrowthTracker統合
 - TASK-005: Melody AI統合
+- TASK-006: モバイル対応確認
+- TASK-007: Vercelデプロイ確認 (READY)
+- TASK-008: AIタロット占いアプリ新規実装 (21本目)
+- TASK-011: layout.jsx SEO/OGP設定
 - FaceGlow・Coach・ApiKeySetup を yudai-apps に追加 (コミット済み)
 - yudai-apps/app/[appId]/page.jsx に戻るナビ追加
 - yudai-apps/app/page.jsx に「美容・成長」カテゴリ追加

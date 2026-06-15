@@ -19,9 +19,10 @@ import Suno from '../apps/Suno';
 import GrowthTracker from '../apps/GrowthTracker';
 import FaceGlow from '../apps/FaceGlow';
 import Coach from '../apps/Coach';
+import Tarot from '../apps/Tarot';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -44,6 +45,7 @@ const APP_META = {
   growth:  { title: 'Growth Tracker',description: '習慣・目標をAIと一緒に管理。成長の軌跡を可視化する自己成長記録アプリ。' },
   faceglow:{ title: 'FACEGLOW',      description: 'AIが顔を診断し理想の顔を可視化する美容アプリ。改善ポイントをAIが詳しく解説。' },
   coach:   { title: 'AIコーチ',      description: '専属AIコーチとチャットしながら目標達成を加速。毎日の進捗をタスク管理で可視化。' },
+  tarot:   { title: 'AIタロット',    description: '3枚のカードが過去・現在・未来を映す。AIが詩的かつ深い洞察でリーディングを生成。' },
 };
 
 export function generateMetadata({ params }) {
