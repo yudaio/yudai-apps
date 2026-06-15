@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 const C = { bg:'#050812', card:'#0C0E22', border:'#1A2040', text:'#E2E8FF', muted:'#5A6890' };
-const CAT = { label:'AI診断・分析', icon:'🔮', color:'#818CF8', badge:'最多8種類', desc:'自分の本質・才能・運命・行動パターン・相性・未来をAIが数値化して暴く。' };
+const CAT = { label:'AI診断・分析', icon:'🔮', color:'#818CF8', badge:'最多9種類', desc:'自分の本質・才能・運命・行動パターン・相性・ストレス・未来をAIが数値化して暴く。' };
 
 const APPS = [
   { id:'fate',  icon:'🔮', title:'運命診断',  color:'#7C3AED', tag:'運命',  badge:'定番人気', cta:'運命を診断する',   sub:'生年月日・名前を入力するだけ。統計と心理学があなたの本質・強み・人生の転機を解析する' },
@@ -13,7 +13,8 @@ const APPS = [
   { id:'rant',  icon:'💢', title:'鬱憤爆発',  color:'#DC2626', tag:'社会',  badge:null,       cta:'爆発させる',       sub:'理不尽・怒り・社会への不満を哲学的・統計的・感情的の3視点で徹底解剖する' },
   { id:'tarot',   icon:'🎴', title:'AIタロット', color:'#7C3AED', tag:'占い',   badge:'NEW', cta:'カードを引く',     sub:'3枚のカードが過去・現在・未来を映し出す。AIが深い洞察で詩的なリーディングを生成する' },
   { id:'fortune', icon:'🌟', title:'今日の運勢', color:'#F59E0B', tag:'星占い', badge:'NEW', cta:'運勢を見る',       sub:'12星座ごとにAIが毎日生成する星占い。恋愛・仕事・健康・金運をスコアで可視化する' },
-  { id:'aiai',   icon:'💕', title:'AI相性診断', color:'#EC4899', tag:'相性',   badge:'NEW', cta:'相性を診断する',   sub:'2人の名前と星座を入力するだけでAIが相性スコアを算出。恋愛・友情・仕事を多角的に分析する' },
+  { id:'aiai',   icon:'💕', title:'AI相性診断',    color:'#EC4899', tag:'相性',     badge:'NEW', cta:'相性を診断する',     sub:'2人の名前と星座を入力するだけでAIが相性スコアを算出。恋愛・友情・仕事を多角的に分析する' },
+  { id:'stress', icon:'🧘', title:'AIストレス診断', color:'#818CF8', tag:'ストレス', badge:'NEW', cta:'ストレスを診断する', sub:'8つの質問でストレスレベルとパターンをレーダーチャートで可視化。AIがケアアドバイスを生成する' },
 ];
 
 const DEMOS = {
@@ -25,6 +26,7 @@ const DEMOS = {
   tarot:   [{t:'input',text:'好きな人に\n告白すべきか…'},{t:'proc'},{t:'res',text:'🎴 恋人・塔・星\n転換期を経て\n希望が待つ'}],
   fortune: [{t:'res',text:'♊ 双子座'},{t:'proc'},{t:'res',text:'総合運 82 🌟\n恋愛★★★★☆\n仕事★★★★★'}],
   aiai:    [{t:'input',text:'ゆだい × あい\n♊ × ♏'},{t:'proc'},{t:'res',text:'💕 相性 88点\n運命の相手💜\n恋愛・仕事ともに◎'}],
+  stress:  [{t:'res',text:'Q3: イライラ\nしますか？'},{t:'in',text:'② よくある'},{t:'res',text:'🧘 スコア: 67\n高ストレス\n今週のケア→'}],
 };
 
 function DemoCard({ app }) {

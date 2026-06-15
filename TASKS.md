@@ -39,10 +39,10 @@
 
 ---
 
-## 🚀 達成済みアプリ (31本)
+## 🚀 達成済みアプリ (33本)
 
-### AIチャット (3本)
-- koe (声の遺産), konoka (このちゃんAI), untangle (Untangle)
+### AIチャット (4本)
+- koe (声の遺産), konoka (このちゃんAI), untangle (Untangle), kiku (AIきいて)
 
 ### AI診断・分析 (8本)
 - fate (運命診断), marry (婚活診断), side (副業診断), muda (無駄削減)
@@ -59,13 +59,16 @@
 - books (感情図書館), genki (元気玉), yamato (大和魂教育)
 - vending (自販機マップ), recipe (AIレシピ), travel (AI旅行プランナー)
 
-### 美容・成長 (3本)
-- faceglow (FACEGLOW), growth (Growth Tracker), coach (AIコーチ)
+### 美容・成長 (4本)
+- faceglow (FACEGLOW), growth (Growth Tracker), coach (AIコーチ), sleep (AI睡眠分析)
 
 ---
 
 ## 次の実装候補
 - [x] **TASK-012**: AI自己紹介文ジェネレーター (生成・創作) — 完了
-- [ ] **TASK-013**: AI睡眠分析 (美容・成長カテゴリ追加)
-- [ ] **TASK-014**: AIチャットカテゴリに4本目追加
+- [x] **TASK-013**: AI睡眠分析 (美容・成長カテゴリ追加) — 完了
+- [x] **TASK-014**: AIチャットカテゴリに4本目追加 (AIきいて) — 完了
 - [ ] **TASK-010**: パフォーマンス最適化
+- [ ] **TASK-015**: AI診断・分析カテゴリに9本目追加（AIストレス診断など）
+- [ ] **TASK-016**: ツール・体験カテゴリに7本目追加（AI家計簿など）
+- [ ] **TASK-017**: 学習・スキルカテゴリに4本目追加（AIスピーチ練習など）
