@@ -45,6 +45,7 @@ const CATEGORIES = [
     color: '#38BDF8',
     apps: [
       { id:'eigo',    icon:'🗣️', title:'AI英会話',    sub:'ネイティブAIと英語でチャット練習。レベル・トピックを選んで会話力を磨く', color:'#38BDF8', tag:'英語', badge:'NEW' },
+      { id:'vocab',   icon:'📖', title:'英単語クイズ', sub:'初〜上級3レベルの10問クイズ。正解後にAIが例文と解説を生成して記憶を定着', color:'#A78BFA', tag:'語彙', badge:'NEW' },
     ],
   },
   {
@@ -164,7 +165,7 @@ function DemoCard({ app, steps }) {
 /* ── 統計カウンター ── */
 function StatBar() {
   const stats = [
-    { val:'23', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
+    { val:'24', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
     { val:'12', label:'AI搭載',   icon:'🤖', sub:'生成AI活用' },
     { val:'6',  label:'カテゴリ', icon:'🗂️', sub:'診断・チャット・英語' },
     { val:'∞',  label:'使い放題', icon:'✨', sub:'登録不要でOK' },
@@ -231,7 +232,7 @@ function PremiumCTA() {
 /* ── 使い方 3ステップ ── */
 function HowItWorks() {
   const steps = [
-    { icon:'📲', title:'アプリを選ぶ', desc:'23本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
+    { icon:'📲', title:'アプリを選ぶ', desc:'24本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
     { icon:'✍️', title:'テキストを入力', desc:'今の気持ちや質問を自由に書くだけ。難しい設定は一切なし。' },
     { icon:'🤖', title:'AIが即座に応答', desc:'最新AIが個別の回答・診断・創作物を数秒で生成する。' },
   ];
@@ -329,7 +330,7 @@ function CategorySection({ cat }) {
 // 例: "https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&loop=1&playlist=VIDEO_ID"
 const DEMO_VIDEOS = {
   koe: null, konoka: null, untangle: null,
-  fate: null, marry: null, side: null, muda: null, rant: null, tarot: null, fortune: null, eigo: null,
+  fate: null, marry: null, side: null, muda: null, rant: null, tarot: null, fortune: null, eigo: null, vocab: null,
   dream: null, monster: null, suno: null, biz: null, kokoro: null,
   books: null, genki: null, yamato: null, vending: null,
 };
@@ -523,7 +524,7 @@ const CATEGORY_NAV = [
   { id:'diagnosis', href:'/diagnosis', icon:'🔮', color:'#818CF8', label:'AI診断・分析', desc:'本質・才能・行動を数値化する',     count:7, badge:'最多7種類',     names:['運命診断','婚活診断','副業診断','AIタロット','今日の運勢'] },
   { id:'create',    href:'/create',    icon:'✨', color:'#34D399', label:'AI生成・創作', desc:'文章・画像・音楽・日記をAIで',    count:5, badge:'クリエイティブ', names:['夢映像化','言葉モンスター','Melody AI','ビジネス文書','内省'] },
   { id:'tools',     href:'/tools',     icon:'🛠️', color:'#38BDF8', label:'ツール・体験', desc:'日常を豊かにする体験型アプリ',    count:4, badge:'無料ツール',     names:['感情図書館','元気玉','大和魂教育','自販機MAP'] },
-  { id:'learn',     href:'/learn',     icon:'📚', color:'#06B6D4', label:'学習・スキル', desc:'ネイティブAIと英語で会話力アップ', count:1, badge:'英語強化',      names:['AI英会話'] },
+  { id:'learn',     href:'/learn',     icon:'📚', color:'#06B6D4', label:'学習・スキル', desc:'AIで英語力をスキルアップ',       count:2, badge:'英語強化',      names:['AI英会話','英単語クイズ'] },
 ];
 
 function CategoryNav() {
@@ -612,7 +613,7 @@ export default function Hub() {
         <div style={{ position:'relative', maxWidth:720, margin:'0 auto', animation:'fadeUp 0.7s ease' }}>
           <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'6px 18px', borderRadius:20, background:'#6366F112', border:'1px solid #6366F130', color:'#A78BFA', fontSize:12, fontWeight:600, marginBottom:24, backdropFilter:'blur(8px)' }}>
             <span style={{ width:6, height:6, borderRadius:'50%', background:'#6EE7B7', display:'inline-block', boxShadow:'0 0 6px #6EE7B7' }}/>
-            AIと感情が交差する23本のプロダクト
+            AIと感情が交差する24本のプロダクト
           </div>
 
           <h1 style={{ fontSize:'clamp(38px,7vw,70px)', fontWeight:900, lineHeight:1.05, letterSpacing:'-0.035em', margin:'0 0 20px' }}>
@@ -691,7 +692,7 @@ export default function Hub() {
           <span style={{ background:'linear-gradient(135deg,#A78BFA,#6366F1)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontWeight:900, fontSize:20, letterSpacing:'-0.03em' }}>Yudai Apps</span>
         </div>
         <p style={{ color:C.muted, fontSize:12, margin:'0 0 16px', lineHeight:2 }}>
-          AIと感情が交差するプロダクト集 · 23アプリ全部無料<br/>
+          AIと感情が交差するプロダクト集 · 24アプリ全部無料<br/>
           <span style={{ fontSize:11 }}>Powered by Claude AI · 画像生成 Pollinations.ai · 音楽生成 Suno AI</span>
         </p>
         <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>
