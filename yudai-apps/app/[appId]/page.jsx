@@ -36,9 +36,11 @@ import Stress from '../apps/Stress';
 import Kakeibo from '../apps/Kakeibo';
 import Morahara from '../apps/Morahara';
 import Yakuin from '../apps/Yakuin';
+import Rikon from '../apps/Rikon';
+import Souzoku from '../apps/Souzoku';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep, kiku: Kiku, stress: Stress, kakeibo: Kakeibo, morahara: Morahara, yakuin: Yakuin };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep, kiku: Kiku, stress: Stress, kakeibo: Kakeibo, morahara: Morahara, yakuin: Yakuin, rikon: Rikon, souzoku: Souzoku };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -78,6 +80,8 @@ const APP_META = {
   kakeibo:   { title: 'AI家計簿',        description: '支出を記録してカテゴリ別に可視化。AIがデータを分析して具体的な節約アドバイスと来月の目標を生成。' },
   morahara:  { title: 'AIモラハラ診断',  description: '「これってモラハラ？」をAIが0〜100スコアで判定。判定タイプ・問題点・対処法を具体的に提示。5段階レベル・履歴保存。' },
   yakuin:    { title: 'AI役員報酬最適化', description: '法人オーナー向け。売上・経費・現在の役員報酬を入力するだけで最適役員報酬額と推定節税効果をAIが試算。' },
+  rikon:     { title: 'AI離婚シミュレーター', description: '婚姻期間・子供・収入・財産を入力するだけで財産分与・養育費・生活費をAIが試算。離婚を考えたときの最初の一歩に。' },
+  souzoku:   { title: 'AI相続税対策', description: '親の財産と相続人数を入力するだけで相続税の概算と節税対策TOP3をAIが試算。今すぐやることを具体的に提示。' },
 };
 
 export function generateMetadata({ params }) {

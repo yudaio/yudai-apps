@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 const C = { bg:'#050812', card:'#0C0E22', border:'#1A2040', text:'#E2E8FF', muted:'#5A6890' };
-const CAT = { label:'ツール・体験', icon:'🛠️', color:'#38BDF8', badge:'無料ツール', desc:'本を選んでもらう。世界と繋がる。地図から自販機を探す。ユニークな日常体験アプリ。' };
+const CAT = { label:'ツール・体験', icon:'🛠️', color:'#38BDF8', badge:'無料ツール', desc:'本を選んでもらう。節税・相続を試算する。世界と繋がる。ユニークな実用・体験アプリ。' };
 
 const APPS = [
   { id:'books',   icon:'📖', title:'感情図書館',  color:'#4F46E5', tag:'読書',    badge:null, cta:'本を選んでもらう',  sub:'今の感情・気分を入力するだけ。AIが今のあなたの心に最もフィットする運命の一冊を選書してくれる' },
@@ -14,6 +14,7 @@ const APPS = [
   { id:'travel',  icon:'✈️', title:'AI旅行プランナー', color:'#38BDF8', tag:'旅行',  badge:'NEW', cta:'旅程を作る',    sub:'目的地と日数を入力するだけで旅行プランを自動生成。観光・グルメ・自然など6スタイルから選べる' },
   { id:'kakeibo', icon:'💴', title:'AI家計簿',         color:'#34D399', tag:'お金', badge:'NEW', cta:'支出を記録する',  sub:'支出をカテゴリ別に記録して円グラフで可視化。AIがデータを分析して具体的な節約アドバイスを生成' },
   { id:'yakuin',  icon:'💼', title:'AI役員報酬最適化', color:'#10B981', tag:'節税', badge:'NEW', cta:'最適額を試算する', sub:'法人オーナー向け。売上・経費を入力するだけでAIが最適役員報酬額と推定節税効果を試算する' },
+  { id:'souzoku', icon:'🏦', title:'AI相続税対策',     color:'#F59E0B', tag:'相続', badge:'NEW', cta:'相続税を試算する',   sub:'親の財産と相続人数を入力するだけで相続税の概算と節税対策TOP3をAIが試算。今すぐやることを提示する' },
 ];
 
 const DEMOS = {
@@ -25,6 +26,7 @@ const DEMOS = {
   travel:   [{t:'input',text:'目的地: 京都\n3日間・2人\nスタイル: 歴史'},{t:'proc'},{t:'res',text:'1日目: 伏見稲荷→\n金閣寺→嵐山\n夜: 祇園でディナー'}],
   kakeibo: [{t:'input',text:'🍚 食費 ¥1,200\nランチ代'},{t:'res',text:'今月合計\n¥38,400\n食費45%が最多'},{t:'res',text:'🤖 食費を週単位で\n予算管理すると◎\n来月目標: ¥35,000'}],
   yakuin:  [{t:'input',text:'売上: 5000万\n経費: 2000万\n役員報酬: 月80万'},{t:'proc'},{t:'res',text:'💡 最適: 月60万\n節税効果: 年80万\n→ 優先アクション3点'}],
+  souzoku: [{t:'input',text:'不動産: 5000万\n預金: 3000万\n相続人: 3人'},{t:'proc'},{t:'res',text:'🏦 基礎控除: 4800万\n概算税額: 160万\n節税対策TOP3→'}],
 };
 
 function DemoCard({ app }) {

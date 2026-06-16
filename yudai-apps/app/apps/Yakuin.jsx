@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { callAI } from './shared';
+import { useGate, PaywallModal, UsageBadge } from './Paywall';
 
 const C = { bg:'#050812', card:'#0C0E22', border:'#1A2040', text:'#E2E8FF', muted:'#5A6890', green:'#10B981' };
 
@@ -29,12 +30,13 @@ export default function Yakuin() {
   const [vals, setVals] = useState({ sales:'', expenses:'', salary:'', other:'' });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { premium, remaining, blocked, check, increment, dismiss } = useGate('yakuin');
 
   const valid = FIELDS.every(f => vals[f.id] !== '' && !isNaN(Number(vals[f.id])));
   const profit = valid ? Number(vals.sales) - Number(vals.expenses) - Number(vals.salary) * 12 : null;
 
   async function analyze() {
-    if (!valid || loading) return;
+    if (!valid || loading || !check()) return;
     setLoading(true);
     setResult(null);
     try {
@@ -60,6 +62,7 @@ export default function Yakuin() {
 金額は万円単位で具体的に書いてください。曖昧な回答は避け、数値を明示してください。`
       );
       setResult(res);
+      increment();
     } catch { setResult('error'); }
     setLoading(false);
   }
@@ -76,6 +79,8 @@ export default function Yakuin() {
           <span style={{ fontSize:11 }}>※本ツールは参考情報です。確定前は税理士にご確認ください。</span>
         </p>
       </div>
+
+      <UsageBadge remaining={remaining} premium={premium} />
 
       <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:'22px 20px', marginBottom:16 }}>
         <div style={{ color:C.text, fontSize:14, fontWeight:700, marginBottom:16 }}>法人の財務情報を入力</div>
@@ -142,6 +147,8 @@ export default function Yakuin() {
         </button>
         <div style={{ color:'#3A4870', fontSize:11, marginTop:10 }}>7日間無料 · いつでもキャンセル可</div>
       </div>
+
+      {blocked && <PaywallModal onClose={dismiss} />}
     </div>
   );
 }

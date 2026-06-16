@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 const C = { bg:'#050812', card:'#0C0E22', border:'#1A2040', text:'#E2E8FF', muted:'#5A6890' };
-const CAT = { label:'AI診断・分析', icon:'🔮', color:'#818CF8', badge:'最多10種類', desc:'自分の本質・才能・運命・行動パターン・相性・ストレス・モラハラ・未来をAIが数値化して暴く。' };
+const CAT = { label:'AI診断・分析', icon:'🔮', color:'#818CF8', badge:'最多11種類', desc:'自分の本質・才能・運命・行動パターン・相性・ストレス・モラハラ・離婚シミュ・未来をAIが数値化して暴く。' };
 
 const APPS = [
   { id:'fate',  icon:'🔮', title:'運命診断',  color:'#7C3AED', tag:'運命',  badge:'定番人気', cta:'運命を診断する',   sub:'生年月日・名前を入力するだけ。統計と心理学があなたの本質・強み・人生の転機を解析する' },
@@ -16,6 +16,7 @@ const APPS = [
   { id:'aiai',   icon:'💕', title:'AI相性診断',    color:'#EC4899', tag:'相性',     badge:'NEW', cta:'相性を診断する',     sub:'2人の名前と星座を入力するだけでAIが相性スコアを算出。恋愛・友情・仕事を多角的に分析する' },
   { id:'stress',   icon:'🧘', title:'AIストレス診断', color:'#818CF8', tag:'ストレス',      badge:'NEW', cta:'ストレスを診断する', sub:'8つの質問でストレスレベルとパターンをレーダーチャートで可視化。AIがケアアドバイスを生成する' },
   { id:'morahara', icon:'🔍', title:'AIモラハラ診断', color:'#F472B6', tag:'DV・ハラスメント', badge:'NEW', cta:'AIに判定してもらう', sub:'「これってモラハラ？」をAIが0〜100スコアで判定。問題点・対処法・緊急相談窓口まで具体的に提示する' },
+  { id:'rikon',    icon:'⚖️', title:'AI離婚シミュレーター', color:'#8B5CF6', tag:'離婚・法律', badge:'NEW', cta:'離婚した場合を試算する', sub:'婚姻期間・子供・収入・共有財産を入力するだけで財産分与・養育費・生活費をAIが具体的に試算する' },
 ];
 
 const DEMOS = {
@@ -29,6 +30,7 @@ const DEMOS = {
   aiai:    [{t:'input',text:'ゆだい × あい\n♊ × ♏'},{t:'proc'},{t:'res',text:'💕 相性 88点\n運命の相手💜\n恋愛・仕事ともに◎'}],
   stress:   [{t:'res',text:'Q3: イライラ\nしますか？'},{t:'in',text:'② よくある'},{t:'res',text:'🧘 スコア: 67\n高ストレス\n今週のケア→'}],
   morahara: [{t:'input',text:'「お前のせいで\n俺の人生が\n台無しだ」と言われた'},{t:'proc'},{t:'res',text:'🚨 モラハラ 72/100\n言語的暴力\n→ 対処法3点'}],
+  rikon:    [{t:'input',text:'婚姻10年\n子2人・資産2000万\n有責: 相手'},{t:'proc'},{t:'res',text:'⚖️ 財産分与: 1000万\n養育費: 月8万\n慰謝料: 100〜300万'}],
 };
 
 function DemoCard({ app }) {

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { callAI } from './shared';
+import { useGate, PaywallModal, UsageBadge } from './Paywall';
 
 const C = { bg:'#050812', card:'#0C0E22', border:'#1A2040', text:'#E2E8FF', muted:'#5A6890', pink:'#F472B6' };
 
@@ -26,12 +27,13 @@ export default function Morahara() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState('check');
+  const { premium, remaining, blocked, check, increment, dismiss } = useGate('morahara');
   const [history, setHistory] = useState(() => {
     try { return JSON.parse(localStorage.getItem('morahara-v1') || '[]'); } catch { return []; }
   });
 
   async function analyze() {
-    if (!text.trim() || loading) return;
+    if (!text.trim() || loading || !check()) return;
     setLoading(true);
     setResult(null);
     try {
@@ -58,6 +60,7 @@ ${text}
       setHistory(next);
       localStorage.setItem('morahara-v1', JSON.stringify(next));
       setResult({ score, level, res });
+      increment();
     } catch { setResult({ error: true }); }
     setLoading(false);
   }
@@ -74,6 +77,8 @@ ${text}
           <span style={{ fontSize:11 }}>※本診断はAIによる参考情報です。専門家の判断に代わるものではありません。</span>
         </p>
       </div>
+
+      <UsageBadge remaining={remaining} premium={premium} />
 
       <div style={{ display:'flex', gap:4, marginBottom:20, background:C.card, borderRadius:12, padding:4, border:`1px solid ${C.border}` }}>
         {[['check','🔍 診断する'],['history','📋 履歴']].map(([t,label]) => (
@@ -183,6 +188,8 @@ ${text}
         </button>
         <div style={{ color:'#3A4870', fontSize:11, marginTop:10 }}>7日間無料 · いつでもキャンセル可</div>
       </div>
+
+      {blocked && <PaywallModal onClose={dismiss} />}
     </div>
   );
 }

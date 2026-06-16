@@ -40,6 +40,7 @@ const CATEGORIES = [
       { id:'aiai',    icon:'💕', title:'AI相性診断',  sub:'名前と星座を入力→AIがスコアで相性を診断。恋愛・友情・仕事を多角的に分析', color:'#EC4899', tag:'相性', badge:'NEW' },
       { id:'stress',   icon:'🧘', title:'AIストレス診断', sub:'8つの質問でストレスレベルとパターンをレーダーチャートで可視化。AIがケアアドバイスを生成', color:'#818CF8', tag:'ストレス', badge:'NEW' },
       { id:'morahara', icon:'🔍', title:'AIモラハラ診断', sub:'「これってモラハラ？」をAIが0〜100スコアで判定。問題点・対処法・緊急相談窓口まで提示する', color:'#F472B6', tag:'ハラスメント', badge:'NEW' },
+      { id:'rikon',    icon:'⚖️', title:'AI離婚シミュレーター', sub:'婚姻期間・子供・収入・共有財産を入力するだけで財産分与・養育費・生活費をAIが試算する', color:'#8B5CF6', tag:'離婚・法律', badge:'NEW' },
     ],
   },
   {
@@ -83,6 +84,7 @@ const CATEGORIES = [
       { id:'travel',  icon:'✈️', title:'AI旅行プランナー', sub:'目的地と日数を入力するだけでAIが旅行プランを自動生成。午前・午後・夜の詳細スケジュール付き', color:'#38BDF8', tag:'旅行', badge:'NEW' },
       { id:'kakeibo', icon:'💴', title:'AI家計簿',         sub:'支出をカテゴリ別に記録して可視化。AIがデータを分析して節約アドバイスと来月の目標を生成する', color:'#34D399', tag:'お金', badge:'NEW' },
       { id:'yakuin',  icon:'💼', title:'AI役員報酬最適化', sub:'法人オーナー向け。売上・経費を入力するだけでAIが最適役員報酬額と推定節税効果を試算する', color:'#10B981', tag:'節税', badge:'NEW' },
+      { id:'souzoku', icon:'🏦', title:'AI相続税対策',     sub:'親の財産と相続人数を入力するだけで相続税の概算と節税対策TOP3をAIが試算する', color:'#F59E0B', tag:'相続', badge:'NEW' },
     ],
   },
   {
@@ -245,7 +247,7 @@ function PremiumCTA() {
 /* ── 使い方 3ステップ ── */
 function HowItWorks() {
   const steps = [
-    { icon:'📲', title:'アプリを選ぶ', desc:'37本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
+    { icon:'📲', title:'アプリを選ぶ', desc:'39本の中から気になるアプリをタップ。登録不要・すぐ使える。' },
     { icon:'✍️', title:'テキストを入力', desc:'今の気持ちや質問を自由に書くだけ。難しい設定は一切なし。' },
     { icon:'🤖', title:'AIが即座に応答', desc:'最新AIが個別の回答・診断・創作物を数秒で生成する。' },
   ];
@@ -599,7 +601,7 @@ function CategoryNav() {
         <div style={{ textAlign:'center', marginBottom:36 }}>
           <div style={{ fontSize:11, color:C.violet, letterSpacing:'0.15em', fontWeight:700, textTransform:'uppercase', marginBottom:12 }}>✦ カテゴリから探す</div>
           <h2 style={{ fontSize:'clamp(22px,4vw,30px)', fontWeight:900, color:C.text, letterSpacing:'-0.025em', margin:'0 0 10px' }}>どの体験をしたいですか？</h2>
-          <p style={{ color:C.muted, fontSize:14, margin:0 }}>6カテゴリ・全37アプリ · 全部無料 · 登録不要</p>
+          <p style={{ color:C.muted, fontSize:14, margin:0 }}>6カテゴリ・全39アプリ · 全部無料 · 登録不要</p>
         </div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16 }}>
           {CATEGORY_NAV.map(cat => (
@@ -677,7 +679,7 @@ export default function Hub() {
         <div style={{ position:'relative', maxWidth:720, margin:'0 auto', animation:'fadeUp 0.7s ease' }}>
           <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'6px 18px', borderRadius:20, background:'#6366F112', border:'1px solid #6366F130', color:'#A78BFA', fontSize:12, fontWeight:600, marginBottom:24, backdropFilter:'blur(8px)' }}>
             <span style={{ width:6, height:6, borderRadius:'50%', background:'#6EE7B7', display:'inline-block', boxShadow:'0 0 6px #6EE7B7' }}/>
-            AIと感情が交差する37本のプロダクト
+            AIと感情が交差する39本のプロダクト
           </div>
 
           <h1 style={{ fontSize:'clamp(38px,7vw,70px)', fontWeight:900, lineHeight:1.05, letterSpacing:'-0.035em', margin:'0 0 20px' }}>
