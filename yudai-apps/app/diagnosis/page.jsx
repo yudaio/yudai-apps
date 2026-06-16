@@ -17,6 +17,7 @@ const APPS = [
   { id:'stress',   icon:'🧘', title:'AIストレス診断', color:'#818CF8', tag:'ストレス',      badge:'NEW', cta:'ストレスを診断する', sub:'8つの質問でストレスレベルとパターンをレーダーチャートで可視化。AIがケアアドバイスを生成する' },
   { id:'morahara', icon:'🔍', title:'AIモラハラ診断', color:'#F472B6', tag:'DV・ハラスメント', badge:'NEW', cta:'AIに判定してもらう', sub:'「これってモラハラ？」をAIが0〜100スコアで判定。問題点・対処法・緊急相談窓口まで具体的に提示する' },
   { id:'rikon',    icon:'⚖️', title:'AI離婚シミュレーター', color:'#8B5CF6', tag:'離婚・法律', badge:'NEW', cta:'離婚した場合を試算する', sub:'婚姻期間・子供・収入・共有財産を入力するだけで財産分与・養育費・生活費をAIが具体的に試算する' },
+  { id:'uwaki',    icon:'💔', title:'AI浮気チェッカー',     color:'#EF4444', tag:'浮気・不倫', badge:'NEW', cta:'浮気リスクを診断する',   sub:'パートナーの行動変化をチェックするだけでAIが浮気リスクを0〜100スコアで診断。取るべき行動も提示する' },
 ];
 
 const DEMOS = {
@@ -31,6 +32,7 @@ const DEMOS = {
   stress:   [{t:'res',text:'Q3: イライラ\nしますか？'},{t:'in',text:'② よくある'},{t:'res',text:'🧘 スコア: 67\n高ストレス\n今週のケア→'}],
   morahara: [{t:'input',text:'「お前のせいで\n俺の人生が\n台無しだ」と言われた'},{t:'proc'},{t:'res',text:'🚨 モラハラ 72/100\n言語的暴力\n→ 対処法3点'}],
   rikon:    [{t:'input',text:'婚姻10年\n子2人・資産2000万\n有責: 相手'},{t:'proc'},{t:'res',text:'⚖️ 財産分与: 1000万\n養育費: 月8万\n慰謝料: 100〜300万'}],
+  uwaki:    [{t:'input',text:'✓ スマホを隠す\n✓ 帰りが遅くなった\n✓ 外見に気を使う'},{t:'proc'},{t:'res',text:'💔 リスク: 74/100\n高リスク\n→ 取るべき行動3点'}],
 };
 
 function DemoCard({ app }) {

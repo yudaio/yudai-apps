@@ -38,9 +38,11 @@ import Morahara from '../apps/Morahara';
 import Yakuin from '../apps/Yakuin';
 import Rikon from '../apps/Rikon';
 import Souzoku from '../apps/Souzoku';
+import Uwaki from '../apps/Uwaki';
+import Fudosan from '../apps/Fudosan';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep, kiku: Kiku, stress: Stress, kakeibo: Kakeibo, morahara: Morahara, yakuin: Yakuin, rikon: Rikon, souzoku: Souzoku };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep, kiku: Kiku, stress: Stress, kakeibo: Kakeibo, morahara: Morahara, yakuin: Yakuin, rikon: Rikon, souzoku: Souzoku, uwaki: Uwaki, fudosan: Fudosan };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
@@ -82,6 +84,8 @@ const APP_META = {
   yakuin:    { title: 'AI役員報酬最適化', description: '法人オーナー向け。売上・経費・現在の役員報酬を入力するだけで最適役員報酬額と推定節税効果をAIが試算。' },
   rikon:     { title: 'AI離婚シミュレーター', description: '婚姻期間・子供・収入・財産を入力するだけで財産分与・養育費・生活費をAIが試算。離婚を考えたときの最初の一歩に。' },
   souzoku:   { title: 'AI相続税対策', description: '親の財産と相続人数を入力するだけで相続税の概算と節税対策TOP3をAIが試算。今すぐやることを具体的に提示。' },
+  uwaki:     { title: 'AI浮気チェッカー', description: 'パートナーの行動変化をチェックするだけでAIが浮気リスクを0〜100スコアで診断。警戒サイン・取るべき行動・心のケアを提示。' },
+  fudosan:   { title: 'AI不動産投資診断', description: '物件価格・利回り・築年数・エリアを入力するだけでAIが投資リスクスコア・実質利回り・キャッシュフローを試算。◎△✕の投資判断付き。' },
 };
 
 export function generateMetadata({ params }) {
