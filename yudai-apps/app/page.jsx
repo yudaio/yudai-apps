@@ -182,7 +182,7 @@ function DemoCard({ app, steps }) {
 /* ── 統計カウンター ── */
 function StatBar() {
   const stats = [
-    { val:'37', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
+    { val:'41', label:'アプリ',   icon:'📦', sub:'すべて無料で使える' },
     { val:'12', label:'AI搭載',   icon:'🤖', sub:'生成AI活用' },
     { val:'6',  label:'カテゴリ', icon:'🗂️', sub:'診断・英語・美容・詩' },
     { val:'∞',  label:'使い放題', icon:'✨', sub:'登録不要でOK' },
@@ -499,6 +499,26 @@ const APP_DEMOS = {
     { t:'proc' },
     { t:'res',   text:'💡 最適: 月60万\n節税効果: 年80万\n優先アクション→' },
   ],
+  rikon: [
+    { t:'input', text:'婚姻10年\n子2人・資産2000万\n有責: 相手' },
+    { t:'proc' },
+    { t:'res',   text:'⚖️ 財産分与: 1000万\n養育費: 月8万\n慰謝料: 100〜300万' },
+  ],
+  souzoku: [
+    { t:'input', text:'親の資産: 8000万\n相続人: 3人\n不動産含む' },
+    { t:'proc' },
+    { t:'res',   text:'🏦 相続税: 約630万\n節税対策TOP3\n今すぐやること→' },
+  ],
+  uwaki: [
+    { t:'input', text:'✓ スマホを隠す\n✓ 帰りが遅くなった\n✓ 外見に気を使う' },
+    { t:'proc' },
+    { t:'res',   text:'💔 リスク: 74/100\n高リスク\n→ 取るべき行動3点' },
+  ],
+  fudosan: [
+    { t:'input', text:'物件: 2500万\n表面利回り: 6.5%\n築: 18年・都内' },
+    { t:'proc' },
+    { t:'res',   text:'◎ 実質利回り 4.8%\n投資判断: 良好\nリスク要因→' },
+  ],
   sleep: [
     { t:'input', text:'就寝: 23:00\n起床: 07:00\n質: まあまあ' },
     { t:'proc' },
@@ -588,9 +608,9 @@ function VideoStrip() {
 /* ── カテゴリナビゲーション ── */
 const CATEGORY_NAV = [
   { id:'chat',      href:'/chat',      icon:'💬', color:'#C8A84B', label:'AIチャット',    desc:'話す・相談する・つながる',         count:4, badge:'人気No.1',      names:['声の遺産','このちゃんAI','Untangle','AIきいて'] },
-  { id:'diagnosis', href:'/diagnosis', icon:'🔮', color:'#818CF8', label:'AI診断・分析', desc:'本質・才能・行動を数値化する',     count:10, badge:'最多10種類',    names:['運命診断','婚活診断','副業診断','AIタロット','今日の運勢','AI相性診断','AIストレス診断','AIモラハラ診断'] },
+  { id:'diagnosis', href:'/diagnosis', icon:'🔮', color:'#818CF8', label:'AI診断・分析', desc:'本質・才能・行動を数値化する',     count:12, badge:'最多12種類',    names:['運命診断','婚活診断','AIモラハラ診断','AI離婚シミュレーター','AI浮気チェッカー','AIストレス診断','AIタロット','今日の運勢'] },
   { id:'create',    href:'/create',    icon:'✨', color:'#34D399', label:'AI生成・創作', desc:'文章・画像・音楽・詩・日記をAIで', count:8,  badge:'クリエイティブ', names:['夢映像化','言葉モンスター','Melody AI','ビジネス文書','AIポエム','AIメッセージ','AI自己紹介文'] },
-  { id:'tools',     href:'/tools',     icon:'🛠️', color:'#38BDF8', label:'ツール・体験', desc:'日常を豊かにする体験型アプリ',    count:8,  badge:'無料ツール',     names:['感情図書館','元気玉','大和魂教育','AIレシピ','AI旅行プランナー','AI家計簿','AI役員報酬最適化'] },
+  { id:'tools',     href:'/tools',     icon:'🛠️', color:'#38BDF8', label:'ツール・体験', desc:'日常を豊かにする体験型アプリ',    count:10, badge:'節税・資産形成',  names:['AI役員報酬最適化','AI相続税対策','AI不動産投資診断','AIレシピ','AI旅行プランナー','AI家計簿','感情図書館'] },
   { id:'learn',     href:'/learn',     icon:'📚', color:'#06B6D4', label:'学習・スキル', desc:'AIで英語力・就活力をスキルアップ', count:3, badge:'英語・就活',     names:['AI英会話','英単語クイズ','AI面接練習'] },
   { id:'beauty',    href:'/beauty',    icon:'✨', color:'#C8A96E', label:'美容・成長',   desc:'顔診断・睡眠分析・習慣管理・コーチング',   count:4, badge:'セルフアップ',  names:['FACEGLOW','Growth Tracker','AIコーチ','AI睡眠分析'] },
 ];
