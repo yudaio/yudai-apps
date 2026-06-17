@@ -760,7 +760,7 @@ export default function Hub() {
           <span style={{ background:'linear-gradient(135deg,#A78BFA,#6366F1)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', fontWeight:900, fontSize:20, letterSpacing:'-0.03em' }}>Yudai Apps</span>
         </div>
         <p style={{ color:C.muted, fontSize:12, margin:'0 0 16px', lineHeight:2 }}>
-          AIと感情が交差するプロダクト集 · 37アプリ全部無料<br/>
+          AIと感情が交差するプロダクト集 · 41アプリ全部無料<br/>
           <span style={{ fontSize:11 }}>Powered by Claude AI · 画像生成 Pollinations.ai · 音楽生成 Suno AI</span>
         </p>
         <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>

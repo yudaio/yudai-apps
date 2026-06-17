@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 const C = { bg:'#050812', card:'#0C0E22', border:'#1A2040', text:'#E2E8FF', muted:'#5A6890' };
-const CAT = { label:'AI診断・分析', icon:'🔮', color:'#818CF8', badge:'最多11種類', desc:'自分の本質・才能・運命・行動パターン・相性・ストレス・モラハラ・離婚シミュ・未来をAIが数値化して暴く。' };
+const CAT = { label:'AI診断・分析', icon:'🔮', color:'#818CF8', badge:'最多12種類', desc:'自分の本質・才能・運命・行動パターン・相性・ストレス・モラハラ・離婚シミュ・未来をAIが数値化して暴く。' };
 
 const APPS = [
   { id:'fate',  icon:'🔮', title:'運命診断',  color:'#7C3AED', tag:'運命',  badge:'定番人気', cta:'運命を診断する',   sub:'生年月日・名前を入力するだけ。統計と心理学があなたの本質・強み・人生の転機を解析する' },
