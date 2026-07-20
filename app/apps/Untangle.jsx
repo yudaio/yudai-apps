@@ -1,18 +1,8 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { PaywallModal, usePremium } from './Paywall';
-import ApiKeySetup, { useApiKey } from './ApiKeySetup';
+import { PaywallModal, usePremium, useGate, UsageBadge } from './Paywall';
 
-const C = {
-  bg: "#07091A", card: "#0C0F22", border: "#182040",
-  text: "#C5D0F0", muted: "#4A5880", accent: "#7C5CFC",
-  accentDim: "rgba(124,92,252,0.12)", accentBorder: "rgba(124,92,252,0.3)",
-  gold: "#F5C518", goldDim: "rgba(245,197,24,0.10)",
-};
-
-function buildSystem(idol) {
-  return `あなたはUntangleというAIカウンセラーです。ユーザーが自分の「足かせ」（人生の行き詰まりの根本原因）に気づくための対話を行います。
-${idol ? `\nユーザーの憧れの人物：「${idol}」。対話の中で自然にこの人物の視点・言葉・姿勢を取り入れてください。` : ''}
+const SYSTEM = `あなたはUntangleというAIカウンセラーです。ユーザーが自分の「足かせ」（人生の行き詰まりの根本原因）に気づくための対話を行います。
 
 【対話の構造】
 STEP1: 行き詰まりを聞く（恋愛・仕事・人間関係・自己評価など複数あってよい）
@@ -29,11 +19,8 @@ STEP5: 根っこが特定できたら [REVEAL: 足かせの正体を一文で] �
 - 共感→深掘り→気づきの順で進める
 - 日本語のみ
 - [REVEAL:...] のフォーマットを必ず守る`;
-}
 
-function buildRoadmapSystem(idol) {
-  return `ユーザーの足かせの正体と会話履歴から、具体的な90日ロードマップを生成してください。
-${idol ? `\nユーザーの憧れの人物は「${idol}」です。ロードマップに「${idol}ならどうするか」という視点を自然に織り込んでください。` : ''}
+const ROADMAP_SYSTEM = `ユーザーの足かせの正体と会話履歴から、具体的な90日ロードマップを生成してください。
 
 【フォーマット】
 ## あなたの足かせ
@@ -41,7 +28,7 @@ ${idol ? `\nユーザーの憧れの人物は「${idol}」です。ロードマ�
 
 ## 根っこにあるもの
 （幼少期・親との関係から来るパターンを説明）
-${idol ? `\n## ${idol}からのメッセージ\n（この人物ならあなたにこう言うだろう、という言葉を1〜2文。その人らしい口調で）\n` : ''}
+
 ## 90日ロードマップ
 
 **DAY 1-30：気づきの定着**
@@ -53,71 +40,64 @@ ${idol ? `\n## ${idol}からのメッセージ\n（この人物ならあなた�
 **DAY 61-90：新しい自分**
 - 具体的なアクション3つ
 
-## 今日からできる最小アクション
-- アクション1
-- アクション2
-- アクション3
+## 今日からできること
+（明日すぐできる最小アクション1つ）
 
-400文字以内で簡潔に。`;
-}
+300文字以内で簡潔に。`;
 
-async function callAI(messages, system, max = 400, provider = 'free', key = '') {
-  // ユーザーキーがある場合はサーバー経由
-  if (key) {
-    const keyParam = provider === 'gemini' ? { geminiKey: key } : { claudeKey: key };
+const C = {
+  bg: "#07091A", card: "#0C0F22", border: "#182040",
+  text: "#C5D0F0", muted: "#4A5880", accent: "#7C5CFC",
+  accentDim: "rgba(124,92,252,0.12)", accentBorder: "rgba(124,92,252,0.3)",
+};
+
+async function callAI(messages, system, max = 400) {
+  // Pollinations をクライアントから直接呼ぶ（ブラウザIP使用）
+  const polMessages = [
+    ...(system ? [{ role: 'system', content: system }] : []),
+    ...messages,
+  ];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch('https://text.pollinations.ai/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'openai',
+          messages: polMessages,
+          max_tokens: max,
+          temperature: 0.85,
+          seed: Math.floor(Math.random() * 9999),
+        }),
+      });
+      if (res.status === 403) break; // Turnstile ブロック → すぐフォールバック
+      if (res.status === 429) {
+        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
+        continue;
+      }
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) return text;
+    } catch { /* retry */ }
+    if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+  }
+  // フォールバック: サーバー経由
+  try {
     const res = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system, messages, max, ...keyParam }),
+      body: JSON.stringify({ system, messages, max }),
     });
     const data = await res.json();
+    if (!data.text || data.text.startsWith('エラーが発生')) return null;
     return data.text;
+  } catch {
+    return null;
   }
-
-  // キーなし → ブラウザから直接Pollinations（各ユーザーのIPで呼ぶ）
-  const pollinationsMsgs = system
-    ? [{ role: 'system', content: system }, ...messages]
-    : messages;
-  const res = await fetch('https://text.pollinations.ai/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages: pollinationsMsgs, model: 'openai', max_tokens: max, private: true }),
-  });
-  const text = await res.text();
-  if (text.startsWith('{')) {
-    const data = JSON.parse(text);
-    if (data.error) return `エラー: ${data.error}`;
-  }
-  return text || 'エラーが発生しました。';
-}
-
-function useWins() {
-  const [wins, setWins] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('untangle_wins') || '[]'); } catch { return []; }
-  });
-  const addWins = (items) => {
-    const newWins = items.map(text => ({
-      text, date: new Date().toLocaleDateString('ja-JP'), done: false
-    }));
-    const updated = [...newWins, ...wins].slice(0, 15);
-    setWins(updated);
-    try { localStorage.setItem('untangle_wins', JSON.stringify(updated)); } catch {}
-  };
-  const toggleWin = (i) => {
-    const updated = wins.map((w, idx) => idx === i ? { ...w, done: !w.done } : w);
-    setWins(updated);
-    try { localStorage.setItem('untangle_wins', JSON.stringify(updated)); } catch {}
-  };
-  const doneCount = wins.filter(w => w.done).length;
-  return { wins, addWins, toggleWin, doneCount };
 }
 
 export default function Untangle() {
-  const [phase, setPhase] = useState('landing');
-  const [idol, setIdol] = useState(() => {
-    try { return localStorage.getItem('untangle_idol') || ''; } catch { return ''; }
-  });
-  const [idolInput, setIdolInput] = useState('');
+  const [phase, setPhase] = useState('landing'); // landing | chat | reveal | roadmap
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -125,9 +105,7 @@ export default function Untangle() {
   const [roadmap, setRoadmap] = useState(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const { premium } = usePremium();
-  const { wins, addWins, toggleWin, doneCount } = useWins();
-  const apiKeyStore = useApiKey();
-  const [hasKey, setHasKey] = useState(() => apiKeyStore.hasKey());
+  const { remaining, blocked, check, increment, dismiss } = useGate('untangle');
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -135,45 +113,32 @@ export default function Untangle() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, reveal]);
 
-  const saveIdol = (name) => {
-    setIdol(name);
-    try { localStorage.setItem('untangle_idol', name); } catch {}
-  };
-
-  const startChat = async (idolName) => {
+  const startChat = async () => {
     setPhase('chat');
     setLoading(true);
     const opening = await callAI(
       [{ role: 'user', content: 'はじめます' }],
-      buildSystem(idolName),
-      400,
-      apiKeyStore.getProvider(),
-      apiKeyStore.getKey()
+      SYSTEM
     );
     setMessages([
       { role: 'user', content: 'はじめます' },
-      { role: 'assistant', content: opening },
+      { role: 'assistant', content: opening || 'ごめんなさい、今AIに接続できません。しばらく経ってから再試行してください。' },
     ]);
     setLoading(false);
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  const handleIdolSubmit = () => {
-    const name = idolInput.trim();
-    saveIdol(name);
-    startChat(name);
-  };
-
   const send = async () => {
     const text = input.trim();
     if (!text || loading) return;
+    if (!check()) return;
     const userMsg = { role: 'user', content: text };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput('');
     setLoading(true);
 
-    const reply = await callAI(newMessages, buildSystem(idol), 400, apiKeyStore.getKey());
+    const reply = await callAI(newMessages, SYSTEM) || '申し訳ありません、AIに接続できません。もう一度試してください。';
     const revealMatch = reply.match(/\[REVEAL:\s*([\s\S]+?)\]/);
     let displayReply = reply;
 
@@ -184,6 +149,7 @@ export default function Untangle() {
     }
 
     setMessages(prev => [...prev, { role: 'assistant', content: displayReply }]);
+    increment();
     setLoading(false);
   };
 
@@ -195,23 +161,13 @@ export default function Untangle() {
   const generateRoadmap = async () => {
     setPhase('roadmap');
     setLoading(true);
-    const summary = messages.map(m =>
-      `${m.role === 'user' ? 'ユーザー' : 'AI'}: ${m.content}`
-    ).join('\n');
+    const summary = messages.map(m => `${m.role === 'user' ? 'ユーザー' : 'AI'}: ${m.content}`).join('\n');
     const result = await callAI(
       [{ role: 'user', content: `足かせの正体：${reveal}\n\n会話履歴：\n${summary}` }],
-      buildRoadmapSystem(idol),
-      900,
-      apiKeyStore.getProvider(),
-      apiKeyStore.getKey()
+      ROADMAP_SYSTEM,
+      800
     );
-    setRoadmap(result);
-    // 最小アクションを自動でwinsリストに追加
-    const actionSection = result.match(/最小アクション([\s\S]*?)(?=##|$)/);
-    if (actionSection) {
-      const items = [...actionSection[1].matchAll(/[-•]\s*(.+)/g)].map(m => m[1].trim()).filter(Boolean);
-      if (items.length > 0) addWins(items);
-    }
+    setRoadmap(result || 'AI接続エラー。しばらく経ってから再試行してください。');
     setLoading(false);
   };
 
@@ -220,269 +176,98 @@ export default function Untangle() {
     if (premium) generateRoadmap();
   };
 
-  const resetAll = () => {
-    setPhase('landing');
-    setMessages([]);
-    setReveal(null);
-    setRoadmap(null);
-  };
-
   // ── LANDING ──────────────────────────────────────────────────
   if (phase === 'landing') return (
-    <div style={{ maxWidth: 480, margin: '0 auto', padding: '48px 16px', textAlign: 'center' }}>
-      <div style={{ fontSize: 52, marginBottom: 20 }}>🧩</div>
+    <div style={{ maxWidth: 480, margin: '0 auto', padding: '32px 16px', textAlign: 'center' }}>
+      <UsageBadge remaining={remaining} premium={premium} />
+      <div style={{ fontSize: 52, marginBottom: 16 }}>🧩</div>
       <h1 style={{ color: C.text, fontSize: 30, fontWeight: 800, margin: '0 0 10px', letterSpacing: '-0.5px' }}>
         Untangle
       </h1>
-      <p style={{ color: C.accent, fontSize: 11, letterSpacing: 3, marginBottom: 28, textTransform: 'uppercase' }}>
+      <p style={{ color: C.accent, fontSize: 11, letterSpacing: 3, marginBottom: 20, textTransform: 'uppercase' }}>
         The thing holding you back has a name
       </p>
 
-      <div style={{
-        background: C.accentDim, border: `1px solid ${C.accentBorder}`,
-        borderRadius: 12, padding: '20px 24px', marginBottom: 24, textAlign: 'left'
-      }}>
+      {/* 使い方ガイド */}
+      <div style={{ textAlign:'left', background:C.accentDim, border:`1px solid ${C.accentBorder}`, borderRadius:12, padding:'16px 20px', marginBottom:16 }}>
+        <div style={{ color:C.accent, fontSize:11, fontWeight:700, letterSpacing:2, marginBottom:12 }}>HOW IT WORKS</div>
+        {[
+          'AIカウンセラーが恋愛・仕事・人間関係について深掘り質問する',
+          '最低6往復の対話で、行き詰まりのパターンを探っていく',
+          '根っこの「足かせ」が特定されたら診断完了（ネタバレは有料）',
+          'プレミアムで「足かせの正体」と90日ロードマップを解放できる',
+        ].map((s,i)=>(
+          <div key={i} style={{ display:'flex', gap:10, marginBottom:i<3?8:0 }}>
+            <div style={{ width:20, height:20, borderRadius:'50%', background:`${C.accent}25`, border:`1px solid ${C.accentBorder}`, display:'flex', alignItems:'center', justifyContent:'center', color:C.accent, fontSize:10, fontWeight:900, flexShrink:0, marginTop:1 }}>{i+1}</div>
+            <div style={{ color:C.text, fontSize:12, lineHeight:1.7, opacity:0.85 }}>{s}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: C.accentDim, border: `1px solid ${C.accentBorder}`, borderRadius: 12, padding: '16px 20px', marginBottom: 24, textAlign: 'left' }}>
         <p style={{ color: C.text, fontSize: 14, lineHeight: 2, margin: 0 }}>
           恋愛・仕事・人間関係——<br />
           どこに行っても「これじゃない」と感じる。<br />
           頭から離れないあの後悔。動けない自分。<br /><br />
-          それには、名前がある。
+          <strong style={{ color: C.accent }}>それには、名前がある。</strong>
         </p>
       </div>
-
-      {/* 小さな勝利ストリーク */}
-      {wins.length > 0 && (
-        <div style={{
-          background: C.goldDim, border: '1px solid rgba(245,197,24,0.25)',
-          borderRadius: 12, padding: '14px 16px', marginBottom: 20, textAlign: 'left'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <span style={{ color: C.gold, fontSize: 11, letterSpacing: 2, textTransform: 'uppercase' }}>
-              🔥 小さな勝利
-            </span>
-            <span style={{ color: C.gold, fontSize: 12, fontWeight: 700 }}>
-              {doneCount}/{wins.length} 達成
-            </span>
-          </div>
-          {wins.slice(0, 3).map((w, i) => (
-            <div key={i} onClick={() => toggleWin(i)} style={{
-              display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6,
-              cursor: 'pointer'
-            }}>
-              <span style={{ fontSize: 14 }}>{w.done ? '✅' : '⬜'}</span>
-              <span style={{
-                color: w.done ? C.muted : C.text, fontSize: 12,
-                textDecoration: w.done ? 'line-through' : 'none'
-              }}>{w.text}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <button onClick={() => setPhase('idol')} style={{
+      <button onClick={startChat} style={{
         width: '100%', padding: '16px', background: C.accent,
         border: 'none', borderRadius: 12, color: '#fff',
         fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-        boxShadow: '0 8px 32px rgba(124,92,252,0.35)',
+        boxShadow: '0 8px 32px rgba(124,92,252,0.35)', transition: 'opacity 0.15s'
       }}>
-        足かせの正体を探る
+        足かせの正体を探る（無料）
       </button>
       <p style={{ color: C.muted, fontSize: 11, marginTop: 14 }}>
         診断まで無料 · 正体の開示＋ロードマップは有料
       </p>
-      <button onClick={() => { apiKeyStore.clear(); setHasKey(false); }} style={{
-        background: 'none', border: 'none', color: C.muted, fontSize: 11,
-        cursor: 'pointer', marginTop: 8, textDecoration: 'underline'
-      }}>
-        🔑 APIキーを変更
-      </button>
-    </div>
-  );
-
-  // ── IDOL SETUP ────────────────────────────────────────────────
-  if (phase === 'idol') return (
-    <div style={{ maxWidth: 480, margin: '0 auto', padding: '48px 16px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 28 }}>
-        <div style={{ fontSize: 44, marginBottom: 14 }}>🪞</div>
-        <h2 style={{ color: C.text, fontSize: 22, fontWeight: 800, margin: '0 0 10px' }}>
-          あなたの憧れは誰ですか？
-        </h2>
-        <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.8, margin: 0 }}>
-          アイドル、歴史上の人物、漫画のキャラ、尊敬する人——<br />
-          その人の視点があなたの中に宿ります
-        </p>
-      </div>
-
-      <input
-        value={idolInput}
-        onChange={e => setIdolInput(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && idolInput.trim() && handleIdolSubmit()}
-        placeholder="例：乃木坂46、スティーブ・ジョブズ、鬼滅の炭治郎..."
-        autoFocus
-        style={{
-          width: '100%', padding: '14px 16px', background: C.card,
-          border: `1px solid ${C.border}`, borderRadius: 12,
-          color: C.text, fontSize: 14, fontFamily: 'inherit', outline: 'none',
-          boxSizing: 'border-box', marginBottom: 12
-        }}
-      />
-
-      <button
-        onClick={handleIdolSubmit}
-        disabled={!idolInput.trim()}
-        style={{
-          width: '100%', padding: '14px',
-          background: idolInput.trim() ? C.accent : C.card,
-          border: 'none', borderRadius: 12,
-          color: idolInput.trim() ? '#fff' : C.muted,
-          fontSize: 15, fontWeight: 700,
-          cursor: idolInput.trim() ? 'pointer' : 'default',
-          fontFamily: 'inherit', marginBottom: 10, transition: 'all 0.15s'
-        }}>
-        この人と一緒に始める ✨
-      </button>
-      <button onClick={() => startChat('')} style={{
-        width: '100%', padding: '10px', background: 'transparent',
-        border: `1px solid ${C.border}`, borderRadius: 12,
-        color: C.muted, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit'
-      }}>
-        スキップして始める
-      </button>
-
-      {/* 仕組みの説明 */}
-      <div style={{ marginTop: 32 }}>
-        {[
-          ['🪞', 'ロールモデルの視点', 'その人ならどうするか——という声があなたに宿ります'],
-          ['💬', '内的対話の置き換え', '「できない自分」の声を憧れの人の言葉に変えます'],
-          ['📈', '小さな勝利の積み重ね', '毎日のアクションにチェックを入れてドーパミンを積みます'],
-          ['👥', '見られている感覚', '憧れの人が見ているという意識が行動を変えます'],
-        ].map(([icon, title, desc]) => (
-          <div key={title} style={{
-            display: 'flex', gap: 14, marginBottom: 12,
-            padding: '12px 14px', background: C.card, borderRadius: 10,
-            border: `1px solid ${C.border}`
-          }}>
-            <span style={{ fontSize: 22, flexShrink: 0 }}>{icon}</span>
-            <div>
-              <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>{title}</div>
-              <div style={{ color: C.muted, fontSize: 12, marginTop: 3 }}>{desc}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {blocked && <PaywallModal onClose={dismiss} />}
     </div>
   );
 
   // ── ROADMAP ───────────────────────────────────────────────────
   if (phase === 'roadmap') return (
     <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 16px' }}>
+      <UsageBadge remaining={remaining} premium={premium} />
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <div style={{ fontSize: 36, marginBottom: 8 }}>🔓</div>
-        <h2 style={{ color: C.text, fontSize: 20, margin: '0 0 6px', fontWeight: 700 }}>
-          足かせ診断 & ロードマップ
-        </h2>
-        {idol && (
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            color: C.gold, fontSize: 12, marginTop: 4,
-            background: C.goldDim, padding: '4px 12px', borderRadius: 20,
-            border: '1px solid rgba(245,197,24,0.25)'
-          }}>
-            🪞 {idol}の視点
-          </div>
-        )}
+        <h2 style={{ color: C.text, fontSize: 20, margin: '0 0 6px', fontWeight: 700 }}>足かせ診断 & ロードマップ</h2>
       </div>
-
       {loading ? (
         <div style={{ textAlign: 'center', color: C.muted, padding: 40 }}>生成中...</div>
       ) : (
-        <>
-          <div style={{
-            background: C.card, border: `1px solid ${C.border}`,
-            borderRadius: 12, padding: '20px', color: C.text,
-            fontSize: 14, lineHeight: 1.9, whiteSpace: 'pre-wrap', marginBottom: 16
-          }}>
-            {roadmap}
-          </div>
-
-          {/* 小さな勝利チェックリスト */}
-          {wins.length > 0 && (
-            <div style={{
-              background: C.goldDim, border: '1px solid rgba(245,197,24,0.25)',
-              borderRadius: 12, padding: '16px', marginBottom: 16
-            }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: 12
-              }}>
-                <span style={{ color: C.gold, fontSize: 11, letterSpacing: 2, textTransform: 'uppercase' }}>
-                  🔥 小さな勝利リスト
-                </span>
-                <span style={{ color: C.gold, fontSize: 12, fontWeight: 700 }}>
-                  {doneCount}/{wins.length} 達成
-                </span>
-              </div>
-              {wins.map((w, i) => (
-                <div key={i} onClick={() => toggleWin(i)} style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8,
-                  cursor: 'pointer', padding: '8px', borderRadius: 8,
-                  background: w.done ? 'rgba(245,197,24,0.08)' : 'transparent',
-                  transition: 'background 0.15s'
-                }}>
-                  <span style={{ fontSize: 16, marginTop: 1, flexShrink: 0 }}>
-                    {w.done ? '✅' : '⬜'}
-                  </span>
-                  <div>
-                    <div style={{
-                      color: w.done ? C.muted : C.text, fontSize: 13,
-                      textDecoration: w.done ? 'line-through' : 'none'
-                    }}>{w.text}</div>
-                    <div style={{ color: C.muted, fontSize: 10, marginTop: 2 }}>{w.date}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
+        <div style={{
+          background: C.card, border: `1px solid ${C.border}`,
+          borderRadius: 12, padding: '20px', color: C.text,
+          fontSize: 14, lineHeight: 1.9, whiteSpace: 'pre-wrap'
+        }}>
+          {roadmap}
+        </div>
       )}
-
-      <button onClick={resetAll} style={{
-        width: '100%', marginTop: 8, padding: '12px',
-        background: 'transparent', border: `1px solid ${C.border}`,
-        borderRadius: 10, color: C.muted, fontSize: 13,
-        cursor: 'pointer', fontFamily: 'inherit'
-      }}>
+      <button onClick={() => { setPhase('landing'); setMessages([]); setReveal(null); setRoadmap(null); }}
+        style={{
+          width: '100%', marginTop: 20, padding: '12px',
+          background: 'transparent', border: `1px solid ${C.border}`,
+          borderRadius: 10, color: C.muted, fontSize: 13,
+          cursor: 'pointer', fontFamily: 'inherit'
+        }}>
         もう一度診断する
       </button>
+      {blocked && <PaywallModal onClose={dismiss} />}
     </div>
   );
 
   // ── CHAT ─────────────────────────────────────────────────────
   return (
     <div style={{ maxWidth: 520, margin: '0 auto', padding: '16px' }}>
+      <UsageBadge remaining={remaining} premium={premium} />
       {/* Header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
-        paddingBottom: 16, borderBottom: `1px solid ${C.border}`
-      }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
+        paddingBottom: 16, borderBottom: `1px solid ${C.border}` }}>
         <span style={{ fontSize: 20 }}>🧩</span>
         <span style={{ color: C.text, fontWeight: 700, fontSize: 16 }}>Untangle</span>
-        {idol && (
-          <span style={{
-            color: C.gold, fontSize: 11, background: C.goldDim,
-            padding: '2px 10px', borderRadius: 20,
-            border: '1px solid rgba(245,197,24,0.25)'
-          }}>
-            🪞 {idol}
-          </span>
-        )}
-        <span style={{
-          color: apiKeyStore.getProvider() === 'gemini' ? '#4285F4' : '#C07B4A',
-          fontSize: 10, background: apiKeyStore.getProvider() === 'gemini' ? 'rgba(66,133,244,0.12)' : 'rgba(192,123,74,0.12)',
-          padding: '2px 8px', borderRadius: 20,
-        }}>
-          {apiKeyStore.getProvider() === 'gemini' ? '✨ Gemini' : '🧠 Claude'}
-        </span>
         <span style={{ color: C.muted, fontSize: 11, marginLeft: 'auto' }}>
           {Math.floor(messages.length / 2)} / 10 ターン
         </span>
@@ -579,10 +364,8 @@ export default function Untangle() {
 
       {/* Input */}
       {phase === 'chat' && (
-        <div style={{
-          display: 'flex', gap: 8, marginTop: 16, position: 'sticky', bottom: 0,
-          background: C.bg, paddingTop: 12
-        }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 16, position: 'sticky', bottom: 0,
+          background: C.bg, paddingTop: 12 }}>
           <input
             ref={inputRef}
             value={input}
@@ -608,6 +391,7 @@ export default function Untangle() {
       )}
 
       {showPaywall && <PaywallModal onClose={handlePaywallClose} />}
+      {blocked && <PaywallModal onClose={dismiss} />}
     </div>
   );
 }

@@ -1,14 +1,13 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { callAI, QuickGuide } from './shared';
+import { useGate, PaywallModal, UsageBadge } from './Paywall';
 
 const C = {
   bg: "#07091A", card: "#0C0F22", border: "#182040",
   text: "#C5D0F0", muted: "#4A5880", accent: "#F59E0B",
   green: "#10B981", danger: "#EF4444",
 };
-
-const FREE_KEY = 'side_usage';
-const FREE_LIMIT = 1; // 1回無料、2回目から有料
 
 // ---- 入力フォームの定義 ----
 const STEPS = [
@@ -34,18 +33,6 @@ const STEPS = [
   },
 ];
 
-function getUsage() {
-  try {
-    const raw = localStorage.getItem(FREE_KEY);
-    if (!raw) return { count: 0 };
-    return JSON.parse(raw);
-  } catch { return { count: 0 }; }
-}
-function bumpUsage() {
-  const u = getUsage();
-  localStorage.setItem(FREE_KEY, JSON.stringify({ count: u.count + 1 }));
-}
-
 // プレビュー用：最初のセクションだけ表示してあとは隠す
 function splitPreview(text) {
   const lines = text.split('\n');
@@ -62,13 +49,10 @@ export default function Side() {
   const [fields, setFields] = useState({ job:'', skills:'', sns:'', time:'', goal:'', ngList:'' });
   const [report, setReport] = useState('');
   const [loading, setLoading] = useState(false);
-  const [usage, setUsage]   = useState({ count: 0 });
   const [copied, setCopied] = useState(false);
   const reportRef = useRef(null);
+  const { premium, remaining, blocked, check, increment, dismiss } = useGate('side');
 
-  useEffect(() => { setUsage(getUsage()); }, []);
-
-  const isPaid = usage.count < FREE_LIMIT;
   const currentStepDef = STEPS[step];
 
   function setField(key, val) {
@@ -81,7 +65,7 @@ export default function Side() {
   }
 
   async function generate() {
-    if (usage.count >= FREE_LIMIT) { setStep(3); return; }
+    if (!check()) return;
     setStep(2);
     setLoading(true);
     setReport('');
@@ -127,21 +111,19 @@ SNS・PCスキル：${fields.sns || '特になし'}
 `.trim();
 
     try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: 'あなたは副業・フリーランス戦略の専門コンサルタントです。具体的・実践的なアドバイスを提供してください。曖昧な表現は避け、固有名詞・数字・具体的サービス名を必ず含めてください。',
-          user: prompt,
-          max: 2000,
-        }),
-      });
-      const { text } = await res.json();
-      setReport(text);
-      bumpUsage();
-      setUsage(getUsage());
+      const text = await callAI(
+        'あなたは副業・フリーランス戦略の専門コンサルタントです。具体的・実践的なアドバイスを提供してください。曖昧な表現は避け、固有名詞・数字・具体的サービス名を必ず含めてください。',
+        prompt,
+        2000,
+      );
+      if (!text) {
+        setReport('__error__');
+      } else {
+        setReport(text);
+        increment();
+      }
     } catch {
-      setReport('エラーが発生しました。もう一度お試しください。');
+      setReport('__error__');
     }
     setLoading(false);
   }
@@ -163,6 +145,15 @@ SNS・PCスキル：${fields.sns || '特になし'}
           <span style={{ color: C.accent, fontWeight: 700 }}>専用の収益化ロードマップ</span>を即時生成
         </p>
       </div>
+      <UsageBadge remaining={remaining} premium={premium} />
+
+      {/* 使い方ガイド */}
+      {step === 0 && <QuickGuide color="#F59E0B" steps={[
+        '現在のスキル・職種・稼働できる時間・目標収入を入力する',
+        'AIが副業の市場データと照合してベストな副業カテゴリを選定',
+        '選んだ副業の「具体的な始め方・使うサービス・月収目安」を生成',
+        'プレミアムで詳細な30/60/90日ロードマップも取得できる',
+      ]}/>}
 
       {/* STEP: フォーム (0, 1) */}
       {step <= 1 && (
@@ -223,16 +214,11 @@ SNS・PCスキル：${fields.sns || '特になし'}
                 </button>
               ) : (
                 <button onClick={generate} disabled={!canNext()} style={{ flex: 3, background: canNext() ? C.accent : C.border, color: canNext() ? '#000' : C.muted, border: 'none', borderRadius: 8, padding: '12px', cursor: canNext() ? 'pointer' : 'default', fontSize: 15, fontWeight: 800, transition: 'all 0.2s' }}>
-                  {isPaid ? '✨ 無料で診断する' : '🔒 診断する（¥2,480）'}
+                  ✨ 診断する
                 </button>
               )}
             </div>
 
-            {isPaid && (
-              <p style={{ color: C.muted, fontSize: 11, textAlign: 'center', marginTop: 12, margin: '12px 0 0' }}>
-                初回1回無料 · 次回から¥2,480
-              </p>
-            )}
           </div>
         </div>
       )}
@@ -247,6 +233,13 @@ SNS・PCスキル：${fields.sns || '特になし'}
                 あなた専用のロードマップを生成中...
               </div>
               <div style={{ color: C.muted, fontSize: 12 }}>スキルと目標を分析しています</div>
+            </div>
+          ) : report === '__error__' ? (
+            <div style={{ textAlign:'center', padding:'48px 20px' }}>
+              <div style={{ fontSize:48, marginBottom:16 }}>⚠️</div>
+              <div style={{ color:'#FCA5A5', fontSize:16, fontWeight:700, marginBottom:8 }}>AI接続エラー</div>
+              <div style={{ color:C.muted, fontSize:13, lineHeight:1.7, marginBottom:24 }}>APIキーが設定されていないか、一時的に利用できません。</div>
+              <button onClick={() => { setStep(0); setReport(''); }} style={{ padding:'12px 28px', background:C.accent, color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>もう一度試す</button>
             </div>
           ) : (
             <div>
@@ -355,6 +348,7 @@ SNS・PCスキル：${fields.sns || '特になし'}
           </button>
         </div>
       )}
+      {blocked && <PaywallModal onClose={dismiss} />}
     </div>
   );
 }

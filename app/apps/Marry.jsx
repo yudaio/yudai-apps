@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { callAI, QuickGuide } from './shared';
+import { useGate, PaywallModal, UsageBadge } from './Paywall';
 
 /* ─────────────── デザイントークン ─────────────── */
 const T = {
@@ -18,17 +20,6 @@ const T = {
   shadowLg: '0 12px 48px rgba(190,24,93,0.16)',
 };
 
-const FREE_KEY  = 'marry_usage';
-const FREE_LIMIT = 1;
-
-function getUsage() {
-  try { return JSON.parse(localStorage.getItem(FREE_KEY) || '{"count":0}'); }
-  catch { return { count: 0 }; }
-}
-function bumpUsage() {
-  const u = getUsage();
-  localStorage.setItem(FREE_KEY, JSON.stringify({ count: u.count + 1 }));
-}
 
 /* ─────────────── フォームステップ定義 ─────────────── */
 const STEPS = [
@@ -64,12 +55,8 @@ export default function Marry() {
   const [fields,  setFields] = useState({});
   const [report,  setReport] = useState('');
   const [loading, setLoading]= useState(false);
-  const [usage,   setUsage]  = useState({ count: 0 });
   const [copied,  setCopied] = useState(false);
-
-  useEffect(() => setUsage(getUsage()), []);
-
-  const isFree = usage.count < FREE_LIMIT;
+  const { premium, remaining, blocked, check, increment, dismiss } = useGate('marry');
 
   function setF(k, v) { setFields(p => ({ ...p, [k]: v })); }
 
@@ -79,7 +66,7 @@ export default function Marry() {
   }
 
   async function generate() {
-    if (!isFree) { setStep(99); return; }
+    if (!check()) return;
     setStep(10); setLoading(true); setReport('');
 
     const prompt = `
@@ -130,27 +117,22 @@ export default function Marry() {
 `.trim();
 
     try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: 'あなたは婚活市場の辛口プロコンサルタントです。耳障りの良いことだけでなく、本当に役立つ現実的なアドバイスを提供してください。具体的なサービス名・数字・事例を必ず含めてください。',
-          user: prompt,
-          max: 2000,
-        }),
-      });
-      const { text } = await res.json();
-      setReport(text);
-      bumpUsage();
-      setUsage(getUsage());
+      const text = await callAI(
+        'あなたは婚活市場の辛口プロコンサルタントです。耳障りの良いことだけでなく、本当に役立つ現実的なアドバイスを提供してください。具体的なサービス名・数字・事例を必ず含めてください。',
+        prompt,
+        2000,
+      );
+      if (!text) {
+        setReport('__error__');
+      } else {
+        setReport(text);
+        increment();
+      }
     } catch {
-      setReport('エラーが発生しました。もう一度お試しください。');
+      setReport('__error__');
     }
     setLoading(false);
   }
-
-  /* ── ペイウォール ── */
-  if (step === 99) return <Upgrade onBack={() => setStep(2)} />;
 
   /* ── 生成中 / 結果 ── */
   if (step === 10) return (
@@ -206,6 +188,16 @@ export default function Marry() {
 
       {/* フォームカード */}
       <div style={{ maxWidth: 520, margin: '-24px auto 0', padding: '0 16px' }}>
+        {step === 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <QuickGuide color="#DB2777" steps={[
+              '基本情報（年齢・職業・年収）と婚活状況を4ステップで入力する',
+              'AI面接官が10項目の婚活スコアを算出する',
+              '「強み・弱点・改善策」をレポートで受け取る',
+              'プレミアムで「マッチング戦略・プロフィール文」も生成できる',
+            ]}/>
+          </div>
+        )}
         <div style={{ background: T.bgCard, borderRadius: 20, padding: '28px 24px', boxShadow: T.shadowLg, border: `1px solid ${T.border}` }}>
           <div style={{ marginBottom: 24 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: T.rosePale, borderRadius: 20, padding: '4px 14px', marginBottom: 12 }}>
@@ -240,6 +232,7 @@ export default function Marry() {
             </div>
           ))}
 
+          <UsageBadge remaining={remaining} premium={premium} />
           <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
             {step > 0 && (
               <button onClick={() => setStep(p => p - 1)} style={{
@@ -277,16 +270,14 @@ export default function Marry() {
                 boxShadow: canNext() ? '0 4px 16px rgba(217,119,6,0.4)' : 'none',
                 transition: 'all 0.2s',
               }}>
-                {isFree ? '✨ 無料で診断する' : '🔒 診断する（¥1,980）'}
+                ✨ 診断する
               </button>
             )}
           </div>
 
-          {isFree && step === STEPS.length - 1 && (
-            <p style={{ color: T.muted, fontSize: 11, textAlign: 'center', marginTop: 14 }}>
-              🎁 初回1回無料 · 次回から¥1,980（買い切り）
-            </p>
-          )}
+          <p style={{ color: T.muted, fontSize: 11, textAlign: 'center', marginTop: 14 }}>
+            🎁 1日3回無料 · プレミアムで使い放題
+          </p>
         </div>
 
         {/* 安心感バッジ */}
@@ -296,6 +287,7 @@ export default function Marry() {
           ))}
         </div>
       </div>
+      {blocked && <PaywallModal onClose={dismiss} />}
     </div>
   );
 }
@@ -315,6 +307,17 @@ function ResultScreen({ loading, report, copied, onCopy, onUpgrade, onReset }) {
             <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: T.roseSoft, animation: `bounce${i} 1.2s ${i * 0.2}s infinite` }} />
           ))}
         </div>
+      </div>
+    </div>
+  );
+
+  if (report === '__error__') return (
+    <div style={{ minHeight:'100vh', background:`linear-gradient(160deg, #FDF2F8, #FFF7ED)`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:24 }}>
+      <div style={{ textAlign:'center' }}>
+        <div style={{ fontSize:48, marginBottom:16 }}>⚠️</div>
+        <div style={{ color:T.rose, fontSize:18, fontWeight:700, marginBottom:8 }}>AI接続エラー</div>
+        <div style={{ color:T.muted, fontSize:13, lineHeight:1.7, marginBottom:24 }}>APIキーが設定されていないか、一時的に利用できません。<br/>しばらく経ってから再度お試しください。</div>
+        <button onClick={onReset} style={{ padding:'12px 28px', background:T.rose, color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>もう一度試す</button>
       </div>
     </div>
   );

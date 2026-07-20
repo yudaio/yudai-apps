@@ -1,118 +1,95 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Btn, TA, Loading, BackBtn, Label, HistoryPanel, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share } from './shared';
+import { AppHero, HeroBtn, Loading, callAI, saveHistory, getHistoryLocal, getHistoryRemote, share, QuickGuide } from './shared';
 import { AuthBadge, useAuth } from './AuthGate';
+import { useGate, PaywallModal, UsageBadge } from './Paywall';
+
+const GRAD = 'linear-gradient(135deg,#0C4A6E,#0891B2,#0E7490)';
+const C = { card:'#060F18', border:'#0A2030', text:'#D0F0FF', muted:'#3A6880' };
 
 const SECTIONS = [
-  { key: /【削除推奨】([\s\S]+?)(?=【|$)/, label: '削除推奨', icon: '🗑️', color: '#FF5A5A', desc: '認知負荷が高く、価値が低い' },
-  { key: /【最適化推奨】([\s\S]+?)(?=【|$)/, label: '最適化推奨', icon: '⚡', color: '#FFD93A', desc: '少し変えるだけで効率UP' },
-  { key: /【維持推奨】([\s\S]+?)(?=【|$)/, label: '維持推奨', icon: '✅', color: '#3AFF8A', desc: '脳を回復させる重要な習慣' },
+  { key:/【削除すべき習慣】([\s\S]+?)(?=【|$)/, label:'削除すべき習慣', icon:'🗑️', color:'#F87171' },
+  { key:/【最適化できる行動】([\s\S]+?)(?=【|$)/, label:'最適化できる行動', icon:'⚡', color:'#FBBF24' },
+  { key:/【維持すべき習慣】([\s\S]+?)(?=【|$)/, label:'維持すべき習慣', icon:'✅', color:'#34D399' },
 ];
 
-function parseTimeSaved(res) {
-  const m = res.match(/(\d+)\s*時間|\d+h/);
-  if (m) return parseInt(m[1] || m[0]);
-  const lines = (res.match(/【削除推奨】([\s\S]+?)(?=【|$)/)?.[1] || '').split('\n').filter(Boolean);
-  return lines.length * 0.5;
-}
-
 export default function Muda() {
-  const auth = useAuth();
-  const [routine, setRoutine] = useState('');
-  const [res, setRes] = useState('');
-  const [timeSaved, setTimeSaved] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [history, setHistory] = useState([]);
+  const auth=useAuth();
+  const[routine,setRoutine]=useState('');
+  const[res,setRes]=useState('');
+  const[savedHours,setSavedHours]=useState('');
+  const[loading,setLoading]=useState(false);
+  const[history,setHistory]=useState([]);
+  const[aiError,setAiError]=useState(false);
+  const { premium, remaining, blocked, check, increment, dismiss } = useGate('muda');
 
-  useEffect(() => {
-    async function load() {
-      if (auth?.user) { const r = await getHistoryRemote('muda', auth.user.id); setHistory(r || getHistoryLocal('muda')); }
-      else setHistory(getHistoryLocal('muda'));
-    }
-    load();
-  }, [auth?.user]);
+  useEffect(()=>{ async function load(){ if(auth?.user){const r=await getHistoryRemote('muda',auth.user.id);setHistory(r||getHistoryLocal('muda'));}else setHistory(getHistoryLocal('muda')); } load(); },[auth?.user]);
 
-  const run = async () => {
-    setLoading(true); setRes('');
-    const r = await callAI(
-      "あなたは認知負荷研究の専門家です。ルーティンを分析し出力：\n【削除推奨】認知負荷が高く価値が低い習慣2〜3つ（各1〜2文の根拠付き）\n【最適化推奨】少し変えるだけで効率が上がるもの\n【維持推奨】脳を回復させる重要な習慣\n【節約時間】これらを実践した場合の1週間あたりの推定節約時間を「約○時間」の形式で",
-      `ルーティン：\n${routine}`
-    );
+  const run=async()=>{ if(!check()) return; setLoading(true);setRes('');setSavedHours('');setAiError(false);
+    const r=await callAI('あなたは時間効率化の専門家です。週のルーティンを分析し、無駄な習慣を特定して改善策を提案します。出力：\n【節約時間】約○時間（数字のみ）\n【削除すべき習慣】具体的に2〜3項目\n【最適化できる行動】具体的に2〜3項目\n【維持すべき習慣】価値ある行動2〜3項目',`週のルーティン：${routine}`);
+    if(!r){setLoading(false);setAiError(true);return;}
     setRes(r);
-    const saved = parseTimeSaved(r);
-    setTimeSaved(saved);
-    await saveHistory('muda', routine.slice(0, 40) + '…', r, auth?.user?.id);
-    const h = auth?.user ? await getHistoryRemote('muda', auth.user.id) : getHistoryLocal('muda');
-    setHistory(h || []);
+    increment();
+    const h=r.match(/【節約時間】約?(\d+\.?\d*)/)?.[1]||'';
+    setSavedHours(h);
+    await saveHistory('muda',routine.slice(0,40),r,auth?.user?.id);
+    const hist=auth?.user?await getHistoryRemote('muda',auth.user.id):getHistoryLocal('muda');
+    setHistory(hist||[]);
     setLoading(false);
   };
 
-  const parsed = SECTIONS.map(s => ({
-    ...s, text: res.match(s.key)?.[1]?.trim() || ''
-  })).filter(s => s.text);
-
-  const savedMatch = res.match(/【節約時間】([\s\S]+?)$/);
-  const savedText = savedMatch?.[1]?.trim() || '';
+  const parsed=SECTIONS.map(s=>({...s,text:res.match(s.key)?.[1]?.trim()||''})).filter(s=>s.text);
 
   return (
-    <div style={{ maxWidth: 560, margin: "0 auto" }}>
-      <BackBtn />
-      <div style={{ fontSize: 32, marginBottom: 8 }}>🧠</div>
-      <h2 style={{ color: "#C5D0F0", margin: "0 0 4px", fontSize: 22 }}>無駄削減</h2>
-      <p style={{ color: "#4A5880", margin: "0 0 16px", fontSize: 14 }}>認知負荷を科学的に削ぎ落とす</p>
-      <AuthBadge />
+    <div style={{ maxWidth:640, margin:'0 auto', color:C.text }}>
+      <AppHero icon="🧠" title="無駄削減" sub="あなたの週に、何時間が隠れていますか？" grad={GRAD}/>
+      <AuthBadge/>
+      <UsageBadge remaining={remaining} premium={premium} />
+      <QuickGuide color="#0891B2" steps={[
+        '週のルーティンをテキストで書く（例：毎朝SNS1時間、残業週3回2時間…）',
+        '「🧠 無駄を分析する」ボタンを押す',
+        'AIが各行動を分析し、週・月・年の節約時間を数値で算出する',
+        '「削減提案」と「置き換えアクション」も一緒に提示される',
+      ]}/>
 
-      {!res && <>
-        <Label>一日のルーティンを書いてください（箇条書きOK）</Label>
-        <TA value={routine} onChange={setRoutine} placeholder={`例：\n・朝SNS30分\n・通勤1時間でメール\n・会議3本`} rows={7} />
-        <Btn onClick={run} disabled={!routine.trim()} style={{ marginTop: 12 }}>分析する</Btn>
-      </>}
-
-      {loading && <Loading />}
-
-      {res && !loading && (
-        <div style={{ marginTop: 8 }}>
-          {savedText && (
-            <div style={{
-              padding: "20px", marginBottom: 16,
-              background: "linear-gradient(135deg, #0A1A10, #0A1220)",
-              border: "1px solid #3AFF8A44", borderRadius: 14,
-              textAlign: "center"
-            }}>
-              <div style={{ color: "#4A5880", fontSize: 11, marginBottom: 4 }}>週あたりの推定節約時間</div>
-              <div style={{ color: "#3AFF8A", fontSize: 32, fontWeight: 700 }}>{savedText}</div>
-              <div style={{ color: "#4A5880", fontSize: 11, marginTop: 4 }}>= 年間で {Math.round(timeSaved * 52)}時間以上</div>
-            </div>
-          )}
-
-          {parsed.map((s, i) => (
-            <div key={i} style={{ marginBottom: 10, padding: "16px",
-              background: "#0A0D20", border: `1px solid ${s.color}33`,
-              borderLeft: `3px solid ${s.color}`, borderRadius: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ color: s.color, fontSize: 12, fontWeight: 700 }}>{s.icon} {s.label}</span>
-                <span style={{ color: s.color + "88", fontSize: 10 }}>{s.desc}</span>
-              </div>
-              <div style={{ color: "#C5D0F0", fontSize: 13, lineHeight: 1.9 }}>{s.text}</div>
-            </div>
-          ))}
-
-          <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-            <button onClick={() => setRes('')} style={{
-              flex: 1, padding: "11px", background: "transparent",
-              border: "1px solid #182040", borderRadius: 10,
-              color: "#4A5880", fontSize: 13, cursor: "pointer", fontFamily: "inherit"
-            }}>再分析</button>
-            <button onClick={() => share('無駄削減分析', `${savedText ? `週${savedText}の節約\n\n` : ''}${res}`)} style={{
-              flex: 1, padding: "11px", background: "#0891B2",
-              border: "none", borderRadius: 10,
-              color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit"
-            }}>シェア</button>
+      {!res&&(
+        <div>
+          <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:20, marginBottom:16 }}>
+            <div style={{ color:'#3A6880', fontSize:12, fontWeight:600, marginBottom:8 }}>週のルーティンを入力してください</div>
+            <textarea value={routine} onChange={e=>setRoutine(e.target.value)} placeholder="例：毎朝SNSを1時間見る。週3回残業2時間。会議が週5回各1時間。通勤片道1時間…" rows={6} style={{ width:'100%', padding:'12px 14px', background:'#040810', border:`1px solid ${C.border}`, borderRadius:10, color:C.text, fontSize:14, fontFamily:'inherit', lineHeight:1.9, resize:'vertical', outline:'none', boxSizing:'border-box' }} onFocus={e=>{e.target.style.borderColor='#0891B255';e.target.style.boxShadow='0 0 0 3px #0891B215';}} onBlur={e=>{e.target.style.borderColor=C.border;e.target.style.boxShadow='none';}}/>
           </div>
+          <HeroBtn onClick={run} disabled={!routine.trim()} grad={GRAD}>🧠 無駄を分析する</HeroBtn>
+          {aiError&&<div style={{marginTop:12,padding:'12px 16px',background:'#071018',border:'1px solid #0891B240',borderRadius:10,color:'#7DD3FC',fontSize:13,textAlign:'center'}}>⚠️ AI接続エラー。しばらく経ってから再度お試しください。</div>}
         </div>
       )}
 
-      <HistoryPanel items={history} onSelect={item => setRes(item.result)} />
+      {loading&&<Loading/>}
+
+      {res&&!loading&&(
+        <div>
+          {savedHours&&(
+            <div style={{ marginBottom:20, padding:'28px 24px', background:'linear-gradient(135deg,#042030,#061820)', border:'1px solid #0891B230', borderRadius:20, textAlign:'center' }}>
+              <div style={{ color:'#38BDF8', fontSize:13, fontWeight:600, marginBottom:8 }}>⏱️ 週に節約できる時間</div>
+              <div style={{ fontSize:72, fontWeight:900, color:'#34D399', lineHeight:1, marginBottom:6, textShadow:'0 0 40px #34D39950' }}>{savedHours}<span style={{ fontSize:28 }}>時間</span></div>
+              <div style={{ color:'#3A6880', fontSize:13 }}>年間 約{Math.round(Number(savedHours)*52)}時間 ≈ {Math.round(Number(savedHours)*52/24)}日分</div>
+            </div>
+          )}
+          <div style={{ display:'flex', flexDirection:'column', gap:12, marginBottom:16 }}>
+            {parsed.map((s,i)=>(
+              <div key={i} style={{ padding:'18px 20px', background:C.card, border:`1px solid ${s.color}25`, borderLeft:`3px solid ${s.color}`, borderRadius:14 }}>
+                <div style={{ color:s.color, fontSize:12, fontWeight:700, marginBottom:10 }}>{s.icon} {s.label}</div>
+                <div style={{ color:'#B0D8E8', fontSize:14, lineHeight:1.9 }}>{s.text}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display:'flex', gap:10 }}>
+            <button onClick={()=>{setRes('');setSavedHours('');}} style={{ flex:1, padding:'13px', background:'transparent', border:`1px solid ${C.border}`, borderRadius:10, color:C.muted, fontSize:14, cursor:'pointer', fontFamily:'inherit' }}>別の入力</button>
+            <button onClick={()=>share('無駄削減分析',res)} style={{ flex:1, padding:'13px', background:GRAD, border:'none', borderRadius:10, color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>シェア</button>
+          </div>
+          {history.length>0&&<div style={{ marginTop:28, paddingTop:20, borderTop:`1px solid ${C.border}` }}><div style={{ color:C.muted, fontSize:11, letterSpacing:'0.1em', marginBottom:10, textTransform:'uppercase' }}>履歴</div>{history.map((item,i)=><div key={i} onClick={()=>{setRes(item.result);setRoutine(item.input);}} style={{ padding:'10px 14px', background:C.card, border:`1px solid ${C.border}`, borderRadius:10, marginBottom:6, cursor:'pointer', color:C.muted, fontSize:13 }} onMouseEnter={e=>e.currentTarget.style.borderColor='#0891B240'} onMouseLeave={e=>e.currentTarget.style.borderColor=C.border}>{item.input}</div>)}</div>}
+        </div>
+      )}
+      {blocked && <PaywallModal onClose={dismiss} />}
     </div>
   );
 }

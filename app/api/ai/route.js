@@ -1,79 +1,142 @@
 export async function POST(req) {
-  const { system, user, messages, max = 700, geminiKey, claudeKey } = await req.json();
-  const msgs = messages ?? [{ role: 'user', content: user }];
+  const { system, messages, user, max = 700 } = await req.json();
+  const msgs = messages ?? [{ role: "user", content: user }];
 
-  // ── Gemini（ユーザーキー） ─────────────────────────────────
-  if (geminiKey) {
-    const contents = msgs.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
-    }));
-    const body = { contents, generationConfig: { maxOutputTokens: max } };
-    if (system) body.system_instruction = { parts: [{ text: system }] };
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-    );
-    const data = await res.json();
-    if (data.error) return Response.json({ text: `エラー: ${data.error.message}` });
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'エラーが発生しました。';
-    return Response.json({ text });
+  // ── 1. Anthropic Claude（残高があれば最優先）────────────────────────────
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: max,
+          system,
+          messages: msgs,
+        }),
+        signal: AbortSignal.timeout(30000),
+      });
+      const data = await res.json();
+      if (data.content?.[0]?.text) {
+        return Response.json({ text: data.content[0].text });
+      }
+      console.error('[/api/ai] Anthropic error:', JSON.stringify(data).slice(0, 200));
+    } catch (e) { console.error('[/api/ai] Anthropic error:', e.message); }
   }
 
-  // ── Claude（ユーザーキーのみ） ────────────────────────────
-  if (claudeKey) {
-    const apiKey = claudeKey;
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: max, system, messages: msgs }),
-    });
-    const data = await res.json();
-    if (data.error) return Response.json({ text: `エラー: ${data.error.message}` });
-    const text = data.content?.[0]?.text ?? 'エラーが発生しました。';
-    return Response.json({ text });
+  // ── 2. Google Gemini（無料 API キー — aistudio.google.com で取得）──────
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const geminiMsgs = [];
+      if (system) geminiMsgs.push({ role: 'user', parts: [{ text: `System: ${system}` }] }, { role: 'model', parts: [{ text: 'OK.' }] });
+      msgs.forEach(m => geminiMsgs.push({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: geminiMsgs,
+            generationConfig: { maxOutputTokens: max, temperature: 0.85 },
+          }),
+          signal: AbortSignal.timeout(25000),
+        }
+      );
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return Response.json({ text });
+      console.error('[/api/ai] Gemini error:', JSON.stringify(data).slice(0, 200));
+    } catch (e) { console.error('[/api/ai] Gemini error:', e.message); }
   }
 
-  // ── Pollinations.ai（キー不要・完全無料） ──────────────────
-  const pollinationsMsgs = system
+  // ── 3. Groq（無料 — console.groq.com で取得）────────────────────────────
+  if (process.env.GROQ_API_KEY) {
+    try {
+      const groqMsgs = system
+        ? [{ role: 'system', content: system }, ...msgs]
+        : msgs;
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: max,
+          messages: groqMsgs,
+          temperature: 0.8,
+        }),
+        signal: AbortSignal.timeout(25000),
+      });
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) return Response.json({ text });
+      console.error('[/api/ai] Groq error:', JSON.stringify(data).slice(0, 200));
+    } catch (e) { console.error('[/api/ai] Groq error:', e.message); }
+  }
+
+  // ── 4. OpenRouter 無料モデル（無料枠あり）─────────────────────────────
+  if (process.env.OPENROUTER_API_KEY) {
+    try {
+      const orMsgs = system
+        ? [{ role: 'system', content: system }, ...msgs]
+        : msgs;
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          max_tokens: max,
+          messages: orMsgs,
+          temperature: 0.8,
+        }),
+        signal: AbortSignal.timeout(25000),
+      });
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) return Response.json({ text });
+      console.error('[/api/ai] OpenRouter error:', JSON.stringify(data).slice(0, 200));
+    } catch (e) { console.error('[/api/ai] OpenRouter error:', e.message); }
+  }
+
+  // ── 5. Pollinations.ai（最終フォールバック）─────────────────────────────
+  const polMessages = system
     ? [{ role: 'system', content: system }, ...msgs]
     : msgs;
-
-  // リトライ付きで Pollinations に接続
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await fetch('https://text.pollinations.ai/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: pollinationsMsgs,
-        model: 'openai',
-        max_tokens: max,
-        private: true,
-      }),
-    });
-
-    if (res.ok) {
-      const text = await res.text();
-      if (text && !text.includes('"error"')) {
-        return Response.json({ text });
-      }
-    }
-
-    if (res.status === 429) {
-      // レート制限: 少し待ってリトライ
-      if (attempt < 2) {
-        await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch('https://text.pollinations.ai/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'openai',
+          messages: polMessages,
+          max_tokens: max,
+          temperature: 0.8,
+          seed: Math.floor(Math.random() * 9999),
+        }),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (res.status === 429 || res.status === 403) {
+        if (attempt === 0) await new Promise(r => setTimeout(r, 3000));
         continue;
       }
-      return Response.json({ text: 'ただいまアクセスが集中しています。少し待ってから再度お試しください。' });
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) return Response.json({ text });
+    } catch (e) {
+      if (attempt === 0) await new Promise(r => setTimeout(r, 2000));
     }
-
-    const errText = await res.text().catch(() => '');
-    return Response.json({ text: errText && !errText.includes('"error"') ? errText : 'エラーが発生しました。' });
   }
-  return Response.json({ text: 'ただいまアクセスが集中しています。少し待ってから再度お試しください。' });
+
+  return Response.json({ text: 'エラーが発生しました。もう一度お試しください。' }, { status: 503 });
 }

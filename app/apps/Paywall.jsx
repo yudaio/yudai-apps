@@ -6,8 +6,26 @@ import { useAuth } from './AuthGate';
 const FREE_LIMIT = 3;           // 無料: 1日3回
 const LS_PREMIUM = 'premium_v1'; // localStorageキー
 
-// Lemon Squeezy のチェックアウトURL（あなたのURLに差し替えてください）
-export const CHECKOUT_URL = process.env.NEXT_PUBLIC_LS_CHECKOUT_URL || 'https://your-store.lemonsqueezy.com/checkout/buy/YOUR_VARIANT_ID';
+const STRIPE_ENABLED = !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
+async function openCheckout(userId, email) {
+  if (STRIPE_ENABLED) {
+    const res = await fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, email }),
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; return; }
+  }
+  // フォールバック: Lemon Squeezy URL がある場合
+  const lsUrl = process.env.NEXT_PUBLIC_LS_CHECKOUT_URL;
+  if (lsUrl) { window.open(lsUrl, '_blank'); return; }
+  // 最終フォールバック: メール
+  const subject = encodeURIComponent('【YUDAI APPS】プレミアムプランの申し込み');
+  const body = encodeURIComponent('プレミアムプランに申し込みたいです。\n\nお名前：\n');
+  window.location.href = `mailto:yamamor1208@icloud.com?subject=${subject}&body=${body}`;
+}
 
 // ── Premium判定 ───────────────────────────────────
 export function usePremium() {
@@ -67,96 +85,124 @@ export function useGate(appId) {
 // ── Paywallモーダル ────────────────────────────────
 export function PaywallModal({ onClose, lang = 'ja' }) {
   const { activate } = usePremium();
+  const [hov, setHov] = useState(false);
 
   const copy = {
     ja: {
-      title: "今日の無料枠を使い切りました",
-      subtitle: "プレミアムプランで無制限に使えます",
-      price: "¥600 / 月",
+      title: '今日の無料枠を使い切りました',
+      subtitle: 'プレミアムなら毎日使い放題',
+      trial: '7日間無料で始める',
+      price: 'その後 ¥480/月',
+      badge: '最も人気',
       features: [
-        "✦ 全14アプリ 使い放題",
-        "✦ モンスター図鑑 クラウド同期",
-        "✦ 優先AIレスポンス",
-        "✦ 新機能への早期アクセス",
+        { icon:'🚀', text:'全アプリ AI使い放題（回数無制限）' },
+        { icon:'💾', text:'会話・結果を無制限に保存' },
+        { icon:'⚡', text:'優先AI処理（レスポンス高速化）' },
+        { icon:'📤', text:'結果をPDF・テキストでエクスポート' },
+        { icon:'🔓', text:'Untangle 足かせ診断の全解放' },
+        { icon:'🌟', text:'新機能への早期アクセス' },
       ],
-      cta: "プレミアムにアップグレード",
-      free: `無料枠は明日リセット（残り ${getRemainingHours()}時間）`,
-      close: "今日はやめておく",
+      free: `無料枠は明日リセット（残り${getRemainingHours()}時間）`,
+      close: '今日はやめておく',
+      cancel: 'いつでもキャンセル可 · クレジットカード不要（7日間）',
     },
     en: {
-      title: "You've used today's free limit",
-      subtitle: "Go premium for unlimited access",
-      price: "$4.99 / month",
+      title: "You've reached today's limit",
+      subtitle: 'Go Premium for unlimited access',
+      trial: 'Start 7-day free trial',
+      price: 'Then $3.99 / month',
+      badge: 'Most popular',
       features: [
-        "✦ Unlimited use of all 14 apps",
-        "✦ Monster collection cloud sync",
-        "✦ Priority AI responses",
-        "✦ Early access to new features",
+        { icon:'🚀', text:'Unlimited AI on all apps' },
+        { icon:'💾', text:'Save & export all results' },
+        { icon:'⚡', text:'Priority AI — faster responses' },
+        { icon:'📤', text:'PDF / text export' },
+        { icon:'🔓', text:'Untangle full diagnosis unlock' },
+        { icon:'🌟', text:'Early access to new features' },
       ],
-      cta: "Upgrade to Premium",
       free: `Free limit resets in ${getRemainingHours()} hours`,
-      close: "Maybe later",
+      close: 'Maybe later',
+      cancel: 'Cancel anytime · No card required for trial',
     },
   };
 
   const t = copy[lang] || copy.en;
+  const auth = useAuth();
+  const ctaLabel = STRIPE_ENABLED ? t.trial : (lang === 'ja' ? '📧 メールで申し込む' : '📧 Apply via email');
 
-  const handleCheckout = () => {
-    // Lemon Squeezy のチェックアウトページへ
-    window.open(CHECKOUT_URL, '_blank');
-  };
+  const handleCheckout = () => openCheckout(auth?.user?.id, auth?.user?.email);
 
   return (
     <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      zIndex: 1000, padding: 16,
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.82)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 1000, padding: 16, backdropFilter: 'blur(6px)',
     }} onClick={onClose}>
       <div style={{
-        maxWidth: 380, width: "100%", background: "#0C0F22",
-        border: "1px solid #2A3070", borderRadius: 16, padding: 28,
-        boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
+        maxWidth: 400, width: '100%',
+        background: 'linear-gradient(135deg,#0E1035,#0A0C28)',
+        border: '1px solid #3A40A0',
+        borderRadius: 20, padding: '28px 24px',
+        boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px #ffffff08',
+        position: 'relative', overflow: 'hidden',
       }} onClick={e => e.stopPropagation()}>
 
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 20 }}>
-          <div style={{ fontSize: 36, marginBottom: 8 }}>⚡</div>
-          <h2 style={{ color: "#C5D0F0", fontSize: 18, margin: "0 0 6px", fontWeight: 700 }}>{t.title}</h2>
-          <p style={{ color: "#4A5880", fontSize: 13, margin: 0 }}>{t.subtitle}</p>
+        {/* 背景グロー */}
+        <div style={{ position:'absolute', top:-80, right:-80, width:200, height:200, borderRadius:'50%', background:'radial-gradient(circle,#6366F125,transparent 70%)', pointerEvents:'none' }}/>
+
+        {/* バッジ */}
+        <div style={{ display:'flex', justifyContent:'center', marginBottom:16 }}>
+          <div style={{ padding:'4px 14px', background:'linear-gradient(135deg,#7C3AED,#6366F1)', borderRadius:20, color:'#fff', fontSize:11, fontWeight:700 }}>✨ {t.badge}</div>
         </div>
 
-        {/* Price */}
-        <div style={{
-          textAlign: "center", padding: "14px 0", marginBottom: 16,
-          borderTop: "1px solid #182040", borderBottom: "1px solid #182040",
-        }}>
-          <span style={{ color: "#5B7BFF", fontSize: 28, fontWeight: 800 }}>{t.price}</span>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <div style={{ fontSize: 40, marginBottom: 10 }}>⚡</div>
+          <h2 style={{ color: '#E2E8FF', fontSize: 19, margin: '0 0 6px', fontWeight: 800, letterSpacing:'-0.02em' }}>{t.title}</h2>
+          <p style={{ color: '#5A6890', fontSize: 13, margin: 0 }}>{t.subtitle}</p>
         </div>
 
         {/* Features */}
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 20, background:'rgba(255,255,255,0.03)', borderRadius:12, padding:'14px 16px', border:'1px solid #1E2448' }}>
           {t.features.map((f, i) => (
-            <div key={i} style={{ color: "#C5D0F0", fontSize: 13, padding: "5px 0", lineHeight: 1.5 }}>{f}</div>
+            <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'6px 0', borderBottom: i<t.features.length-1?'1px solid #1A2040':'none' }}>
+              <span style={{ fontSize:14 }}>{f.icon}</span>
+              <span style={{ color: '#C5D0F0', fontSize: 13 }}>{f.text}</span>
+            </div>
           ))}
         </div>
 
-        {/* CTA */}
-        <button onClick={handleCheckout} style={{
-          width: "100%", padding: "14px", background: "#5B7BFF",
-          border: "none", borderRadius: 10, color: "#fff",
-          fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
-          marginBottom: 10,
-        }}>{t.cta}</button>
+        {/* Price + CTA */}
+        <button
+          onClick={handleCheckout}
+          onMouseEnter={()=>setHov(true)}
+          onMouseLeave={()=>setHov(false)}
+          style={{
+            width: '100%', padding: '15px', marginBottom: 8,
+            background: hov ? 'linear-gradient(135deg,#818CF8,#A78BFA)' : 'linear-gradient(135deg,#6366F1,#8B5CF6)',
+            border: 'none', borderRadius: 12, color: '#fff',
+            fontSize: 16, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+            boxShadow: '0 8px 32px rgba(99,102,241,0.4)',
+            transition: 'all 0.2s',
+            transform: hov ? 'translateY(-1px)' : 'none',
+          }}>
+          {ctaLabel}
+        </button>
+        <div style={{ textAlign:'center', color:'#4A5880', fontSize:12, marginBottom:10 }}>{t.price}</div>
+        <div style={{ textAlign:'center', color:'#3A4870', fontSize:11, marginBottom:14 }}>{t.cancel}</div>
 
         {/* Free reset */}
-        <div style={{ textAlign: "center", color: "#4A5880", fontSize: 11, marginBottom: 10 }}>{t.free}</div>
+        <div style={{ textAlign: 'center', color: '#3A4870', fontSize: 11, marginBottom: 12 }}>{t.free}</div>
 
         {/* Close */}
         <button onClick={onClose} style={{
-          width: "100%", padding: "10px", background: "transparent",
-          border: "1px solid #182040", borderRadius: 10, color: "#4A5880",
-          fontSize: 13, cursor: "pointer", fontFamily: "inherit",
-        }}>{t.close}</button>
+          width: '100%', padding: '10px', background: 'transparent',
+          border: '1px solid #1E2448', borderRadius: 10, color: '#4A5880',
+          fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', transition:'all 0.15s',
+        }}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor='#3A4870';e.currentTarget.style.color='#8A9CC0';}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='#1E2448';e.currentTarget.style.color='#4A5880';}}
+        >{t.close}</button>
       </div>
     </div>
   );

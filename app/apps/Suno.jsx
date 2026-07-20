@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { BackBtn, Label, callAI } from './shared';
 
 const C = {
@@ -17,9 +17,7 @@ const C = {
 const GENRES = ["Pop","Rock","Jazz","Lo-fi","Electronic","Hip-hop","Classical","R&B","Ambient","Folk","Metal","Soul"];
 const MOODS  = ["明るい","切ない","エネルギッシュ","穏やか","ロマンチック","ダーク","エピック","懐かしい"];
 const VOCALS = ["女性ボーカル","男性ボーカル","インストゥルメンタル","コーラス"];
-
-const NOTES = [261.63,329.63,392.00,523.25,659.25,783.99];
-const WAVE_TYPES = ["sine","triangle","sawtooth"];
+const NOTES  = [261.63,329.63,392.00,523.25,659.25,783.99];
 
 export default function Suno() {
   const [prompt, setPrompt]       = useState('');
@@ -54,10 +52,7 @@ export default function Suno() {
     masterGain.gain.setValueAtTime(0.07, ctx.currentTime);
     masterGain.connect(ctx.destination);
 
-    const chord = [0, 2, 4].map(i => NOTES[i % NOTES.length]);
-    const melody = [0,2,4,5,4,2,0,2].map(i => NOTES[i]);
-
-    chord.forEach((freq, i) => {
+    [0, 2, 4].map(i => NOTES[i]).forEach((freq, i) => {
       const osc = ctx.createOscillator();
       osc.type = "sine";
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
@@ -70,7 +65,7 @@ export default function Suno() {
       nodesRef.current.push(osc);
     });
 
-    melody.forEach((freq, i) => {
+    [0,2,4,5,4,2,0,2].map(i => NOTES[i]).forEach((freq, i) => {
       const osc = ctx.createOscillator();
       osc.type = "triangle";
       osc.frequency.setValueAtTime(freq * 2, ctx.currentTime + i * 0.4);
@@ -102,7 +97,7 @@ export default function Suno() {
 【DESCRIPTION】楽曲の雰囲気を詩的に1〜2文で説明
 【LYRICS】
 [イントロ]
-イントロの歌詞やフレーズ
+イントロのフレーズ
 
 [Aメロ]
 Aメロの歌詞（4〜6行）
@@ -125,8 +120,8 @@ Bメロの歌詞（3〜4行）
 歌詞は感情的でリズミカルに。英語・日本語どちらでも、または混ぜても構いません。`;
 
     const userPrompt = `楽曲のテーマ：${prompt}${style ? `\nスタイル：${style}` : ''}`;
-
     const result = await callAI(system, userPrompt, 1000);
+    if (!result) { setLoading(false); setActiveTab('create'); return; }
 
     const titleM = result.match(/【TITLE】([^\n]+)/);
     const tagsM  = result.match(/【TAGS】([^\n]+)/);
@@ -143,10 +138,8 @@ Bメロの歌詞（3〜4行）
     const imgUrl = `https://image.pollinations.ai/prompt/${imgQ}?width=256&height=256&nologo=true&seed=${seed}`;
 
     setSongs(p => [{
-      id: seed,
-      title, tags, description, lyrics, imgUrl, prompt,
+      id: seed, title, tags, description, lyrics, imgUrl, prompt,
       duration: Math.floor(Math.random() * 90 + 150),
-      genres: [...genres], mood, vocal,
     }, ...p]);
 
     setLoading(false);
@@ -158,13 +151,12 @@ Bメロの歌詞（3〜4行）
     <div style={{ maxWidth: 720, margin: "0 auto", minHeight: "100vh", padding: "0 0 80px" }}>
       <style>{`
         @keyframes wave { from{height:6px} to{height:28px} }
-        @keyframes spin { to{transform:rotate(360deg)} }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+        @keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
         .play-btn:hover { opacity:0.85; transform:scale(1.05); }
-        .song-card:hover { border-color: #2E2E50 !important; }
         .tag-btn:hover { opacity:0.8; }
         .tab-btn { transition: all 0.2s; }
+        .example-btn:hover { background: #1A1A28 !important; }
       `}</style>
 
       {/* Top Nav */}
@@ -181,13 +173,12 @@ Bメロの歌詞（3〜4行）
             }}>{l}</button>
           ))}
         </div>
-        <div style={{ fontSize: 20, color: C.accent, animation: "float 3s ease-in-out infinite" }}>🎼</div>
+        <span style={{ fontSize: 20, color: C.accent, animation: "floatIcon 3s ease-in-out infinite" }}>🎼</span>
       </div>
 
       {/* Hero */}
       <div style={{ textAlign: "center", padding: "28px 16px 20px" }}>
-        <div style={{ display: "inline-block", fontSize: 48, marginBottom: 10,
-          filter: "drop-shadow(0 0 20px #8B5CF688)" }}>🎵</div>
+        <div style={{ fontSize: 48, marginBottom: 10, filter: "drop-shadow(0 0 20px #8B5CF688)" }}>🎵</div>
         <h1 style={{
           margin: "0 0 8px", fontSize: 32, fontWeight: 900, letterSpacing: "-1px",
           background: `linear-gradient(135deg, ${C.accent}, ${C.accent2}, ${C.accent3})`,
@@ -209,7 +200,7 @@ Bメロの歌詞（3〜4行）
               <textarea
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
-                placeholder="例：夜の海辺を歩きながら思い出す、切ない初恋の歌&#10;例：友達と過ごした夏の終わりを歌ったポップソング"
+                placeholder={"例：夜の海辺を歩きながら思い出す、切ない初恋の歌\n例：友達と過ごした夏の終わりを歌ったポップソング"}
                 rows={4}
                 style={{
                   width: "100%", padding: "14px", background: "#07070F",
@@ -286,7 +277,6 @@ Bメロの歌詞（3〜4行）
             </button>
           </div>
 
-          {/* Quick Examples */}
           <div style={{ marginBottom: 20 }}>
             <div style={{ color: C.muted, fontSize: 11, marginBottom: 10 }}>サンプルプロンプト</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -296,7 +286,7 @@ Bメロの歌詞（3〜4行）
                 "AI時代に人間らしさを問う哲学的なヒップホップ",
                 "雨の日にカフェで飲むコーヒーのような落ち着く曲",
               ].map(ex => (
-                <button key={ex} onClick={() => setPrompt(ex)} style={{
+                <button key={ex} className="example-btn" onClick={() => setPrompt(ex)} style={{
                   padding: "10px 14px", background: C.card2, border: `1px solid ${C.border}`,
                   borderRadius: 10, color: C.text, fontSize: 13, cursor: "pointer",
                   textAlign: "left", fontFamily: "inherit", transition: "all 0.15s",
@@ -353,7 +343,12 @@ Bメロの歌詞（3〜4行）
               isPlaying={playingId === song.id}
               onPlay={() => playDemo(song.id)}
               fmt={fmt}
-              C={C}
+              accent={C.accent}
+              accent2={C.accent2}
+              card={C.card}
+              border={C.border}
+              text={C.text}
+              muted={C.muted}
             />
           ))}
         </div>
@@ -362,28 +357,26 @@ Bメロの歌詞（3〜4行）
   );
 }
 
-function SongCard({ song, isPlaying, onPlay, fmt, C }) {
+function SongCard({ song, isPlaying, onPlay, fmt, accent, accent2, card, border, text, muted }) {
   const [showLyrics, setShowLyrics] = useState(false);
   const [imgLoaded, setImgLoaded]   = useState(false);
-  const [progress, setProgress]     = useState(0);
 
-  // fake progress bar when playing
-  useState(() => {
+  useEffect(() => {
     if (!isPlaying) return;
-    const t = setInterval(() => setProgress(p => (p+1)%100), 60);
-    return () => clearInterval(t);
-  });
+    const timer = setTimeout(() => {}, 6200);
+    return () => clearTimeout(timer);
+  }, [isPlaying]);
 
   return (
     <div className="song-card" style={{
-      background: C.card, border: `1px solid ${isPlaying ? C.accent+"66" : C.border}`,
-      borderRadius: 16, overflow: "hidden", marginBottom: 12, transition: "border-color 0.3s",
-      boxShadow: isPlaying ? `0 0 30px ${C.accent}22` : "none",
+      background: card, border: `1px solid ${isPlaying ? accent+"66" : border}`,
+      borderRadius: 16, overflow: "hidden", marginBottom: 12, transition: "all 0.3s",
+      boxShadow: isPlaying ? `0 0 30px ${accent}22` : "none",
     }}>
-      <div style={{ display: "flex", gap: 0 }}>
-        {/* Art */}
+      <div style={{ display: "flex" }}>
+        {/* Album Art */}
         <div style={{ width: 90, minHeight: 90, flexShrink: 0, position: "relative",
-          background: `linear-gradient(135deg, ${C.accent}55, ${C.accent2}55)`,
+          background: `linear-gradient(135deg, ${accent}55, ${accent2}55)`,
           display: "flex", alignItems: "center", justifyContent: "center" }}>
           <img src={song.imgUrl} alt={song.title} onLoad={() => setImgLoaded(true)}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
@@ -403,61 +396,57 @@ function SongCard({ song, isPlaying, onPlay, fmt, C }) {
 
         {/* Info */}
         <div style={{ flex: 1, padding: "12px 14px", minWidth: 0 }}>
-          <div style={{ color: C.text, fontWeight: 700, fontSize: 14,
+          <div style={{ color: text, fontWeight: 700, fontSize: 14,
             marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {song.title}
           </div>
           {song.description && (
-            <div style={{ color: C.muted, fontSize: 11, marginBottom: 6, lineHeight: 1.5,
+            <div style={{ color: muted, fontSize: 11, marginBottom: 6, lineHeight: 1.5,
               overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical" }}>{song.description}</div>
           )}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 10 }}>
             {song.tags.slice(0,4).map((tag, i) => (
               <span key={i} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10,
-                background: i===0 ? C.accent+"33" : C.border,
-                color: i===0 ? C.accent : C.muted }}>
+                background: i===0 ? accent+"33" : border,
+                color: i===0 ? accent : muted }}>
                 {tag}
               </span>
             ))}
           </div>
 
-          {/* Player */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button onClick={onPlay} className="play-btn" style={{
               width: 30, height: 30, borderRadius: "50%", cursor: "pointer",
-              border: `1.5px solid ${C.accent}`, background: isPlaying ? C.accent : "transparent",
-              color: isPlaying ? "#fff" : C.accent, fontSize: 12,
+              border: `1.5px solid ${accent}`, background: isPlaying ? accent : "transparent",
+              color: isPlaying ? "#fff" : accent, fontSize: 12,
               display: "flex", alignItems: "center", justifyContent: "center",
               transition: "all 0.2s", flexShrink: 0,
             }}>
               {isPlaying ? "⏸" : "▶"}
             </button>
 
-            {/* Waveform */}
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 2, height: 24 }}>
               {[...Array(22)].map((_, i) => (
                 <div key={i} style={{
-                  width: 2.5, borderRadius: 2,
-                  minHeight: 3,
+                  width: 2.5, borderRadius: 2, minHeight: 3,
                   height: `${30 + Math.sin(i*0.9+1)*15}%`,
-                  background: isPlaying ? C.accent : C.border,
+                  background: isPlaying ? accent : border,
                   animation: isPlaying ? `wave 0.6s ${i*0.045}s infinite alternate` : "none",
                   transition: "background 0.3s",
                 }} />
               ))}
             </div>
 
-            <span style={{ color: C.muted, fontSize: 10, flexShrink: 0 }}>{fmt(song.duration)}</span>
+            <span style={{ color: muted, fontSize: 10, flexShrink: 0 }}>{fmt(song.duration)}</span>
           </div>
         </div>
       </div>
 
-      {/* Lyrics toggle */}
-      <div style={{ borderTop: `1px solid ${C.border}` }}>
+      <div style={{ borderTop: `1px solid ${border}` }}>
         <button onClick={() => setShowLyrics(s => !s)} style={{
           width: "100%", padding: "9px 14px", background: "none", border: "none",
-          color: C.muted, fontSize: 11, cursor: "pointer", textAlign: "left",
+          color: muted, fontSize: 11, cursor: "pointer", textAlign: "left",
           fontFamily: "inherit", display: "flex", justifyContent: "space-between",
           alignItems: "center", letterSpacing: "0.06em",
         }}>
@@ -466,9 +455,9 @@ function SongCard({ song, isPlaying, onPlay, fmt, C }) {
             transform: showLyrics ? "rotate(180deg)" : "none" }}>▼</span>
         </button>
         {showLyrics && (
-          <div style={{ padding: "0 16px 16px", color: C.text, fontSize: 13,
+          <div style={{ padding: "14px 16px 16px", color: text, fontSize: 13,
             lineHeight: 2.1, whiteSpace: "pre-wrap",
-            borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+            borderTop: `1px solid ${border}` }}>
             {song.lyrics}
           </div>
         )}
