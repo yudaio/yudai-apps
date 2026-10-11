@@ -12,7 +12,6 @@ import Biz from '../apps/Biz';
 import Side from '../apps/Side';
 import Marry from '../apps/Marry';
 import Untangle from '../apps/Untangle';
-import Konoka from '../apps/Konoka';
 import Koe from '../apps/Koe';
 import Kokoro from '../apps/Kokoro';
 import Suno from '../apps/Suno';
@@ -45,11 +44,10 @@ import Hsp from '../apps/Hsp';
 import Kojire from '../apps/Kojire';
 
 // UNTANGLE_MARKER_XK9Z2
-const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, konoka: Konoka, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep, kiku: Kiku, stress: Stress, kakeibo: Kakeibo, morahara: Morahara, yakuin: Yakuin, rikon: Rikon, souzoku: Souzoku, uwaki: Uwaki, fudosan: Fudosan, errcheck: ErrorCheck, hsp: Hsp, kojire: Kojire };
+const APPS = { fate: Fate, muda: Muda, vending: Vending, genki: Genki, monster: Monster, books: Books, rant: Rant, dream: Dream, yamato: Yamato, biz: Biz, side: Side, marry: Marry, untangle: Untangle, koe: Koe, kokoro: Kokoro, suno: Suno, growth: GrowthTracker, faceglow: FaceGlow, coach: Coach, tarot: Tarot, fortune: Fortune, eigo: Eigo, vocab: Vocab, poem: Poem, aiai: Aiai, message: Message, recipe: Recipe, travel: Travel, interview: Interview, selfintro: SelfIntro, sleep: Sleep, kiku: Kiku, stress: Stress, kakeibo: Kakeibo, morahara: Morahara, yakuin: Yakuin, rikon: Rikon, souzoku: Souzoku, uwaki: Uwaki, fudosan: Fudosan, errcheck: ErrorCheck, hsp: Hsp, kojire: Kojire };
 
 const APP_META = {
   koe:     { title: '声の遺産',      description: '大切な人の言葉を登録 → いつでも話しかけられる追悼AIチャット。声と記憶を永遠に残す。' },
-  konoka:  { title: 'このちゃんAI',  description: '日向坂46・松田好花の話し方をAIが再現。ファン必見のAIチャットボット。' },
   untangle:{ title: 'Untangle',      description: '人生の「足かせ」をAIカウンセラーが対話で解きほぐすカウンセリングアプリ。' },
   fate:    { title: '運命診断',      description: '統計と心理学があなたのビジョンを解析。あなたの本質と転機を暴く運命診断。' },
   marry:   { title: '婚活診断',      description: 'AI面接官があなたの婚活力を10項目でスコア診断。婚活戦略を見える化。' },
