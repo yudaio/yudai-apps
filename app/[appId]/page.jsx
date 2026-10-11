@@ -93,6 +93,11 @@ const APP_META = {
   kojire:    { title: 'AI修復師', description: 'こじれた人間関係をAIが分析。相手の本音・修復難易度スコア・今すぐ送れるメッセージ案・NG行動リストを提案。友人・恋人・家族・職場に対応。' },
 };
 
+export const dynamicParams = false;
+export function generateStaticParams() {
+  return Object.keys(APPS).map((appId) => ({ appId }));
+}
+
 export function generateMetadata({ params }) {
   const meta = APP_META[params?.appId];
   if (!meta) return { title: 'YUDAI APPS' };
