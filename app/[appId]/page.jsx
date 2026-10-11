@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import Fate from '../apps/Fate';
 import Muda from '../apps/Muda';
 import Vending from '../apps/Vending';
@@ -109,7 +110,7 @@ export function generateMetadata({ params }) {
 export default function AppPage({ params }) {
   const { appId } = params;
   const App = APPS[appId];
-  if (!App) return <div style={{ color: '#E2E8FF', padding: 32 }}>Not found</div>;
+  if (!App) notFound();
   return (
     <div style={{ padding: '12px 16px 40px' }}>
       <Link href="/" style={{
