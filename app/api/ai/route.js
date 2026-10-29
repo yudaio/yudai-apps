@@ -1,6 +1,24 @@
+import { rateLimitResponse } from "../../../lib/rate-limit";
+
+// ブラウザから system / messages がそのまま届くので、APIキーを踏み台にされないよう大きさを縛る
+const MAX_TOKENS_CAP = 1500;
+const MAX_INPUT_CHARS = 20000;
+const MAX_MESSAGES = 40;
+
 export async function POST(req) {
-  const { system, messages, user, max = 700 } = await req.json();
+  const { system, messages, user, max: rawMax = 700 } = await req.json();
   const msgs = messages ?? [{ role: "user", content: user }];
+  const max = Math.min(Math.max(Number(rawMax) || 700, 50), MAX_TOKENS_CAP);
+
+  const validRoles = Array.isArray(msgs) && msgs.length > 0 && msgs.length <= MAX_MESSAGES
+    && msgs.every(m => (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
+  const inputChars = (typeof system === "string" ? system.length : 0) + (validRoles ? msgs.reduce((n, m) => n + m.content.length, 0) : 0);
+  if (!validRoles || (system != null && typeof system !== "string") || inputChars > MAX_INPUT_CHARS) {
+    return Response.json({ text: "エラーが発生しました：入力が長すぎるか、形式が正しくありません。" }, { status: 400 });
+  }
+
+  const limited = rateLimitResponse(req);
+  if (limited) return limited;
 
   // ── 1. Anthropic Claude（残高があれば最優先）────────────────────────────
   if (process.env.ANTHROPIC_API_KEY) {
