@@ -1,3 +1,4 @@
+import { rateLimitResponse } from "../../../lib/rate-limit";
 const SYSTEM = `あなたは個人成長トラッカーAIです。ユーザーの今日の行動報告を評価し、13軸のスコア変化をJSONのみで返します。
 
 【13軸の定義】
@@ -26,6 +27,8 @@ const SYSTEM = `あなたは個人成長トラッカーAIです。ユーザー�
 {"changes":{"appearance":0.0,"physique":0.0,"english":0.0,"skills":0.0,"income":0.0,"action":0.0,"creativity":0.0,"presence":0.0,"attraction":0.0,"health":0.0,"intellect":0.0,"social":0.0,"mental":0.0},"comment":"1〜2文の評価","highlight":"最も評価できた行動"}`;
 
 export async function POST(req) {
+  const limited = rateLimitResponse(req);
+  if (limited) return limited;
   const { tasks, scores } = await req.json();
   if (!tasks) return Response.json({ error: 'tasks required' }, { status: 400 });
 
@@ -38,7 +41,7 @@ export async function POST(req) {
       const r = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 600, system: SYSTEM, messages: [{ role: 'user', content: userMsg }] }),
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 600, system: SYSTEM, messages: [{ role: 'user', content: userMsg }] }),
       });
       const data = await r.json();
       const text = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';

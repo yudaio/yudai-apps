@@ -1,6 +1,17 @@
+import { rateLimitResponse } from "../../../lib/rate-limit";
+
 export async function POST(req) {
   const { system, imageBase64, mediaType = "image/jpeg", claudeKey } = await req.json();
   const apiKey = claudeKey || process.env.ANTHROPIC_API_KEY;
+
+  // 利用者が自分のキーを渡した場合はこちらの費用がかからないので制限しない
+  if (!claudeKey) {
+    const limited = rateLimitResponse(req);
+    if (limited) return limited;
+  }
+  if (typeof imageBase64 !== "string" || imageBase64.length > 7_000_000) {
+    return Response.json({ text: "エラー: 画像が大きすぎます（5MBまで）。" }, { status: 400 });
+  }
 
   if (!apiKey) {
     return Response.json({ text: "エラー: APIキーが設定されていません。" }, { status: 400 });

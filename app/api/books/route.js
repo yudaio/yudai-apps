@@ -1,5 +1,8 @@
+import { rateLimitResponse } from "../../../lib/rate-limit";
 // /api/books — Google Books API連携 + Claude推薦（フォールバック付き）
 export async function POST(req) {
+  const limited = rateLimitResponse(req);
+  if (limited) return limited;
   const { input, lang } = await req.json();
 
   // Step1: Claudeに検索クエリ＋直接推薦を同時生成
@@ -33,7 +36,7 @@ Do two things:
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 700,
       messages: [{ role: "user", content: step1Prompt }],
     }),

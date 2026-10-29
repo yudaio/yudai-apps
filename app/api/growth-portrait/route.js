@@ -1,3 +1,4 @@
+import { rateLimitResponse } from "../../../lib/rate-limit";
 const SYSTEM = `あなたは鋭い人物分析AIです。ユーザーのスコアデータを見て、現在の状態を歴史上の人物・出来事・生き物・比喩を使って表現します。教養が深まる表現を使ってください。
 
 【出力形式】JSONのみ。他のテキスト一切不要。
@@ -14,6 +15,8 @@ const SYSTEM = `あなたは鋭い人物分析AIです。ユーザーのスコ�
 }`;
 
 export async function POST(req) {
+  const limited = rateLimitResponse(req);
+  if (limited) return limited;
   const { scores } = await req.json();
   const scoreText = Object.entries(scores).map(([k, v]) => `${k}: ${v}`).join(', ');
   const userMsg = `このユーザーの13軸スコアを分析してください:\n${scoreText}\n\n特に注目: 発信力(presence)が低い、英語力(english)は高い、知性(intellect)は中程度以上だが行動力(action)がそれに追いついていない可能性がある。辛口かつ教養深い分析をしてください。`;
@@ -25,7 +28,7 @@ export async function POST(req) {
       const r = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYSTEM, messages: [{ role: 'user', content: userMsg }] }),
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: SYSTEM, messages: [{ role: 'user', content: userMsg }] }),
       });
       const data = await r.json();
       const text = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';
