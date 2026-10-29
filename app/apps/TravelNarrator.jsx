@@ -13,7 +13,7 @@ export default function TravelNarrator() {
 
   const run = async () => {
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `Amazon商品「${product}」を持って「${destination}」へ旅行するシナリオを${style}なスタイルで物語化してください。\n\nJSONのみ返答:\n{"title":"物語タイトル30字","narrative":"旅の物語300字","highlight":"この商品が旅を変えた瞬間100字","hashtags":["SNS用ハッシュタグ5つ"]}` }])
+    const text = await callAI('travel', { product, destination, style })
     try { setResult(JSON.parse(text.replace(/```json|```/g, '').trim())) }
     catch { setResult({ title: '旅の物語', narrative: text, highlight: '', hashtags: [] }) }
     setLoading(false)

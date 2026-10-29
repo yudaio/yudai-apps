@@ -34,12 +34,19 @@ export function Label({ children }) {
   return <p style={{ fontSize: 11, letterSpacing: 2, color: colors.muted, marginBottom: 8, textTransform: 'uppercase' }}>{children}</p>
 }
 
-export async function callAI(messages, system) {
-  const res = await fetch('/api/ai', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, ...(system ? { system } : {}) })
-  })
-  const data = await res.json()
-  return data.content[0].text
+// プロンプトはサーバー側（lib/prompts.js）で組み立てる。ここからは appId と入力値だけを送る。
+// 失敗時は例外を投げずにエラー文を返す（各アプリは JSON でなければ本文をそのまま表示する）。
+export async function callAI(appId, input) {
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ appId, input })
+    })
+    const data = await res.json()
+    if (!res.ok) return `⚠️ ${data.error || 'エラーが発生しました'}`
+    return data.text
+  } catch {
+    return '⚠️ 通信に失敗しました。もう一度試してください。'
+  }
 }

@@ -10,7 +10,7 @@ export default function LifeOfThings() {
 
   const run = async () => {
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `Amazon商品「${product}」が所有者「${owner || 'その人'}」と共に過ごす一生を、商品の視点から語る物語を生成してください。\n\nJSONのみ返答:\n{"chapters":[{"title":"章タイトル","content":"内容100字"}],"chapters"は4つ,"epitaph":"商品の墓碑銘30字","bond_score":0〜100}` }])
+    const text = await callAI('life', { product, owner })
     try { setResult(JSON.parse(text.replace(/```json|```/g, '').trim())) }
     catch { setResult({ chapters: [{ title: '物語', content: text }], epitaph: '', bond_score: 70 }) }
     setLoading(false)

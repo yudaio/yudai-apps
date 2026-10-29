@@ -11,7 +11,7 @@ export default function ReviewIntelligence() {
   const run = async () => {
     if (!reviews.trim()) return
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `以下のAmazonレビューを分析してください。ASIN: ${asin || '不明'}\n\nレビュー:\n${reviews}\n\n以下のJSONのみ返答（他テキスト不要）:\n{"sentiment_score":0〜100の数値,"positive":["ポジティブ要点を3つ"],"negative":["ネガティブ要点を3つ"],"keywords":["頻出キーワード5つ"],"summary":"総評150字","recommendation":"改善提案100字"}` }])
+    const text = await callAI('review', { asin, reviews })
     try { setResult(JSON.parse(text.replace(/```json|```/g, '').trim())) }
     catch { setResult({ summary: text, sentiment_score: 50, positive: [], negative: [], keywords: [], recommendation: '' }) }
     setLoading(false)

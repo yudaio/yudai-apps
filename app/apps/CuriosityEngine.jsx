@@ -11,7 +11,7 @@ export default function CuriosityEngine() {
 
   const run = async () => {
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `Amazon商品「${product}」を起点に、${interests ? `ユーザーの興味(${interests})と絡めながら` : ''}知的好奇心を刺激する意外なつながりを発見してください。\n\nJSONのみ返答:\n{"connections":[{"title":"つながり30字","domain":"分野","insight":"面白い考察150字","depth":"浅/中/深"}],"connections"は5つ,"rabbit_hole":"最も深掘りすべきトピック50字"}` }])
+    const text = await callAI('curiosity', { product, interests })
     try { setResult(JSON.parse(text.replace(/```json|```/g, '').trim())) }
     catch { setResult({ connections: [{ title: '発見', domain: '知識', insight: text, depth: '中' }], rabbit_hole: '' }) }
     setLoading(false)

@@ -11,7 +11,7 @@ export default function Books() {
 
   const run = async () => {
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `状況: ${situation}\nジャンル: ${genre || '問わない'}\n\n今の状況に最適な本を3〜5冊推薦。JSONのみ:\n{"books":[{"title":"書名(日本語)","author":"著者","reason":"なぜ今この本か100字","isbn":"ISBNコード(13桁)","genre":"ジャンル"}]}` }])
+    const text = await callAI('books', { situation, genre })
     try {
       const r = JSON.parse(text.replace(/```json|```/g, '').trim())
       setResult(r); saveHistory(user, supabase, 'books', `${situation}/${genre}`, r)

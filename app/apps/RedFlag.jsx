@@ -12,7 +12,7 @@ export default function RedFlag() {
   const run = async (q = query) => {
     if (!q.trim()) return
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `Amazon「${q}」の危険な商品・詐欺的商品の見分け方を教えてください。\n\nJSONのみ返答:\n{"danger_score":0〜100,"red_flags":["危険サイン5つ"],"safe_signs":["安全なサイン3つ"],"checklist":["購入前チェック項目4つ"],"verdict":"一言警告または推奨20字"}` }])
+    const text = await callAI('redflag', { q })
     try { setResult(JSON.parse(text.replace(/```json|```/g, '').trim())) }
     catch { setResult({ danger_score: 50, red_flags: [], safe_signs: [], checklist: [], verdict: text.slice(0, 50) }) }
     setLoading(false)

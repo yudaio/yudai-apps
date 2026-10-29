@@ -10,7 +10,7 @@ export default function Fate() {
 
   const run = async () => {
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `名前: ${name}\n悩み: ${worry}\n\n以下3セクションでJSON返答(他テキスト不要):\n{"statistical":"統計的傾向の分析150字","psychological":"心理学的考察150字","guidance":"今後の指針150字","fortune":"運勢ひとこと30字"}` }])
+    const text = await callAI('fate', { name, worry })
     try {
       const r = JSON.parse(text.replace(/```json|```/g, '').trim())
       setResult(r)

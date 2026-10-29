@@ -10,7 +10,7 @@ export default function ReturnPredictor() {
 
   const run = async () => {
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `Amazon購入の返品リスクを予測してください。\n商品: ${form.product}\n価格: ${form.price}円\nレビュー概要: ${form.reviews}\n購入理由: ${form.reason}\n\nJSONのみ返答:\n{"return_risk":0〜100,"risk_level":"低/中/高","factors":["リスク要因3つ"],"advice":"購入アドバイス150字","verdict":"一言判定20字"}` }])
+    const text = await callAI('return', form)
     try { setResult(JSON.parse(text.replace(/```json|```/g, '').trim())) }
     catch { setResult({ return_risk: 50, risk_level: '中', factors: [], advice: text, verdict: '要検討' }) }
     setLoading(false)

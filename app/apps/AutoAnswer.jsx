@@ -13,7 +13,7 @@ export default function AutoAnswer() {
   const run = async (q = question) => {
     if (!product.trim() || !q.trim()) return
     setLoading(true)
-    const text = await callAI([{ role: 'user', content: `Amazon商品「${product}」に対するQ&A回答を生成してください。\n\n質問: ${q}\n\n以下のJSONのみ返答:\n{"answer":"丁寧な回答200字","confidence":0〜100,"tags":["関連タグ2〜3個"]}` }])
+    const text = await callAI('qa', { product, q })
     try {
       const r = JSON.parse(text.replace(/```json|```/g, '').trim())
       setResults(prev => [{ q, ...r }, ...prev].slice(0, 5))

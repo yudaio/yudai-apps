@@ -9,7 +9,7 @@ export default function Monster() {
 
   const run = async () => {
     setLoading(true); setResult(null); setImgUrl('')
-    const text = await callAI([{ role: 'user', content: `日記:\n${diary}\n\nこの感情からモンスターを召喚。JSONのみ:\n{"name":"モンスター名(日本語)","type":"属性(例:怒火/悲哀/孤独)","description":"外見と雰囲気50字","skills":["スキル名:説明"],"catchphrase":"モンスターの一言30字","rarity":"common|rare|epic|legendary"}` }])
+    const text = await callAI('monster', { diary })
     try {
       const r = JSON.parse(text.replace(/```json|```/g, '').trim())
       setResult(r)

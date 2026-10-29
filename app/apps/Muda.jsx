@@ -9,7 +9,7 @@ export default function Muda() {
 
   const run = async () => {
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `ルーティン:\n${routine}\n\n認知負荷研究に基づき分析。JSONのみ返答:\n{"delete":[{"item":"項目","reason":"削除理由"}],"optimize":[{"item":"項目","reason":"最適化方法"}],"keep":[{"item":"項目","reason":"維持理由"}],"summary":"総評100字"}` }])
+    const text = await callAI('muda', { routine })
     try {
       const r = JSON.parse(text.replace(/```json|```/g, '').trim())
       setResult(r); saveHistory(user, supabase, 'muda', routine, r)

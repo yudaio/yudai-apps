@@ -9,7 +9,7 @@ export default function Rant() {
 
   const run = async () => {
     setLoading(true); setResult(null)
-    const text = await callAI([{ role: 'user', content: `テーマ: ${theme}\n\nこの社会問題・理不尽を3視点で解剖。JSONのみ:\n{"philosophical":"哲学的視点150字","data":"データ的視点150字","human":"人間的視点150字","question":"読者への哲学的問いかけ50字","headline":"見出し30字"}` }])
+    const text = await callAI('rant', { theme })
     try {
       const r = JSON.parse(text.replace(/```json|```/g, '').trim())
       setResult(r); saveHistory(user, supabase, 'rant', theme, r)

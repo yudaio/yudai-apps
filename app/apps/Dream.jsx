@@ -9,7 +9,7 @@ export default function Dream() {
 
   const run = async () => {
     setLoading(true); setResult(null); setImgUrl('')
-    const text = await callAI([{ role: 'user', content: `夢の断片:\n${dream}\n\n詩的に記録。JSONのみ:\n{"title":"夢のタイトル20字","prose":"映像詩200字(断片を詩的散文に)","emotion":"感情考察100字","symbol":"夢に現れた象徴の意味50字","imagePrompt":"English image generation prompt for this dream scene"}` }])
+    const text = await callAI('dream', { dream })
     try {
       const r = JSON.parse(text.replace(/```json|```/g, '').trim())
       setResult(r)
